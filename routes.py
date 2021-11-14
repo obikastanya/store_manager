@@ -12,10 +12,6 @@ def productSoldPage():
 def productPurchasedPage():
     return render_template('product_purchased.html')
 
-@app.route('/master')
-def masterPage():
-    return render_template('master.html')
-
 @app.route('/manage-discount')
 def manageDiscountPage():
     return render_template('manage_discount.html')
