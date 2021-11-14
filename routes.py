@@ -1,5 +1,7 @@
 from flask import render_template
 from app import app
+
+"""Contain all route that return html as responses"""
 @app.route('/')
 def dashboardPage():
     return render_template('dashboard.html')
