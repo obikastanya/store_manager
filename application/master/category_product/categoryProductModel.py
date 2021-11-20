@@ -17,5 +17,5 @@ class CategoryProductSchema(Schema):
     """Schema to retrieve data from Model Stock as dictionary.
     data_key is an alias for column name"""
     msc_id=fields.Int(data_key='category_id')
-    msc_desc=fields.Int(data_key='category')
-    msc_status_aktif=fields.Str(data_key='status_aktif')
+    msc_desc=fields.Str(data_key='category')
+    msc_active_status=fields.Str(data_key='active_status')

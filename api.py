@@ -1,14 +1,14 @@
-from os import abort
-from flask.wrappers import Request
 from flask import request, abort
 from app import app
 from application.master.baseMaster import *
 
 """Contain all api for the apps"""
-@app.route('/stock_action', methods=['POST','GET'])
-def stockApiEndPoint():
-    if request.method =='GET':
-        return StockController().select()
-    if request.method=='POST':
-        return StockController().insert()
-    abort(404)
+
+# Bellow is all route for master category product
+@app.route('/category_product_api', methods=['GET','POST'])
+def categoryProductApi():
+    if request.method== 'POST':
+        return CategoryProductController().insertNewData()
+    if request.method=='GET':
+        return CategoryProductController().getData()
+
