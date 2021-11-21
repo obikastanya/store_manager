@@ -1,12 +1,12 @@
 /** Class to save datatable config attributes, data class only. */
 class DatatableAttributes {
     buttonEdit = `<button type="button" class="btn btn-warning btn-edit-category-product" 
-                    onclick="new ModalForm().showModalCategoryProduct('id_modal_for_edit')">Edit</button>`
-    buttonDelete = `<button type="button" class="btn btn-danger " 
-                    onclick="new ModalForm().showModalCategoryProduct('id_modal_for_delete')"
+                    onclick="new ModalForm().showModalCategoryProduct('id_modal_for_edit')" value="_data_">Edit</button>`
+    buttonDelete = `<button type="button" class="btn btn-danger btn-delete-category-product" 
+                    onclick="new ModalForm().showModalCategoryProduct('id_modal_for_delete')" value="_data_"
                     >Delete</button>`
     buttonCreateNewData = `<button type="button" class="btn btn-success" 
-                            onclick="new ModalForm().showModalCategoryProduct('id_modal_for_add_new_data')"
+                            onclick="new ModalForm().showModalCategoryProduct('id_modal_for_add_new_data')" data="_data_"
                             >Add New Data</button>`
     tableColumns = [
         {
@@ -18,7 +18,9 @@ class DatatableAttributes {
         { data: 'active_status' },
         {
             data: null,
-            defaultContent: this.buttonEdit + '&nbsp;' + this.buttonDelete
+            render: ( data ) => {
+                return this.buttonEdit.replace( "_data_", data.category_id ) + '&nbsp;' + this.buttonDelete.replace( "_data_", data.category_id )
+            }
         }
     ]
     toolbarDomConfig = {
@@ -51,6 +53,7 @@ class ApiForDatatableCategoryProduct extends DatatableAttributes {
                 $( 'div.toolbar' ).html( this.buttonCreateNewData )
             }
         } )
+        new ModalButtonEvent().bindEventToDatatable( datatableCategoryProduct )
         this.addRowNumberToDatatable( datatableCategoryProduct )
     }
     reloadDatatable() {
@@ -82,6 +85,19 @@ class ModalButtonEvent {
         }
         new Ajax().sendRequestToSaveNewRecord( formAddNewValues )
     }
+    bindEventToDatatable( datatableCategoryProduct ) {
+        datatableCategoryProduct.on( 'click', '.btn-edit-category-product', function ( e ) {
+            console.log( e.target.value )
+            new ModalButtonEvent().showFormEditCategoryProduct()
+        } )
+        datatableCategoryProduct.on( 'click', '.btn-delete-category-product', function ( e ) {
+            new ModalButtonEvent().showFormDeleteCategoryProduct()
+        } )
+    }
+    showFormEditCategoryProduct() {
+
+    }
+    showFormDeleteCategoryProduct() { }
 }
 
 /**Class to manage event in modals likes showing modal, firing event when modal is hiding etc. */
@@ -113,6 +129,7 @@ class ModalForm {
     showModalCategoryProduct( idModal ) {
         // The modal wont show if we use pure javascript, the only way to make it work is using jquery.
         $( '#' + idModal ).modal( 'show' )
+        console.log( document.querySelector( '.btn-edit-category-product' ) )
     }
     hideModalCategoryProduct( idModal ) {
         // The modal wont hide if we use pure javascript, the only way to make it work is using jquery.

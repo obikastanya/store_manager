@@ -19,7 +19,6 @@ def testEmptyParameter():
     payload={'category':''}
     response=requests.post(host+'/category_product_api', json=payload)
     jsonResponse=response.json()
-    print('empyt ',jsonResponse)
     assert jsonResponse.get('status')==False
 
 @pytest.mark.insertFailed
@@ -30,7 +29,6 @@ def testMaxLength():
                 }
     response=requests.post(host+'/category_product_api', json=payload)
     jsonResponse=response.json()
-    print('maxLength ',jsonResponse)
     assert jsonResponse.get('status')==False
 
 @pytest.mark.insertFailed
@@ -41,9 +39,81 @@ def testMinLength():
     assert jsonResponse.get('status')==False
 
 # success insert case
-@pytest.mark.insertSuccessActive
+@pytest.mark.insertSuccess
 def testMinLength():
     payload={'category':'Category From Pytest'}
     response=requests.post(host+'/category_product_api', json=payload)
     jsonResponse=response.json()
     assert jsonResponse.get('status')==True
+
+#failed update case
+@pytest.mark.updateFailed
+def testEmptyCategoryId():
+    payload={'category':'this is new value', 'category_id':'', 'active_status':'Y'}
+    response=requests.put(host+'/category_product_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==False
+
+@pytest.mark.updateFailed
+def testEmptyActiveStatus():
+    payload={'category':'this is new value', 'category_id':'66', 'active_status':''}
+    response=requests.put(host+'/category_product_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==False
+
+
+@pytest.mark.updateFailed
+def testEmptyParameterOnUpdate():
+    payload={'category':'', 'category_id':'66', 'active_status':'Y'}
+    response=requests.put(host+'/category_product_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==False
+
+@pytest.mark.updateFailed
+def testMaxLengthOnUpdate():
+    payload={'category':"""Lorem ipsum dolor sit amet consectetur adipisicing elit. 
+    Dolorem commodi facere voluptatem earum dolor alias debitis laborum iste error adipisci? 
+    Vitae deleniti natus dignissimos illo Vitae deleniti natus dignissimos illo.""",'category_id':'66', 'active_status':'Y' 
+                }
+    response=requests.put(host+'/category_product_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==False
+
+@pytest.mark.updateFailed
+def testMinLengthOnUpdate():
+    payload={'category':'L', 'category_id':'66', 'active_status':'Y'}
+    response=requests.put(host+'/category_product_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==False
+
+@pytest.mark.updateSuccess
+def testSuccessOnUpdate():
+    payload={'category':'this is new value', 'category_id':'66', 'active_status':'Y'}
+    response=requests.put(host+'/category_product_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==True
+
+# select single data case
+@pytest.mark.selectSingleSuccess
+def testCategoryOnSelectSingle():
+    payload={'category_id':'66'}
+    response=requests.get(host+'/category_product_api_search', json=payload)
+    jsonResponse=response.json()
+    validResponse=jsonResponse.get('status')==True and bool(len(jsonResponse.get('data'))>0)
+    print('----------',jsonResponse)
+    assert validResponse==True
+
+@pytest.mark.selectSingleFailed
+def testNotFoundCategoryOnSelectSingle():
+    payload={'category_id':'000'}
+    response=requests.get(host+'/category_product_api_search', json=payload)
+    jsonResponse=response.json()
+    validResponse=jsonResponse.get('status')==False and bool(len(jsonResponse.get('data'))<1)
+    assert validResponse==True
+
+@pytest.mark.selectSingleFailed
+def testEmptyCategoryOnSelectSingle():
+    payload={'category_id':''}
+    response=requests.get(host+'/category_product_api_search', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==False
