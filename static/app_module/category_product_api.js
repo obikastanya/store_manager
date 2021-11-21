@@ -53,6 +53,9 @@ class ApiForDatatableCategoryProduct extends DatatableAttributes {
         } )
         this.addRowNumberToDatatable( datatableCategoryProduct )
     }
+    reloadDatatable() {
+        $( '#category_product_datatable_id' ).DataTable().ajax.reload()
+    }
 
     addRowNumberToDatatable( datatable ) {
         datatable.on( 'order.dt search.dt', function () {
@@ -90,6 +93,11 @@ class ModalForm {
             $( document ).on( 'hidden.bs.modal', '#' + idModal, () => {
                 this.enableAllModalButton()
             } )
+            if ( idModal == 'id_modal_for_add_new_data' ) {
+                $( document ).on( 'hidden.bs.modal', '#' + idModal, () => {
+                    this.setValueCategory( '' )
+                } )
+            }
         }
     }
     registerModalButtonEvent() {
@@ -103,8 +111,12 @@ class ModalForm {
         this.enableFormButton( '#new_data_save_button_id' )
     }
     showModalCategoryProduct( idModal ) {
-        var modal = new bootstrap.Modal( document.getElementById( idModal ) )
-        modal.show()
+        // The modal wont show if we use pure javascript, the only way to make it work is using jquery.
+        $( '#' + idModal ).modal( 'show' )
+    }
+    hideModalCategoryProduct( idModal ) {
+        // The modal wont hide if we use pure javascript, the only way to make it work is using jquery.
+        $( '#' + idModal ).modal( 'hide' );
     }
     addEventToModalButton( buttonSelector, eventCallback ) {
         let button = document.querySelector( buttonSelector )
@@ -115,6 +127,9 @@ class ModalForm {
     }
     enableFormButton( buttonSelector ) {
         document.querySelector( buttonSelector ).removeAttribute( 'disabled' )
+    }
+    setValueCategory( value ) {
+        document.querySelector( '#categoryFields' ).value = value
     }
 }
 /**Class to collecting data from a form . */
@@ -140,11 +155,14 @@ class Ajax {
             new ModalForm().enableAllModalButton()
             if ( response.status ) {
                 new Alert().successAjax( response.msg )
+                new ModalForm().hideModalCategoryProduct( 'id_modal_for_add_new_data' )
+                new ApiForDatatableCategoryProduct().reloadDatatable()
                 return
             }
             new Alert().failedAjax( response.msg )
         }
         const onFail = ( error ) => {
+            console.log( error )
             new Alert().error()
         }
 
