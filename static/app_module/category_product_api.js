@@ -1,3 +1,4 @@
+/** Class to save datatable config attributes, data class only. */
 class DatatableAttributes {
     buttonEdit = `<button type="button" class="btn btn-warning btn-edit-category-product" 
                     onclick="new ModalForm().showModalCategoryProduct('id_modal_for_edit')">Edit</button>`
@@ -34,6 +35,7 @@ class DatatableAttributes {
     }
 }
 
+/** Class to manage datatable, set configuration, do ajax to retrieve data etc. */
 class ApiForDatatableCategoryProduct extends DatatableAttributes {
     initiateDatatable() {
         let datatableCategoryProduct = $( '#category_product_datatable_id' ).DataTable( {
@@ -61,6 +63,7 @@ class ApiForDatatableCategoryProduct extends DatatableAttributes {
     }
 }
 
+/**Class to manage event in button inside modal pop up, its about final action such as save data, remove, etc */
 class ModalButtonEvent {
     bindEvent() {
         const buttonSaveNewData = document.querySelector( '#new_data_save_button_id' )
@@ -68,10 +71,17 @@ class ModalButtonEvent {
     }
     saveCategoryProduct() {
         const formAddNewValues = new FormData().getAddNewDataFormValues()
+        const validationResult = new FormValidation().validateAddNewData( formAddNewValues )
+        if ( !validationResult.isValid ) {
+            new Alert().showWarning( validationResult.massage )
+            new ModalForm().enableFormButton( '#new_data_save_button_id' )
+            return
+        }
         new Ajax().sendRequestToSaveNewRecord( formAddNewValues )
     }
 }
 
+/**Class to manage event in modals likes showing modal, firing event when modal is hiding etc. */
 class ModalForm {
     registerModalDefaultEvent() {
         const listIdModalForm = [ 'id_modal_for_add_new_data', 'id_modal_for_edit', 'id_modal_for_delete' ]
@@ -107,6 +117,7 @@ class ModalForm {
         document.querySelector( buttonSelector ).removeAttribute( 'disabled' )
     }
 }
+/**Class to collecting data from a form . */
 class FormData {
     getAddNewDataFormValues() {
         let formValues = {
@@ -115,6 +126,7 @@ class FormData {
         return formValues
     }
 }
+/**Class to manage javascript request to back ends, doesnt including datatable ajax. */
 class Ajax {
     sendRequestToSaveNewRecord( formValues ) {
         const payload = {
@@ -125,6 +137,7 @@ class Ajax {
             body: JSON.stringify( formValues )
         }
         const onSuccess = ( response ) => {
+            new ModalForm().enableAllModalButton()
             if ( response.status ) {
                 new Alert().successAjax( response.msg )
                 return
@@ -144,6 +157,8 @@ class Ajax {
     }
 
 }
+
+/** Class to handle Pop Up thats shown whenever an action is done */
 class Alert {
     showAlert( massage, massageIcon = 'error' ) {
         swal( {
@@ -160,7 +175,31 @@ class Alert {
     failedAjax( massage ) {
         this.showAlert( massage )
     }
+    showWarning( massage ) {
+        this.showAlert( massage, 'warning' )
+    }
 }
+/** Do validation to form values before sending request to back end */
+class FormValidation {
+    validateResult( massage = '', isValid = false ) {
+        return { isValid: isValid, massage: massage }
+    }
+    validateAddNewData( formData ) {
+        if ( !formData.category ) {
+            return this.validateResult( 'Cant insert empty category' )
+        }
+        if ( formData.category.length < 3 ) {
+            return this.validateResult( 'Category too short' )
+        }
+        if ( formData.category.length > 200 ) {
+            return this.validateResult( 'Category too long' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+}
+
+/** Run all script when document is ready. First initiate the datatatable, 
+ * then attach event to button, modal, and all action button inside datatable. */
 const runScript = () => {
     const api = new ApiForDatatableCategoryProduct()
     const modalForm = new ModalForm()
