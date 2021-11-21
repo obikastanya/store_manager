@@ -125,10 +125,14 @@ class Ajax {
             body: JSON.stringify( formValues )
         }
         const onSuccess = ( response ) => {
-            alert( response.msg )
+            if ( response.status ) {
+                new Alert().successAjax( response.msg )
+                return
+            }
+            new Alert().failedAjax( response.msg )
         }
         const onFail = ( error ) => {
-            console.log( error )
+            new Alert().error()
         }
 
         // In the first chain promise, we need to return response as response.json(), 
@@ -139,6 +143,23 @@ class Ajax {
             .catch( onFail )
     }
 
+}
+class Alert {
+    showAlert( massage, massageIcon = 'error' ) {
+        swal( {
+            text: massage,
+            icon: massageIcon
+        } )
+    }
+    error() {
+        this.showAlert( 'Something wrong while trying to complete the request' )
+    }
+    successAjax( massage ) {
+        this.showAlert( massage, 'success' )
+    }
+    failedAjax( massage ) {
+        this.showAlert( massage )
+    }
 }
 const runScript = () => {
     const api = new ApiForDatatableCategoryProduct()
