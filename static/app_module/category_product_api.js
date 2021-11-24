@@ -74,8 +74,10 @@ class ModalButtonEvent {
     bindEvent() {
         const buttonSaveNewData = document.querySelector( '#new_data_save_button_id' )
         const buttonSaveChanges = document.querySelector( '#button_save_updated_data' )
+        const buttonDeleteCategory = document.querySelector( '#button_delete_category' )
         buttonSaveNewData.addEventListener( 'click', this.saveCategoryProduct )
         buttonSaveChanges.addEventListener( 'click', this.saveUpdatedCategoryProduct )
+        buttonDeleteCategory.addEventListener( 'click', this.deleteCategory )
     }
     saveCategoryProduct() {
         const formAddNewValues = new FormData().getAddNewDataFormValues()
@@ -97,6 +99,18 @@ class ModalButtonEvent {
         }
         new ModalForm().disableFormButton( '#button_save_updated_data' )
         new Ajax().updateCategory( formUpdateValues )
+    }
+    deleteCategory() {
+        const deleteParameter = new FormData().getDeleteConfirmValues()
+        const validationResult = new FormValidation().validateDeleteParameter( deleteParameter )
+        if ( !validationResult.isValid ) {
+            new Alert().showWarning( validationResult.message )
+            new ModalForm().enableFormButton( '#button_delete_category' )
+            return
+        }
+        new ModalForm().disableFormButton( '#button_delete_category' )
+        new Ajax().deleteCategory( deleteParameter )
+
     }
     bindEventToDatatable( datatableCategoryProduct ) {
         datatableCategoryProduct.on( 'click', '.btn-edit-category-product', function ( e ) {
@@ -141,6 +155,7 @@ class ModalForm {
     setDeleteConfirmMessage( formValues ) {
         const confirmMessage = `Apakah Anda yakin akan menghapus data ${ formValues.category_id } - ${ formValues.category } ?`
         document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
+        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.category_id
     }
     hideModalCategoryProduct( idModal ) {
         // The modal wont hide if we use pure javascript, the only way to make it work is using jquery.
@@ -174,6 +189,12 @@ class FormData {
         }
         return formValues
     }
+    getDeleteConfirmValues() {
+        let formValues = {
+            category_id: document.getElementById( 'delete_confirm_massage_id' ).value
+        }
+        return formValues
+    }
     getActiveStatusValue( idFields ) {
         const isChecked = document.querySelector( idFields ).checked
         if ( isChecked ) return "Y";
@@ -204,7 +225,6 @@ class Ajax {
     saveNewRecord( formValues ) {
         const payload = this.createPayload( 'POST', formValues )
         const onSuccess = ( response ) => {
-            new ModalForm().enableAllModalButton()
             if ( response.status ) {
                 new ModalForm().hideModalCategoryProduct( 'id_modal_for_add_new_data' )
                 new Alert().successAjax( response.msg )
@@ -217,6 +237,9 @@ class Ajax {
         const onFail = ( error ) => {
             new Alert().error()
         }
+        const onFinal = () => {
+            new ModalForm().enableAllModalButton()
+        }
 
         // In the first chain promise, we need to return response as response.json(), 
         // so the next chain will receive the data. Its because response.json() is also returning a promise.
@@ -224,6 +247,7 @@ class Ajax {
             .then( response => response.json() )
             .then( onSuccess )
             .catch( onFail )
+            .finally( onFail )
     }
     getCategoryById( categoryId ) {
         const payload = this.createPayload( 'POST', { 'category_id': categoryId } )
@@ -284,7 +308,29 @@ class Ajax {
             .catch( onFail )
             .finally( onFinal )
     }
-
+    deleteCategory( deleteParameter ) {
+        const payload = this.createPayload( 'DELETE', deleteParameter )
+        const onSuccess = ( response ) => {
+            if ( !response.status ) {
+                return new Alert().failedAjax( response.msg )
+            }
+            new Alert().successAjax( response.msg )
+            new ApiForDatatableCategoryProduct().reloadDatatable()
+            new ModalForm().hideModalCategoryProduct( 'id_modal_for_delete' )
+            return
+        }
+        const onFail = ( error ) => {
+            new Alert().error()
+        }
+        const onFinal = () => {
+            new ModalForm().enableFormButton( '#button_delete_category' )
+        }
+        fetch( '/category_product_api', payload )
+            .then( response => response.json() )
+            .then( onSuccess )
+            .catch( onFail )
+            .finally( onFinal )
+    }
 }
 
 /** Class to handle Pop Up thats shown whenever an action is done */
@@ -346,6 +392,12 @@ class FormValidation {
         if ( !validIdCategory ) return validIdCategory;
         if ( !validCategory ) return validCategory;
         if ( !validActiveStatus ) return validActiveStatus;
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateDeleteParameter( deleteParameter ) {
+        if ( !deleteParameter.category_id || deleteParameter.category_id.length < 0 ) {
+            return this.validateResult( 'Category Id doesnt found' )
+        }
         return this.validateResult( 'Data is valid', true )
     }
 }

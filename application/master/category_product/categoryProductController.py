@@ -29,7 +29,17 @@ class CategoryProductController:
             DataHandler().updateData(dataFromRequest)
             return Response.statusAndMsg(msg='Data successfully updated' )
         except:
-            return Response.statusAndMsg(False,'update data failed' )
+            return Response.statusAndMsg(False,'Update data failed' )
+
+    def deleteData(self):
+        try:
+            dataFromRequest=ParameterHandler().getDeleteIdCategoryFromRequests()
+            if not ValidationHandler().isParamDeleteValid(dataFromRequest):
+                return Response.statusAndMsg(False,'Data is not valid, delete process has been canceled' )
+            DataHandler().deleteData(dataFromRequest)
+            return Response.statusAndMsg(msg='Data successfully removed' )
+        except:
+            return Response.statusAndMsg(False,'Data failed to removed' )
 
     def searchSingleData(self):
         try:
@@ -66,12 +76,19 @@ class ParameterHandler:
             'msc_id':request.json.get('category_id')
         }
         return parameterFromRequest
+    def getDeleteIdCategoryFromRequests(self):
+        return self.getSearchParameterFromRequest()
     
 
 class DataHandler:
     def insertNewData(self,dataFromRequest):
         objectToInsert=CategoryProduct(**dataFromRequest)
         db.session.add(objectToInsert)
+        db.session.commit()
+        
+    def deleteData(self, paramFromRequest):
+        objectToDelete=CategoryProduct.query.filter_by(msc_id=paramFromRequest.get('msc_id'))
+        db.session.delete(objectToDelete[0])
         db.session.commit()
 
     def grabData(self):
@@ -121,3 +138,5 @@ class ValidationHandler:
         if not paramFromRequest.get('msc_id'):
             return False
         return True
+    def isParamDeleteValid(self, paramFromRequest):
+        return self.isParamSearchValid(paramFromRequest)

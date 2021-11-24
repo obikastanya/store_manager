@@ -100,7 +100,6 @@ def testCategoryOnSelectSingle():
     response=requests.get(host+'/category_product_api_search', json=payload)
     jsonResponse=response.json()
     validResponse=jsonResponse.get('status')==True and bool(len(jsonResponse.get('data'))>0)
-    print('----------',jsonResponse)
     assert validResponse==True
 
 @pytest.mark.selectSingleFailed
@@ -117,3 +116,18 @@ def testEmptyCategoryOnSelectSingle():
     response=requests.get(host+'/category_product_api_search', json=payload)
     jsonResponse=response.json()
     assert jsonResponse.get('status')==False
+
+@pytest.mark.deleteFailed
+def testEmptyCategoryOnDelete():
+    payload={'category_id':''}
+    response=requests.delete(host+'/category_product_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==False
+
+@pytest.mark.deleteSuccess
+def testCategoryOnDelete():
+    payload={'category_id':'65'}
+    response=requests.delete(host+'/category_product_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==False
+
