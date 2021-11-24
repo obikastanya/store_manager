@@ -24,6 +24,7 @@ class CategoryProductController:
     def updateData(self):
         try:
             dataFromRequest=ParameterHandler().getUpdatedCategoryFromRequests()
+            print(dataFromRequest)
             if not ValidationHandler().isParamUpdateValid(dataFromRequest):
                 return Response.statusAndMsg(False,'Data is not valid, update process has been canceled' )
             DataHandler().updateData(dataFromRequest)

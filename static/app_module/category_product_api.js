@@ -73,21 +73,34 @@ class ApiForDatatableCategoryProduct extends DatatableAttributes {
 class ModalButtonEvent {
     bindEvent() {
         const buttonSaveNewData = document.querySelector( '#new_data_save_button_id' )
+        const buttonSaveChanges = document.querySelector( '#button_save_updated_data' )
         buttonSaveNewData.addEventListener( 'click', this.saveCategoryProduct )
+        buttonSaveChanges.addEventListener( 'click', this.saveUpdatedCategoryProduct )
     }
     saveCategoryProduct() {
         const formAddNewValues = new FormData().getAddNewDataFormValues()
-        const validationResult = new FormValidation().validateAddNewData( formAddNewValues )
+        const validationResult = new FormValidation().validateCategory( formAddNewValues )
         if ( !validationResult.isValid ) {
-            new Alert().showWarning( validationResult.massage )
+            new Alert().showWarning( validationResult.message )
             new ModalForm().enableFormButton( '#new_data_save_button_id' )
             return
         }
         new Ajax().saveNewRecord( formAddNewValues )
     }
+    saveUpdatedCategoryProduct() {
+        const formUpdateValues = new FormData().getUpdateFormValues()
+        const validationResult = new FormValidation().validateFormUpdateValues( formUpdateValues )
+        if ( !validationResult.isValid ) {
+            new Alert().showWarning( validationResult.message )
+            new ModalForm().enableFormButton( '#button_save_updated_data' )
+            return
+        }
+        new ModalForm().disableFormButton( '#button_save_updated_data' )
+        new Ajax().updateCategory( formUpdateValues )
+    }
     bindEventToDatatable( datatableCategoryProduct ) {
         datatableCategoryProduct.on( 'click', '.btn-edit-category-product', function ( e ) {
-            new Ajax().getCategoryById( e.target.value)
+            new Ajax().getCategoryById( e.target.value )
         } )
         datatableCategoryProduct.on( 'click', '.btn-delete-category-product', function ( e ) {
             new ModalButtonEvent().showFormDeleteCategoryProduct()
@@ -124,7 +137,6 @@ class ModalForm {
     showModalCategoryProduct( idModal ) {
         // The modal wont show if we use pure javascript, the only way to make it work is using jquery.
         $( '#' + idModal ).modal( 'show' )
-        console.log( document.querySelector( '.btn-edit-category-product' ) )
     }
     hideModalCategoryProduct( idModal ) {
         // The modal wont hide if we use pure javascript, the only way to make it work is using jquery.
@@ -143,12 +155,11 @@ class ModalForm {
     setValueCategory( value ) {
         document.querySelector( '#categoryFields' ).value = value
     }
-    setFormUpdateValues(recordValues){
-        document.querySelector('#idCategoryFields').value=recordValues.category_id
+    setFormUpdateValues( recordValues ) {
+        document.querySelector( '#idCategoryFields' ).value = recordValues.category_id
         document.querySelector( '#categoryFields' ).value = recordValues.category
-        document.querySelector( '#activeStatusFields' ).checked= recordValues.active_status
+        document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
         document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
-        
     }
 }
 /**Class to collecting data from a form . */
@@ -159,10 +170,24 @@ class FormData {
         }
         return formValues
     }
+    getActiveStatusValue( idFields ) {
+        const isChecked = document.querySelector( idFields ).checked
+        if ( isChecked ) return "Y";
+        return "N"
+
+    }
+    getUpdateFormValues() {
+        let formValues = {
+            category: document.querySelector( '#categoryFields' ).value,
+            category_id: document.querySelector( '#idCategoryFields' ).value,
+            active_status: this.getActiveStatusValue( '#activeStatusFields' )
+        }
+        return formValues
+    }
 }
 /**Class to manage javascript request to back ends, doesnt including datatable ajax. */
 class Ajax {
-    createPayload(method,payloadBody){
+    createPayload( method, payloadBody ) {
         const payload = {
             method: method,
             headers: {
@@ -173,12 +198,12 @@ class Ajax {
         return payload
     }
     saveNewRecord( formValues ) {
-        const payload = this.createPayload( 'POST', formValues)
+        const payload = this.createPayload( 'POST', formValues )
         const onSuccess = ( response ) => {
             new ModalForm().enableAllModalButton()
             if ( response.status ) {
+                new ModalForm().hideModalCategoryProduct( 'id_modal_for_edit' )
                 new Alert().successAjax( response.msg )
-                new ModalForm().hideModalCategoryProduct( 'id_modal_for_add_new_data' )
                 new ApiForDatatableCategoryProduct().reloadDatatable()
                 return
             }
@@ -186,7 +211,6 @@ class Ajax {
         }
 
         const onFail = ( error ) => {
-            console.log( error )
             new Alert().error()
         }
 
@@ -197,57 +221,77 @@ class Ajax {
             .then( onSuccess )
             .catch( onFail )
     }
-    getCategoryById(categoryId){
-        const payload = this.createPayload( 'POST', { 'category_id': categoryId})
+    getCategoryById( categoryId ) {
+        const payload = this.createPayload( 'POST', { 'category_id': categoryId } )
         const onSuccess = ( response ) => {
-            if (!response.data.length) new Alert().failedAjax(response.msg);
-            let recordValues=response.data[0]
+            if ( !response.data.length ) new Alert().failedAjax( response.msg );
+            let recordValues = response.data[ 0 ]
             // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
-            recordValues.active_status=recordValues.active_status=='Y' ? 1:0
-            console.log(recordValues)
-            new ModalForm().setFormUpdateValues(recordValues)
+            recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
+            new ModalForm().setFormUpdateValues( recordValues )
             return
         }
         const onFail = ( error ) => {
-            console.log(error)
             new Alert().error()
         }
         fetch( '/category_product_api_search', payload )
             .then( response => response.json() )
             .then( onSuccess )
             .catch( onFail )
-    // }
+    }
+    updateCategory( formData ) {
+        const payload = this.createPayload( 'PUT', formData )
+        const onSuccess = ( response ) => {
+            if ( !response.status ) {
+                return new Alert().failedAjax( response.msg )
+            }
+            new Alert().successAjax( response.msg )
+            new ApiForDatatableCategoryProduct().reloadDatatable()
+            new ModalForm().hideModalCategoryProduct
+            return
+        }
+        const onFail = ( error ) => {
+            new Alert().error()
+        }
+        const onFinal = () => {
+            new ModalForm().enableFormButton( '#button_save_updated_data' )
+        }
+        fetch( '/category_product_api', payload )
+            .then( response => response.json() )
+            .then( onSuccess )
+            .catch( onFail )
+            .finally( onFinal )
     }
 
 }
 
 /** Class to handle Pop Up thats shown whenever an action is done */
 class Alert {
-    showAlert( massage, massageIcon = 'error' ) {
+    showAlert( message, messageIcon = 'error' ) {
         swal( {
-            text: massage,
-            icon: massageIcon
+            text: message,
+            icon: messageIcon
         } )
     }
     error() {
         this.showAlert( 'Something wrong while trying to complete the request' )
     }
-    successAjax( massage ) {
-        this.showAlert( massage, 'success' )
+    successAjax( message ) {
+        this.showAlert( message, 'success' )
     }
-    failedAjax( massage ) {
-        this.showAlert( massage )
+    failedAjax( message ) {
+        this.showAlert( message )
     }
-    showWarning( massage ) {
-        this.showAlert( massage, 'warning' )
+    showWarning( message ) {
+        this.showAlert( message, 'warning' )
     }
 }
 /** Do validation to form values before sending request to back end */
 class FormValidation {
-    validateResult( massage = '', isValid = false ) {
-        return { isValid: isValid, massage: massage }
+    validateResult( message = '', isValid = false ) {
+        return { isValid: isValid, message: message }
     }
-    validateAddNewData( formData ) {
+    validateCategory( formData ) {
         if ( !formData.category ) {
             return this.validateResult( 'Cant insert empty category' )
         }
@@ -257,6 +301,29 @@ class FormValidation {
         if ( formData.category.length > 200 ) {
             return this.validateResult( 'Category too long' )
         }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateIdCategory( formData ) {
+        if ( !formData.category_id || formData.category_id.length < 0 ) {
+            return this.validateResult( 'Category update  empty category' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateActiveStatus( formData ) {
+        const isValidStatus = [ 'Y', 'N' ].includes( formData.active_status )
+        if ( !isValidStatus ) {
+            return this.validateResult( 'Active status value is invalid' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateFormUpdateValues( formData ) {
+        const validIdCategory = this.validateIdCategory( formData )
+        const validCategory = this.validateIdCategory( formData )
+        const validActiveStatus = this.validateActiveStatus( formData )
+
+        if ( !validIdCategory ) return validIdCategory;
+        if ( !validCategory ) return validCategory;
+        if ( !validActiveStatus ) return validActiveStatus;
         return this.validateResult( 'Data is valid', true )
     }
 }
@@ -273,7 +340,6 @@ const runScript = () => {
         modalForm.registerModalDefaultEvent()
         modalButtonEvent.bindEvent()
     } )
-
 }
 
 runScript()
