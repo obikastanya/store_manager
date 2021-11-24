@@ -83,21 +83,16 @@ class ModalButtonEvent {
             new ModalForm().enableFormButton( '#new_data_save_button_id' )
             return
         }
-        new Ajax().sendRequestToSaveNewRecord( formAddNewValues )
+        new Ajax().saveNewRecord( formAddNewValues )
     }
     bindEventToDatatable( datatableCategoryProduct ) {
         datatableCategoryProduct.on( 'click', '.btn-edit-category-product', function ( e ) {
-            console.log( e.target.value )
-            new ModalButtonEvent().showFormEditCategoryProduct()
+            new Ajax().getCategoryById( e.target.value)
         } )
         datatableCategoryProduct.on( 'click', '.btn-delete-category-product', function ( e ) {
             new ModalButtonEvent().showFormDeleteCategoryProduct()
         } )
     }
-    showFormEditCategoryProduct() {
-
-    }
-    showFormDeleteCategoryProduct() { }
 }
 
 /**Class to manage event in modals likes showing modal, firing event when modal is hiding etc. */
@@ -148,6 +143,13 @@ class ModalForm {
     setValueCategory( value ) {
         document.querySelector( '#categoryFields' ).value = value
     }
+    setFormUpdateValues(recordValues){
+        document.querySelector('#idCategoryFields').value=recordValues.category_id
+        document.querySelector( '#categoryFields' ).value = recordValues.category
+        document.querySelector( '#activeStatusFields' ).checked= recordValues.active_status
+        document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
+        
+    }
 }
 /**Class to collecting data from a form . */
 class FormData {
@@ -160,14 +162,18 @@ class FormData {
 }
 /**Class to manage javascript request to back ends, doesnt including datatable ajax. */
 class Ajax {
-    sendRequestToSaveNewRecord( formValues ) {
+    createPayload(method,payloadBody){
         const payload = {
-            method: 'POST',
+            method: method,
             headers: {
                 'Content-type': 'application/json'
             },
-            body: JSON.stringify( formValues )
+            body: JSON.stringify( payloadBody )
         }
+        return payload
+    }
+    saveNewRecord( formValues ) {
+        const payload = this.createPayload( 'POST', formValues)
         const onSuccess = ( response ) => {
             new ModalForm().enableAllModalButton()
             if ( response.status ) {
@@ -178,6 +184,7 @@ class Ajax {
             }
             new Alert().failedAjax( response.msg )
         }
+
         const onFail = ( error ) => {
             console.log( error )
             new Alert().error()
@@ -189,6 +196,27 @@ class Ajax {
             .then( response => response.json() )
             .then( onSuccess )
             .catch( onFail )
+    }
+    getCategoryById(categoryId){
+        const payload = this.createPayload( 'POST', { 'category_id': categoryId})
+        const onSuccess = ( response ) => {
+            if (!response.data.length) new Alert().failedAjax(response.msg);
+            let recordValues=response.data[0]
+            // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
+            recordValues.active_status=recordValues.active_status=='Y' ? 1:0
+            console.log(recordValues)
+            new ModalForm().setFormUpdateValues(recordValues)
+            return
+        }
+        const onFail = ( error ) => {
+            console.log(error)
+            new Alert().error()
+        }
+        fetch( '/category_product_api_search', payload )
+            .then( response => response.json() )
+            .then( onSuccess )
+            .catch( onFail )
+    // }
     }
 
 }

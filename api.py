@@ -13,7 +13,7 @@ def categoryProductApi():
         return CategoryProductController().getData()
     if request.method=='PUT':
         return CategoryProductController().updateData()
-@app.get('/category_product_api_search')
+@app.post('/category_product_api_search')
 def categoryProductApiSearch():
     return CategoryProductController().searchSingleData()
 
