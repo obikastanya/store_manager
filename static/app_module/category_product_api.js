@@ -103,7 +103,7 @@ class ModalButtonEvent {
             new Ajax().getCategoryById( e.target.value )
         } )
         datatableCategoryProduct.on( 'click', '.btn-delete-category-product', function ( e ) {
-            new ModalButtonEvent().showFormDeleteCategoryProduct()
+            new Ajax().getCategoryByIdForDeleteActions( e.target.value )
         } )
     }
 }
@@ -137,6 +137,10 @@ class ModalForm {
     showModalCategoryProduct( idModal ) {
         // The modal wont show if we use pure javascript, the only way to make it work is using jquery.
         $( '#' + idModal ).modal( 'show' )
+    }
+    setDeleteConfirmMessage( formValues ) {
+        const confirmMessage = `Apakah Anda yakin akan menghapus data ${ formValues.category_id } - ${ formValues.category } ?`
+        document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
     }
     hideModalCategoryProduct( idModal ) {
         // The modal wont hide if we use pure javascript, the only way to make it work is using jquery.
@@ -229,6 +233,24 @@ class Ajax {
             // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
             recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
             new ModalForm().setFormUpdateValues( recordValues )
+            return
+        }
+        const onFail = ( error ) => {
+            new Alert().error()
+        }
+        fetch( '/category_product_api_search', payload )
+            .then( response => response.json() )
+            .then( onSuccess )
+            .catch( onFail )
+    }
+    getCategoryByIdForDeleteActions( categoryId ) {
+        const payload = this.createPayload( 'POST', { 'category_id': categoryId } )
+        const onSuccess = ( response ) => {
+            if ( !response.data.length ) new Alert().failedAjax( response.msg );
+            let recordValues = response.data[ 0 ]
+            // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
+            recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
+            new ModalForm().setDeleteConfirmMessage( recordValues )
             return
         }
         const onFail = ( error ) => {
