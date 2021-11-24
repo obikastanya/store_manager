@@ -157,7 +157,7 @@ class ModalForm {
     }
     setFormUpdateValues( recordValues ) {
         document.querySelector( '#idCategoryFields' ).value = recordValues.category_id
-        document.querySelector( '#categoryFields' ).value = recordValues.category
+        document.querySelector( '#categoryFieldsUpdate' ).value = recordValues.category
         document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
         document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
     }
@@ -178,7 +178,7 @@ class FormData {
     }
     getUpdateFormValues() {
         let formValues = {
-            category: document.querySelector( '#categoryFields' ).value,
+            category: document.querySelector( '#categoryFieldsUpdate' ).value,
             category_id: document.querySelector( '#idCategoryFields' ).value,
             active_status: this.getActiveStatusValue( '#activeStatusFields' )
         }
@@ -202,7 +202,7 @@ class Ajax {
         const onSuccess = ( response ) => {
             new ModalForm().enableAllModalButton()
             if ( response.status ) {
-                new ModalForm().hideModalCategoryProduct( 'id_modal_for_edit' )
+                new ModalForm().hideModalCategoryProduct( 'id_modal_for_add_new_data' )
                 new Alert().successAjax( response.msg )
                 new ApiForDatatableCategoryProduct().reloadDatatable()
                 return
@@ -247,7 +247,7 @@ class Ajax {
             }
             new Alert().successAjax( response.msg )
             new ApiForDatatableCategoryProduct().reloadDatatable()
-            new ModalForm().hideModalCategoryProduct
+            new ModalForm().hideModalCategoryProduct( 'id_modal_for_edit' )
             return
         }
         const onFail = ( error ) => {
