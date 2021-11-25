@@ -92,7 +92,9 @@ class DataHandler:
         db.session.commit()
 
     def grabData(self):
-        groupOfObjectResult=CategoryProduct.query.all()
+        offset=request.args.get('start')
+        limit=request.args.get('length')
+        groupOfObjectResult=CategoryProduct.query.offset(offset).limit(limit).all()
         return CategoryProductSchema(many=True).dump(groupOfObjectResult)
     
     def grabSingleData(self, paramFromRequest):

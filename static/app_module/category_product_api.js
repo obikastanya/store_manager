@@ -45,6 +45,8 @@ class ApiForDatatableCategoryProduct extends DatatableAttributes {
                 url: '/category_product_api',
                 method: 'GET'
             },
+            processing: true,
+            serverSide: true,
             columns: this.tableColumns,
             order: [ [ 1, 'asc' ] ],
             dom: this.toolbarDomConfig.top + this.toolbarDomConfig.table + this.toolbarDomConfig.bottom,
