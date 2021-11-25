@@ -249,7 +249,7 @@ class Ajax {
             .then( response => response.json() )
             .then( onSuccess )
             .catch( onFail )
-            .finally( onFail )
+            .finally( onFinal )
     }
     getCategoryById( categoryId ) {
         const payload = this.createPayload( 'POST', { 'category_id': categoryId } )
