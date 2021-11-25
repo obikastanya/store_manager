@@ -15,7 +15,19 @@ def categoryProductApi():
         return CategoryProductController().updateData()
     if request.method=='DELETE':
         return CategoryProductController().deleteData()
+
 @app.post('/category_product_api_search')
 def categoryProductApiSearch():
     return CategoryProductController().searchSingleData()
 
+# Bellow is all route for master company
+@app.route('/company_api', methods=['GET','POST','PUT', 'DELETE'])
+def companyApi():
+    if request.method== 'POST':
+        return CompanyController().insertNewData()
+    if request.method=='GET':
+        return CompanyController().getData()
+    if request.method=='PUT':
+        return CompanyController().updateData()
+    if request.method=='DELETE':
+        return CompanyController().deleteData()

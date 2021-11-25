@@ -23,5 +23,8 @@ def reportPage():
     return render_template('report.html')
 
 @app.get('/category-product')
-def categoryProductPage():
+def companyPage():
     return render_template('master/category_product.html')
+@app.get('/company')
+def categoryProductPage():
+    return render_template('master/company.html')

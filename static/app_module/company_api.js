@@ -38,7 +38,7 @@ class DatatableAttributes {
 }
 
 /** Class to manage datatable, set configuration, do ajax to retrieve data etc. */
-class ApiForDatatableCategoryProduct extends DatatableAttributes {
+class ApiForDatatableCompany extends DatatableAttributes {
     initiateDatatable() {
         let datatableCategoryProduct = $( '#category_product_datatable_id' ).DataTable( {
             ajax: {
@@ -155,7 +155,7 @@ class ModalForm {
         $( '#' + idModal ).modal( 'show' )
     }
     setDeleteConfirmMessage( formValues ) {
-        const confirmMessage = `Are you sure to delete data ${ formValues.category_id } - ${ formValues.category } ?`
+        const confirmMessage = `Apakah Anda yakin akan menghapus data ${ formValues.category_id } - ${ formValues.category } ?`
         document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
         document.getElementById( 'delete_confirm_massage_id' ).value = formValues.category_id
     }
@@ -230,7 +230,7 @@ class Ajax {
             if ( response.status ) {
                 new ModalForm().hideModalCategoryProduct( 'id_modal_for_add_new_data' )
                 new Alert().successAjax( response.msg )
-                new ApiForDatatableCategoryProduct().reloadDatatable()
+                new ApiForDatatableCompany().reloadDatatable()
                 return
             }
             new Alert().failedAjax( response.msg )
@@ -294,7 +294,7 @@ class Ajax {
                 return new Alert().failedAjax( response.msg )
             }
             new Alert().successAjax( response.msg )
-            new ApiForDatatableCategoryProduct().reloadDatatable()
+            new ApiForDatatableCompany().reloadDatatable()
             new ModalForm().hideModalCategoryProduct( 'id_modal_for_edit' )
             return
         }
@@ -317,7 +317,7 @@ class Ajax {
                 return new Alert().failedAjax( response.msg )
             }
             new Alert().successAjax( response.msg )
-            new ApiForDatatableCategoryProduct().reloadDatatable()
+            new ApiForDatatableCompany().reloadDatatable()
             new ModalForm().hideModalCategoryProduct( 'id_modal_for_delete' )
             return
         }
@@ -386,7 +386,7 @@ class FormValidation {
 /** Run all script when document is ready. First initiate the datatatable, 
  * then attach event to button, modal, and all action button inside datatable. */
 const runScript = () => {
-    const api = new ApiForDatatableCategoryProduct()
+    const api = new ApiForDatatableCompany()
     const modalForm = new ModalForm()
     const modalButtonEvent = new ModalButtonEvent()
     $( document ).ready( function () {

@@ -1,4 +1,3 @@
-from re import I
 from .stock.stockController import StockController
 from .discount.discountController import DiscountController
 from .discount_type.discountTypeController import DiscountTypeController
