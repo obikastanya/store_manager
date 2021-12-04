@@ -24,6 +24,13 @@ class DatatableAttributes {
             }
         }
     ]
+    columnName = [
+        { "name": "no", "targets": 0 },
+        { "name": "category_id", "targets": 1 },
+        { "name": "category", "targets": 2 },
+        { "name": "active_status", "targets": 3 },
+        { "name": "action", "targets": 4 }
+    ]
     toolbarDomConfig = {
         // top for top toolbar, table for table position and bottom for (pagination and record showing info).
         top: `<'row'
@@ -49,6 +56,7 @@ class ApiForDatatableCompany extends DatatableAttributes {
             processing: true,
             serverSide: true,
             columns: this.tableColumns,
+            columnDefs: this.columnName,
             order: [ [ 1, 'asc' ] ],
             dom: this.toolbarDomConfig.top + this.toolbarDomConfig.table + this.toolbarDomConfig.bottom,
             fnInitComplete: () => {
@@ -64,7 +72,7 @@ class ApiForDatatableCompany extends DatatableAttributes {
     }
 
     addRowNumberToDatatable( datatable ) {
-        datatable.on( 'order.dt search.dt', function () {
+        datatable.on( 'draw.dt order.dt search.dt', function () {
             datatable.column( 0, { search: 'applied', order: 'applied' } ).nodes().each( function ( cell, i ) {
                 cell.innerHTML = i + 1;
             } );

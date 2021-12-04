@@ -131,3 +131,60 @@ def testCategoryOnDelete():
     jsonResponse=response.json()
     assert jsonResponse.get('status')==False
 
+@pytest.mark.datatableSelect
+def testFirstLoadNoKeywordAndOrder():
+    payload={
+            'search[value]':'',
+            'order[0][dir]':'',
+            'order[0][column]':'',
+            'columns[1]][name]':'',
+            'start':0,
+            'length':10
+        }
+    response=requests.get(host+'/category_product_api', params=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==True
+
+@pytest.mark.datatableSelect
+def testSelectWithKeyword():
+    payload={
+            'search[value]':'B',
+            'order[0][dir]':'',
+            'order[0][column]':'',
+            'columns[1]][name]':'',
+            'start':0,
+            'length':10
+        }
+    response=requests.get(host+'/category_product_api', params=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==True
+
+@pytest.mark.datatableSelect
+def testSelectAndOrder():
+    payload={
+            'search[value]':'',
+            'order[0][dir]':'asc',
+            'order[0][column]':'1',
+            'columns[1]][name]':'category_id',
+            'start':0,
+            'length':10
+        }
+    response=requests.get(host+'/category_product_api', params=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==True
+
+@pytest.mark.datatableSelect
+def testSelectWithKeywordAndOrder():
+    payload={
+            'search[value]':'B',
+            'order[0][dir]':'asc',
+            'order[0][column]':'1',
+            'columns[1]][name]':'category_id',
+            'start':0,
+            'length':10
+        }
+    response=requests.get(host+'/category_product_api', params=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==True
+
+

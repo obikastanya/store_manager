@@ -3,7 +3,7 @@ from sqlalchemy.dialects import postgresql
 from app import db
 
 class Company(db.Model):
-    """Object for table ms_stock"""
+    """Object for table ms_company"""
     __tablename__='ms_company'
     mscp_id=db.Column(db.Integer(), primary_key=True)
     mscp_desc=db.Column(db.String(200))
@@ -17,5 +17,5 @@ class CompanySchema(Schema):
     """Schema to retrieve data from Model Company as dictionary.
     data_key is an alias for column name"""
     mscp_id=fields.Int(data_key='company_id')
-    mscp_desc=fields.Int(data_key='company')
-    mscp_status_aktif=fields.Str(data_key='status_aktif')
+    mscp_desc=fields.Str(data_key='company')
+    mscp_active_status=fields.Str(data_key='active_status')

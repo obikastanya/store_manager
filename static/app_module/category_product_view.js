@@ -35,6 +35,13 @@ class DatatableAttributes {
         table: "<'row'<'col-sm-12'tr>>",
         bottom: "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
     }
+    columnName=  [
+    { "name": "no",   "targets": 0 },
+    { "name": "company_id",  "targets": 1 },
+    { "name": "company", "targets": 2 },
+    { "name": "active_status",  "targets": 3 },
+    { "name": "action",    "targets": 4 }
+  ]
 }
 
 /** Class to manage datatable, set configuration, do ajax to retrieve data etc. */
@@ -48,6 +55,7 @@ class ApiForDatatableCategoryProduct extends DatatableAttributes {
             processing: true,
             serverSide: true,
             columns: this.tableColumns,
+            columnDefs:this.columnName,
             order: [ [ 1, 'asc' ] ],
             dom: this.toolbarDomConfig.top + this.toolbarDomConfig.table + this.toolbarDomConfig.bottom,
             fnInitComplete: () => {
@@ -63,9 +71,9 @@ class ApiForDatatableCategoryProduct extends DatatableAttributes {
     }
 
     addRowNumberToDatatable( datatable ) {
-        datatable.on( 'order.dt search.dt', function () {
+        // datatable.on( 'order.dt search.dt', function () {
+        datatable.on( 'draw.dt order.dt search.dt', function () {
             datatable.column( 0, { search: 'applied', order: 'applied' } ).nodes().each( function ( cell, i ) {
-                console.log(cell,i)
                 cell.innerHTML = i + 1;
             } );
         } ).draw();
