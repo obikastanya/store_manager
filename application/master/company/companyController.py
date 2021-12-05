@@ -4,12 +4,15 @@ from application.utilities.response import Response
 from sqlalchemy import func
 
 class CompanyController:
-    def insert(self):
-        data=Company(mss_msp_id=1, mss_warehouse_stock=14, mss_store_stock=12)
-        db.session.add(data)
-        db.session.commit()
-        return 'sukses'
-
+    def insertNewData(self):
+        try:
+            dataFromRequest=ParameterHandler().getCompanyFromRequests()
+            if not ValidationHandler().isParamInsertValid(dataFromRequest):
+                return Response.statusAndMsg(False,'Data is not valid, insert process has been canceled' )
+            DataHandler().insertNewData(dataFromRequest)
+            return Response.statusAndMsg(msg='Data successfully added' )
+        except:
+            return Response.statusAndMsg(False,'Insert data failed' )
     def getData(self):
         try:
             companyData,totalRecords, totalRecordsFiltered=DataHandler().grabData()
@@ -19,12 +22,19 @@ class CompanyController:
     
 
 class ParameterHandler:
+    def getCompanyFromRequests(self):
+        dataFromRequest={
+            'mscp_desc':request.json.get('company'),
+            'mscp_active_status':request.json.get('active_status','Y')
+        }
+        return dataFromRequest
+
     def getOrderColumnName(self):
         orderColumnIndex=request.args.get('order[0][column]','')
         orderColumnName=request.args.get('columns[%s][name]'%orderColumnIndex,'')
         if orderColumnName=='company_id':
             return 'mscp_id'
-        if orderColumnName=='category':
+        if orderColumnName=='company':
             return 'mscp_desc'
         if orderColumnName=='active_status':
             return 'mscp_active_status'
@@ -41,6 +51,10 @@ class ParameterHandler:
         return datatableConfig
 
 class DataHandler:
+    def insertNewData(self,dataFromRequest):
+        objectToInsert=Company(**dataFromRequest)
+        db.session.add(objectToInsert)
+        db.session.commit()
     def grabData(self):
         """Grab data based on parameter sended. 
             Returning list of category product to be shown, total records selected
@@ -92,8 +106,15 @@ class DataHandler:
         return Company.mscp_desc.like("%{}%".format(datatableConfig.get('searchKeyWord')))
         
 class ValidationHandler:
-    def isValidLimitOffset(self, limit,offset):
-        if limit=='' or offset=='':
+    def isCompanyValid(self,dataFromRequest):
+        if not dataFromRequest.get('mscp_desc'):
+            return False
+        if len(dataFromRequest.get('mscp_desc'))<3:
+            return False
+        if len(dataFromRequest.get('mscp_desc'))>200:
             return False
         return True
+
+    def isParamInsertValid(self, dataFromRequest):
+        return self.isCompanyValid(dataFromRequest)
     # Handle validation

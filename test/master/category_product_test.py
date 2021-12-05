@@ -40,7 +40,7 @@ def testMinLength():
 
 # success insert case
 @pytest.mark.insertSuccess
-def testMinLength():
+def testInsertSuccess():
     payload={'category':'Category From Pytest'}
     response=requests.post(host+'/category_product_api', json=payload)
     jsonResponse=response.json()

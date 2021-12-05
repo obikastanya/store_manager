@@ -96,3 +96,50 @@ def testSelectWithKeywordAndOrder():
     assert jsonResponse.get('status')==True
 
 
+@pytest.mark.company
+@pytest.mark.insertFailed
+def testEmptyCompany():
+    payload={
+            'company':'',
+        }
+    response=requests.post(host+'/company_api', params=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==False
+
+
+@pytest.mark.company
+@pytest.mark.insertFailed
+def testEmptyCompany():
+    payload={
+            'company':'',
+        }
+    response=requests.post(host+'/company_api', params=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==False
+
+@pytest.mark.company
+@pytest.mark.insertFailed
+def testMaxLength():
+    payload={'company':"""Lorem ipsum dolor sit amet consectetur adipisicing elit. 
+    Dolorem commodi facere voluptatem earum dolor alias debitis laborum iste error adipisci? 
+    Vitae deleniti natus dignissimos illo Vitae deleniti natus dignissimos illo."""
+                }
+    response=requests.post(host+'/company_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==False
+
+@pytest.mark.company
+@pytest.mark.insertFailed
+def testMinLength():
+    payload={'company':'L'}
+    response=requests.post(host+'/company_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==False
+
+@pytest.mark.company
+@pytest.mark.insertSuccess
+def testInsertSuccess():
+    payload={'company':'Company From Pytest'}
+    response=requests.post(host+'/company_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==True
