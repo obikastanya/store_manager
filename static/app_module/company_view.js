@@ -1,6 +1,6 @@
 /** Class to save datatable config attributes, data class only. */
 class DatatableAttributes {
-    buttonEdit = `<button type="button" class="btn btn-warning btn-edit-category-product" 
+    buttonEdit = `<button type="button" class="btn btn-warning btn-edit-company" 
                     onclick="new ModalForm().showModalCompany('id_modal_for_edit')" value="_data_">Edit</button>`
     buttonDelete = `<button type="button" class="btn btn-danger btn-delete-category-product" 
                     onclick="new ModalForm().showModalCategoryProduct('id_modal_for_delete')" value="_data_"
@@ -19,7 +19,6 @@ class DatatableAttributes {
         {
             data: null,
             render: ( data ) => {
-                console.log(data)
                 return this.buttonEdit.replace( "_data_", data.company_id ) + '&nbsp;' + this.buttonDelete.replace( "_data_", data.company_id )
             }
         }
@@ -64,7 +63,7 @@ class ApiForDatatableCompany extends DatatableAttributes {
                 $( 'div.toolbar' ).html( this.buttonCreateNewData )
             }
         } )
-        // new ModalButtonEvent().bindEventToDatatable( datatableCategoryProduct )
+        new ModalButtonEvent().bindEventToDatatable( datatableCompany )
         this.addRowNumberToDatatable( datatableCompany )
     }
     reloadDatatable() {
@@ -124,8 +123,8 @@ class ModalButtonEvent {
 
     }
     bindEventToDatatable( datatableCategoryProduct ) {
-        datatableCategoryProduct.on( 'click', '.btn-edit-category-product', function ( e ) {
-            new Ajax().getCategoryById( e.target.value )
+        datatableCategoryProduct.on( 'click', '.btn-edit-company', function ( e ) {
+            new Ajax().getCompanyById( e.target.value )
         } )
         datatableCategoryProduct.on( 'click', '.btn-delete-category-product', function ( e ) {
             new Ajax().getCategoryByIdForDeleteActions( e.target.value )
@@ -186,8 +185,8 @@ class ModalForm {
         document.querySelector( '#companyFields' ).value = value
     }
     setFormUpdateValues( recordValues ) {
-        document.querySelector( '#idCategoryFields' ).value = recordValues.category_id
-        document.querySelector( '#categoryFieldsUpdate' ).value = recordValues.category
+        document.querySelector( '#idCompanyFields' ).value = recordValues.company_id
+        document.querySelector( '#companyFieldsUpdate' ).value = recordValues.company
         document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
         document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
     }
@@ -260,9 +259,10 @@ class Ajax {
             .catch( onFail )
             .finally( onFinal )
     }
-    getCategoryById( categoryId ) {
-        const payload = this.createPayload( 'POST', { 'category_id': categoryId } )
+    getCompanyById( companyId ) {
+        const payload = this.createPayload( 'POST', { 'company_id': companyId } )
         const onSuccess = ( response ) => {
+            console.log(response)
             if ( !response.data.length ) new Alert().failedAjax( response.msg );
             let recordValues = response.data[ 0 ]
             // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
@@ -273,7 +273,7 @@ class Ajax {
         const onFail = ( error ) => {
             new Alert().error()
         }
-        fetch( '/category_product_api_search', payload )
+        fetch( '/company_api_search', payload )
             .then( response => response.json() )
             .then( onSuccess )
             .catch( onFail )
