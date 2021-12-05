@@ -13,48 +13,37 @@ class CompanyController:
             return Response.statusAndMsg(msg='Data successfully added' )
         except:
             return Response.statusAndMsg(False,'Insert data failed' )
+
     def getData(self):
         try:
             companyData,totalRecords, totalRecordsFiltered=DataHandler().grabData()
             return Response.datatable(data={'datas':companyData,'totalRecords':totalRecords,'totalRecordsFiltered':totalRecordsFiltered})
         except:
             return Response.make(status=False,msg='Eror while trying to retrieve data' )
-    
 
-class ParameterHandler:
-    def getCompanyFromRequests(self):
-        dataFromRequest={
-            'mscp_desc':request.json.get('company'),
-            'mscp_active_status':request.json.get('active_status','Y')
-        }
-        return dataFromRequest
-
-    def getOrderColumnName(self):
-        orderColumnIndex=request.args.get('order[0][column]','')
-        orderColumnName=request.args.get('columns[%s][name]'%orderColumnIndex,'')
-        if orderColumnName=='company_id':
-            return 'mscp_id'
-        if orderColumnName=='company':
-            return 'mscp_desc'
-        if orderColumnName=='active_status':
-            return 'mscp_active_status'
-        return None
+    def searchSingleData(self):
+        try:
+            paramFromRequest=ParameterHandler().getSearchParameterFromRequest()
+            if not ValidationHandler().isParamSearchValid(paramFromRequest):
+                return Response.make(False,'Company ID is not valid, process has been canceled' )
+            company=DataHandler().grabSingleData(paramFromRequest)
+            if not DataHandler().isDataExist(company):
+                return Response.make(False,'Company is not found' )
+            return Response.make(msg='Data Found', data=company)
+        except:
+            return Response.make(False,'Cant find data' )
     
-    def getDatatableConfiguration(self):
-        datatableConfig={
-            'searchKeyWord':request.args.get('search[value]'),
-            'orderDirection':request.args.get('order[0][dir]'),
-            'orderBy':self.getOrderColumnName(),
-            'offset':request.args.get('start'),
-            'limit':request.args.get('length')
-        }
-        return datatableConfig
 
 class DataHandler:
     def insertNewData(self,dataFromRequest):
         objectToInsert=Company(**dataFromRequest)
         db.session.add(objectToInsert)
         db.session.commit()
+        
+    def grabSingleData(self, paramFromRequest):
+        groupOfObjectResult=Company.query.filter_by(mscp_id=paramFromRequest.get('mscp_id'))
+        return CompanySchema(many=True).dump(groupOfObjectResult)
+
     def grabData(self):
         """Grab data based on parameter sended. 
             Returning list of category product to be shown, total records selected
@@ -104,7 +93,47 @@ class DataHandler:
 
     def getSearchKeywordStatement(self, datatableConfig):
         return Company.mscp_desc.like("%{}%".format(datatableConfig.get('searchKeyWord')))
+    
+    def isDataExist(self, dataCompany):
+        if(len(dataCompany)>0):
+            return True
+        return False
         
+class ParameterHandler:
+    def getCompanyFromRequests(self):
+        dataFromRequest={
+            'mscp_desc':request.json.get('company'),
+            'mscp_active_status':request.json.get('active_status','Y')
+        }
+        return dataFromRequest
+
+    def getOrderColumnName(self):
+        orderColumnIndex=request.args.get('order[0][column]','')
+        orderColumnName=request.args.get('columns[%s][name]'%orderColumnIndex,'')
+        if orderColumnName=='company_id':
+            return 'mscp_id'
+        if orderColumnName=='company':
+            return 'mscp_desc'
+        if orderColumnName=='active_status':
+            return 'mscp_active_status'
+        return None
+    
+    def getDatatableConfiguration(self):
+        datatableConfig={
+            'searchKeyWord':request.args.get('search[value]'),
+            'orderDirection':request.args.get('order[0][dir]'),
+            'orderBy':self.getOrderColumnName(),
+            'offset':request.args.get('start'),
+            'limit':request.args.get('length')
+        }
+        return datatableConfig
+    def getSearchParameterFromRequest(self):
+        parameterFromRequest={
+            'mscp_id':request.json.get('company_id')
+        }
+        return parameterFromRequest
+
+
 class ValidationHandler:
     def isCompanyValid(self,dataFromRequest):
         if not dataFromRequest.get('mscp_desc'):
@@ -115,6 +144,10 @@ class ValidationHandler:
             return False
         return True
 
+    def isParamSearchValid(self, paramFromRequest):
+            if not paramFromRequest.get('mscp_id'):
+                return False
+            return True
     def isParamInsertValid(self, dataFromRequest):
         return self.isCompanyValid(dataFromRequest)
     # Handle validation

@@ -143,3 +143,31 @@ def testInsertSuccess():
     response=requests.post(host+'/company_api', json=payload)
     jsonResponse=response.json()
     assert jsonResponse.get('status')==True
+
+# select single data
+@pytest.mark.company
+@pytest.mark.selectSingleSuccess
+def testCompanyOnSelectSingle():
+    payload={'company_id':'2'}
+    response=requests.post(host+'/company_api_search', json=payload)
+    jsonResponse=response.json()
+    validResponse=jsonResponse.get('status')==True and bool(len(jsonResponse.get('data'))>0)
+    assert validResponse==True
+
+@pytest.mark.company
+@pytest.mark.selectSingleFailed
+def testNotFoundCompanyOnSelectSingle():
+    payload={'company_id':'000'}
+    response=requests.post(host+'/company_api_search', json=payload)
+    jsonResponse=response.json()
+    validResponse=jsonResponse.get('status')==False and bool(len(jsonResponse.get('data'))<1)
+    print(jsonResponse)
+    assert validResponse==True
+
+@pytest.mark.company
+@pytest.mark.selectSingleFailed
+def testEmptyCompanyOnSelectSingle():
+    payload={'company_id':''}
+    response=requests.post(host+'/company_api_search', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==False

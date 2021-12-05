@@ -56,53 +56,6 @@ class CategoryProductController:
             return Response.make(False,'Cant find data' )
     
 
-class ParameterHandler:
-    # All method bellow is a method to process data and request
-    def getCategoryFromRequests(self):
-        dataFromRequest={
-            'msc_desc':request.json.get('category'),
-            'msc_active_status':request.json.get('active_status','Y')
-        }
-        return dataFromRequest
-
-    def getUpdatedCategoryFromRequests(self):
-        dataFromRequest={
-            'msc_desc':request.json.get('category'),
-            'msc_active_status':request.json.get('active_status'),
-            'msc_id':request.json.get('category_id')
-        }
-        return dataFromRequest
-    def getSearchParameterFromRequest(self):
-        parameterFromRequest={
-            'msc_id':request.json.get('category_id')
-        }
-        return parameterFromRequest
-    def getDeleteIdCategoryFromRequests(self):
-        return self.getSearchParameterFromRequest()
-
-    def getOrderColumnName(self):
-        orderColumnIndex=request.args.get('order[0][column]','')
-        orderColumnName=request.args.get('columns[%s][name]'%orderColumnIndex,'')
-        if orderColumnName=='category_id':
-            return 'msc_id'
-        if orderColumnName=='category':
-            return 'msc_desc'
-        if orderColumnName=='active_status':
-            return 'msc_active_status'
-        return None
-    
-    def getDatatableConfiguration(self):
-        datatableConfig={
-            'searchKeyWord':request.args.get('search[value]'),
-            'orderDirection':request.args.get('order[0][dir]'),
-            'orderBy':self.getOrderColumnName(),
-            'offset':request.args.get('start'),
-            'limit':request.args.get('length')
-        }
-        return datatableConfig
-
-    
-
 class DataHandler:
     def insertNewData(self,dataFromRequest):
         objectToInsert=CategoryProduct(**dataFromRequest)
@@ -204,6 +157,52 @@ class DataHandler:
 
         return orderStatement
         
+
+class ParameterHandler:
+    # All method bellow is a method to process data and request
+    def getCategoryFromRequests(self):
+        dataFromRequest={
+            'msc_desc':request.json.get('category'),
+            'msc_active_status':request.json.get('active_status','Y')
+        }
+        return dataFromRequest
+
+    def getUpdatedCategoryFromRequests(self):
+        dataFromRequest={
+            'msc_desc':request.json.get('category'),
+            'msc_active_status':request.json.get('active_status'),
+            'msc_id':request.json.get('category_id')
+        }
+        return dataFromRequest
+    def getSearchParameterFromRequest(self):
+        parameterFromRequest={
+            'msc_id':request.json.get('category_id')
+        }
+        return parameterFromRequest
+    def getDeleteIdCategoryFromRequests(self):
+        return self.getSearchParameterFromRequest()
+
+    def getOrderColumnName(self):
+        orderColumnIndex=request.args.get('order[0][column]','')
+        orderColumnName=request.args.get('columns[%s][name]'%orderColumnIndex,'')
+        if orderColumnName=='category_id':
+            return 'msc_id'
+        if orderColumnName=='category':
+            return 'msc_desc'
+        if orderColumnName=='active_status':
+            return 'msc_active_status'
+        return None
+    
+    def getDatatableConfiguration(self):
+        datatableConfig={
+            'searchKeyWord':request.args.get('search[value]'),
+            'orderDirection':request.args.get('order[0][dir]'),
+            'orderBy':self.getOrderColumnName(),
+            'offset':request.args.get('start'),
+            'limit':request.args.get('length')
+        }
+        return datatableConfig
+
         
 class ValidationHandler:
     def isCategoryValid(self,dataFromRequest):
