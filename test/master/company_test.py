@@ -161,7 +161,6 @@ def testNotFoundCompanyOnSelectSingle():
     response=requests.post(host+'/company_api_search', json=payload)
     jsonResponse=response.json()
     validResponse=jsonResponse.get('status')==False and bool(len(jsonResponse.get('data'))<1)
-    print(jsonResponse)
     assert validResponse==True
 
 @pytest.mark.company
@@ -171,3 +170,55 @@ def testEmptyCompanyOnSelectSingle():
     response=requests.post(host+'/company_api_search', json=payload)
     jsonResponse=response.json()
     assert jsonResponse.get('status')==False
+
+#failed update case
+@pytest.mark.company
+@pytest.mark.updateFailed
+def testEmptyCompanyId():
+    payload={'company':'this is new value', 'company_id':'', 'active_status':'Y'}
+    response=requests.put(host+'/company_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==False
+
+@pytest.mark.company
+@pytest.mark.updateFailed
+def testEmptyActiveStatus():
+    payload={'company':'this is new value', 'company_id':'2', 'active_status':''}
+    response=requests.put(host+'/company_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==False
+
+@pytest.mark.company
+@pytest.mark.updateFailed
+def testEmptyParameterOnUpdate():
+    payload={'company':'', 'company_id':'2', 'active_status':'Y'}
+    response=requests.put(host+'/company_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==False
+
+@pytest.mark.company
+@pytest.mark.updateFailed
+def testMaxLengthOnUpdate():
+    payload={'company':"""Lorem ipsum dolor sit amet consectetur adipisicing elit. 
+    Dolorem commodi facere voluptatem earum dolor alias debitis laborum iste error adipisci? 
+    Vitae deleniti natus dignissimos illo Vitae deleniti natus dignissimos illo.""",'company_id':'2', 'active_status':'Y' 
+                }
+    response=requests.put(host+'/company_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==False
+
+@pytest.mark.company
+@pytest.mark.updateFailed
+def testMinLengthOnUpdate():
+    payload={'company':'L', 'company_id':'2', 'active_status':'Y'}
+    response=requests.put(host+'/company_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==False
+
+@pytest.mark.company
+@pytest.mark.updateSuccess
+def testSuccessOnUpdate():
+    payload={'company':'this is new value', 'company_id':'2', 'active_status':'Y'}
+    response=requests.put(host+'/company_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==True

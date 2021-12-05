@@ -117,6 +117,7 @@ def testEmptyCategoryOnSelectSingle():
     jsonResponse=response.json()
     assert jsonResponse.get('status')==False
 
+# delete case
 @pytest.mark.deleteFailed
 def testEmptyCategoryOnDelete():
     payload={'category_id':''}
@@ -131,6 +132,7 @@ def testCategoryOnDelete():
     jsonResponse=response.json()
     assert jsonResponse.get('status')==False
 
+# datatable select case with several variant of scenario
 @pytest.mark.datatableSelect
 def testFirstLoadNoKeywordAndOrder():
     payload={

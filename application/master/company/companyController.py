@@ -32,12 +32,32 @@ class CompanyController:
             return Response.make(msg='Data Found', data=company)
         except:
             return Response.make(False,'Cant find data' )
+
+    def updateData(self):
+        try:
+            dataFromRequest=ParameterHandler().getUpdatedCompanyFromRequests()
+            if not ValidationHandler().isParamUpdateValid(dataFromRequest):
+                return Response.statusAndMsg(False,'Data is not valid, update process has been canceled' )
+            DataHandler().updateData(dataFromRequest)
+            return Response.statusAndMsg(msg='Data successfully updated' )
+        except:
+            return Response.statusAndMsg(False,'Update data failed' )
     
 
 class DataHandler:
     def insertNewData(self,dataFromRequest):
         objectToInsert=Company(**dataFromRequest)
         db.session.add(objectToInsert)
+        db.session.commit()
+    # def deleteData(self, paramFromRequest):
+    #     objectToDelete=CategoryProduct.query.filter_by(msc_id=paramFromRequest.get('msc_id'))
+    #     db.session.delete(objectToDelete[0])
+    #     db.session.commit()
+    
+    def updateData(self, dataFromRequest):
+        categoryProduct=Company.query.filter_by(mscp_id=dataFromRequest.get('mscp_id')).first()
+        categoryProduct.mscp_desc=dataFromRequest.get('mscp_desc')
+        categoryProduct.mscp_active_status=dataFromRequest.get('mscp_active_status')
         db.session.commit()
         
     def grabSingleData(self, paramFromRequest):
@@ -107,6 +127,14 @@ class ParameterHandler:
         }
         return dataFromRequest
 
+    def getUpdatedCompanyFromRequests(self):
+        dataFromRequest={
+            'mscp_desc':request.json.get('company'),
+            'mscp_active_status':request.json.get('active_status'),
+            'mscp_id':request.json.get('company_id')
+        }
+        return dataFromRequest
+
     def getOrderColumnName(self):
         orderColumnIndex=request.args.get('order[0][column]','')
         orderColumnName=request.args.get('columns[%s][name]'%orderColumnIndex,'')
@@ -148,6 +176,16 @@ class ValidationHandler:
             if not paramFromRequest.get('mscp_id'):
                 return False
             return True
+
+    def isParamUpdateValid(self,dataFromRequest):
+        if not dataFromRequest.get('mscp_id'):
+            return False
+        if not dataFromRequest.get('mscp_active_status'):
+            return False
+        if not  self.isCompanyValid(dataFromRequest):
+            return False
+        return True
+
     def isParamInsertValid(self, dataFromRequest):
         return self.isCompanyValid(dataFromRequest)
     # Handle validation

@@ -363,7 +363,7 @@ class FormValidation {
     }
     validateIdCategory( formData ) {
         if ( !formData.category_id || formData.category_id.length < 0 ) {
-            return this.validateResult( 'Category update  empty category' )
+            return this.validateResult( 'Cant update  empty category' )
         }
         return this.validateResult( 'Data is valid', true )
     }

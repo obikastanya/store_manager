@@ -86,7 +86,7 @@ class ModalButtonEvent {
         const buttonSaveChanges = document.querySelector( '#button_save_updated_data' )
         const buttonDeleteCategory = document.querySelector( '#button_delete_category' )
         buttonSaveNewData.addEventListener( 'click', this.saveCompany )
-        buttonSaveChanges.addEventListener( 'click', this.saveUpdatedCategoryProduct )
+        buttonSaveChanges.addEventListener( 'click', this.saveUpdatedCompany )
         buttonDeleteCategory.addEventListener( 'click', this.deleteCategory )
     }
     saveCompany() {
@@ -99,7 +99,7 @@ class ModalButtonEvent {
         }
         new Ajax().saveNewRecord( formAddNewValues )
     }
-    saveUpdatedCategoryProduct() {
+    saveUpdatedCompany() {
         const formUpdateValues = new FormData().getUpdateFormValues()
         const validationResult = new FormValidation().validateFormUpdateValues( formUpdateValues )
         if ( !validationResult.isValid ) {
@@ -108,7 +108,7 @@ class ModalButtonEvent {
             return
         }
         new ModalForm().disableFormButton( '#button_save_updated_data' )
-        new Ajax().updateCategory( formUpdateValues )
+        new Ajax().updateCompany( formUpdateValues )
     }
     deleteCategory() {
         const deleteParameter = new FormData().getDeleteConfirmValues()
@@ -213,8 +213,8 @@ class FormData {
     }
     getUpdateFormValues() {
         let formValues = {
-            category: document.querySelector( '#categoryFieldsUpdate' ).value,
-            category_id: document.querySelector( '#idCategoryFields' ).value,
+            company: document.querySelector( '#companyFieldsUpdate' ).value,
+            company_id: document.querySelector( '#idCompanyFields' ).value,
             active_status: this.getActiveStatusValue( '#activeStatusFields' )
         }
         return formValues
@@ -296,7 +296,7 @@ class Ajax {
             .then( onSuccess )
             .catch( onFail )
     }
-    updateCategory( formData ) {
+    updateCompany( formData ) {
         const payload = this.createPayload( 'PUT', formData )
         const onSuccess = ( response ) => {
             if ( !response.status ) {
@@ -313,7 +313,7 @@ class Ajax {
         const onFinal = () => {
             new ModalForm().enableFormButton( '#button_save_updated_data' )
         }
-        fetch( '/category_product_api', payload )
+        fetch( '/company_api', payload )
             .then( response => response.json() )
             .then( onSuccess )
             .catch( onFail )
@@ -361,9 +361,9 @@ class FormValidation {
         }
         return this.validateResult( 'Data is valid', true )
     }
-    validateIdCategory( formData ) {
-        if ( !formData.category_id || formData.category_id.length < 0 ) {
-            return this.validateResult( 'Category update  empty category' )
+    validateIdCompany( formData ) {
+        if ( !formData.company_id || formData.company_id.length < 0 ) {
+            return this.validateResult( 'There is no company id to update' )
         }
         return this.validateResult( 'Data is valid', true )
     }
@@ -375,12 +375,12 @@ class FormValidation {
         return this.validateResult( 'Data is valid', true )
     }
     validateFormUpdateValues( formData ) {
-        const validIdCategory = this.validateIdCategory( formData )
-        const validCategory = this.validateIdCategory( formData )
+        const validIdCompany = this.validateIdCompany( formData )
+        const validCompany = this.validateIdCompany( formData )
         const validActiveStatus = this.validateActiveStatus( formData )
 
-        if ( !validIdCategory ) return validIdCategory;
-        if ( !validCategory ) return validCategory;
+        if ( !validIdCompany ) return validIdCompany;
+        if ( !validCompany ) return validCompany;
         if ( !validActiveStatus ) return validActiveStatus;
         return this.validateResult( 'Data is valid', true )
     }
