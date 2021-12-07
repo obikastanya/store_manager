@@ -25,8 +25,8 @@ class DatatableAttributes {
     ]
     columnName = [
         { "name": "no", "targets": 0 },
-        { "name": "category_id", "targets": 1 },
-        { "name": "category", "targets": 2 },
+        { "name": "company_id", "targets": 1 },
+        { "name": "company", "targets": 2 },
         { "name": "active_status", "targets": 3 },
         { "name": "action", "targets": 4 }
     ]
@@ -47,7 +47,7 @@ class DatatableAttributes {
 /** Class to manage datatable, set configuration, do ajax to retrieve data etc. */
 class ApiForDatatableCompany extends DatatableAttributes {
     initiateDatatable() {
-        let datatableCompany = $( '#category_product_datatable_id' ).DataTable( {
+        let datatableCompany = $( '#company_datatable_id' ).DataTable( {
             ajax: {
                 url: '/company_api',
                 method: 'GET'
@@ -67,7 +67,7 @@ class ApiForDatatableCompany extends DatatableAttributes {
         this.addRowNumberToDatatable( datatableCompany )
     }
     reloadDatatable() {
-        $( '#category_product_datatable_id' ).DataTable().ajax.reload()
+        $( '#company_datatable_id' ).DataTable().ajax.reload()
     }
 
     addRowNumberToDatatable( datatable ) {
@@ -84,10 +84,10 @@ class ModalButtonEvent {
     bindEvent() {
         const buttonSaveNewData = document.querySelector( '#new_data_save_button_id' )
         const buttonSaveChanges = document.querySelector( '#button_save_updated_data' )
-        const buttonDeleteCategory = document.querySelector( '#button_delete_company' )
+        const buttonDeleteCompany = document.querySelector( '#button_delete_company' )
         buttonSaveNewData.addEventListener( 'click', this.saveCompany )
         buttonSaveChanges.addEventListener( 'click', this.saveUpdatedCompany )
-        buttonDeleteCategory.addEventListener( 'click', this.deleteCategory )
+        buttonDeleteCompany.addEventListener( 'click', this.deleteCompany )
     }
     saveCompany() {
         const formAddNewValues = new FormData().getAddNewDataFormValues()
@@ -110,7 +110,7 @@ class ModalButtonEvent {
         new ModalForm().disableFormButton( '#button_save_updated_data' )
         new Ajax().updateCompany( formUpdateValues )
     }
-    deleteCategory() {
+    deleteCompany() {
         const deleteParameter = new FormData().getDeleteConfirmValues()
         const validationResult = new FormValidation().validateDeleteParameter( deleteParameter )
         if ( !validationResult.isValid ) {
@@ -119,14 +119,14 @@ class ModalButtonEvent {
             return
         }
         new ModalForm().disableFormButton( '#button_delete_company' )
-        new Ajax().deleteCategory( deleteParameter )
+        new Ajax().deleteCompany( deleteParameter )
 
     }
-    bindEventToDatatable( datatableCategoryProduct ) {
-        datatableCategoryProduct.on( 'click', '.btn-edit-company', function ( e ) {
+    bindEventToDatatable( datatableCompany ) {
+        datatableCompany.on( 'click', '.btn-edit-company', function ( e ) {
             new Ajax().getCompanyById( e.target.value )
         } )
-        datatableCategoryProduct.on( 'click', '.btn-delete-company', function ( e ) {
+        datatableCompany.on( 'click', '.btn-delete-company', function ( e ) {
             new Ajax().getCompanyByIdForDeleteActions( e.target.value )
         } )
     }
@@ -319,7 +319,7 @@ class Ajax {
             .catch( onFail )
             .finally( onFinal )
     }
-    deleteCategory( deleteParameter ) {
+    deleteCompany( deleteParameter ) {
         const payload = this.createPayload( 'DELETE', deleteParameter )
         const onSuccess = ( response ) => {
             if ( !response.status ) {
