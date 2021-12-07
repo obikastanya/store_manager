@@ -65,9 +65,9 @@ class DataHandler:
         db.session.commit()
 
     def updateData(self, dataFromRequest):
-        categoryProduct=Company.query.filter_by(mscp_id=dataFromRequest.get('mscp_id')).first()
-        categoryProduct.mscp_desc=dataFromRequest.get('mscp_desc')
-        categoryProduct.mscp_active_status=dataFromRequest.get('mscp_active_status')
+        company=Company.query.filter_by(mscp_id=dataFromRequest.get('mscp_id')).first()
+        company.mscp_desc=dataFromRequest.get('mscp_desc')
+        company.mscp_active_status=dataFromRequest.get('mscp_active_status')
         db.session.commit()
         
     def grabSingleData(self, paramFromRequest):
@@ -128,6 +128,31 @@ class DataHandler:
         if(len(dataCompany)>0):
             return True
         return False
+    
+    def getOrderStatement(self,datatableConfig):
+        orderStatement=None
+        columnToOrder=datatableConfig.get('orderBy')
+        orderDirection=datatableConfig.get('orderDirection')
+
+        if columnToOrder=='msc_id': 
+            if orderDirection=='asc':
+                orderStatement=Company.mscp_id.asc()
+            if orderDirection=='desc':
+                orderStatement=Company.mscp_id.desc()
+
+        if columnToOrder=='msc_desc':
+            if orderDirection=='asc':
+                orderStatement=Company.mscp_desc.asc()
+            if orderDirection=='desc':
+                orderStatement=Company.mscp_desc.desc()
+
+        if columnToOrder=='msc_active_status':
+            if orderDirection=='asc':
+                orderStatement=Company.mscp_active_status.asc()
+            if orderDirection=='desc':
+                orderStatement=Company.mscp_active_status.desc()
+
+        return orderStatement
         
 class ParameterHandler:
     def getCompanyFromRequests(self):
