@@ -1,6 +1,6 @@
 from flask import request, abort
 from app import app
-from application.master.baseMaster import *
+from application.master.indexMasterController import *
 
 """Contain all api for the apps"""
 
