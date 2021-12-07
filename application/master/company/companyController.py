@@ -42,6 +42,15 @@ class CompanyController:
             return Response.statusAndMsg(msg='Data successfully updated' )
         except:
             return Response.statusAndMsg(False,'Update data failed' )
+    def deleteData(self):
+        try:
+            dataFromRequest=ParameterHandler().getDeleteIdCompanyFromRequests()
+            if not ValidationHandler().isParamDeleteValid(dataFromRequest):
+                return Response.statusAndMsg(False,'Data is not valid, delete process has been canceled' )
+            DataHandler().deleteData(dataFromRequest)
+            return Response.statusAndMsg(msg='Data successfully removed' )
+        except:
+            return Response.statusAndMsg(False,'Data failed to removed' )
     
 
 class DataHandler:
@@ -49,11 +58,12 @@ class DataHandler:
         objectToInsert=Company(**dataFromRequest)
         db.session.add(objectToInsert)
         db.session.commit()
-    # def deleteData(self, paramFromRequest):
-    #     objectToDelete=CategoryProduct.query.filter_by(msc_id=paramFromRequest.get('msc_id'))
-    #     db.session.delete(objectToDelete[0])
-    #     db.session.commit()
-    
+
+    def deleteData(self, paramFromRequest):
+        objectToDelete=Company.query.filter_by(mscp_id=paramFromRequest.get('mscp_id'))
+        db.session.delete(objectToDelete[0])
+        db.session.commit()
+
     def updateData(self, dataFromRequest):
         categoryProduct=Company.query.filter_by(mscp_id=dataFromRequest.get('mscp_id')).first()
         categoryProduct.mscp_desc=dataFromRequest.get('mscp_desc')
@@ -160,6 +170,8 @@ class ParameterHandler:
             'mscp_id':request.json.get('company_id')
         }
         return parameterFromRequest
+    def getDeleteIdCompanyFromRequests(self):
+        return self.getSearchParameterFromRequest()
 
 
 class ValidationHandler:
@@ -188,4 +200,7 @@ class ValidationHandler:
 
     def isParamInsertValid(self, dataFromRequest):
         return self.isCompanyValid(dataFromRequest)
+
+    def isParamDeleteValid(self, paramFromRequest):
+        return self.isParamSearchValid(paramFromRequest)
     # Handle validation

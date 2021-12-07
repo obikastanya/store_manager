@@ -2,8 +2,8 @@
 class DatatableAttributes {
     buttonEdit = `<button type="button" class="btn btn-warning btn-edit-company" 
                     onclick="new ModalForm().showModalCompany('id_modal_for_edit')" value="_data_">Edit</button>`
-    buttonDelete = `<button type="button" class="btn btn-danger btn-delete-category-product" 
-                    onclick="new ModalForm().showModalCategoryProduct('id_modal_for_delete')" value="_data_"
+    buttonDelete = `<button type="button" class="btn btn-danger btn-delete-company" 
+                    onclick="new ModalForm().showModalCompany('id_modal_for_delete')" value="_data_"
                     >Delete</button>`
     buttonCreateNewData = `<button type="button" class="btn btn-success" 
                             onclick="new ModalForm().showModalCompany('id_modal_for_add_new_data')" data="_data_"
@@ -84,7 +84,7 @@ class ModalButtonEvent {
     bindEvent() {
         const buttonSaveNewData = document.querySelector( '#new_data_save_button_id' )
         const buttonSaveChanges = document.querySelector( '#button_save_updated_data' )
-        const buttonDeleteCategory = document.querySelector( '#button_delete_category' )
+        const buttonDeleteCategory = document.querySelector( '#button_delete_company' )
         buttonSaveNewData.addEventListener( 'click', this.saveCompany )
         buttonSaveChanges.addEventListener( 'click', this.saveUpdatedCompany )
         buttonDeleteCategory.addEventListener( 'click', this.deleteCategory )
@@ -115,10 +115,10 @@ class ModalButtonEvent {
         const validationResult = new FormValidation().validateDeleteParameter( deleteParameter )
         if ( !validationResult.isValid ) {
             new Alert().showWarning( validationResult.message )
-            new ModalForm().enableFormButton( '#button_delete_category' )
+            new ModalForm().enableFormButton( '#button_delete_company' )
             return
         }
-        new ModalForm().disableFormButton( '#button_delete_category' )
+        new ModalForm().disableFormButton( '#button_delete_company' )
         new Ajax().deleteCategory( deleteParameter )
 
     }
@@ -126,8 +126,8 @@ class ModalButtonEvent {
         datatableCategoryProduct.on( 'click', '.btn-edit-company', function ( e ) {
             new Ajax().getCompanyById( e.target.value )
         } )
-        datatableCategoryProduct.on( 'click', '.btn-delete-category-product', function ( e ) {
-            new Ajax().getCategoryByIdForDeleteActions( e.target.value )
+        datatableCategoryProduct.on( 'click', '.btn-delete-company', function ( e ) {
+            new Ajax().getCompanyByIdForDeleteActions( e.target.value )
         } )
     }
 }
@@ -163,9 +163,9 @@ class ModalForm {
         $( '#' + idModal ).modal( 'show' )
     }
     setDeleteConfirmMessage( formValues ) {
-        const confirmMessage = `Apakah Anda yakin akan menghapus data ${ formValues.category_id } - ${ formValues.category } ?`
+        const confirmMessage = `Area you sure to delete ${ formValues.company_id } - ${ formValues.company } ?`
         document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
-        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.category_id
+        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.company_id
     }
     hideModalCompany( idModal ) {
         // The modal wont hide if we use pure javascript, the only way to make it work is using jquery.
@@ -201,7 +201,7 @@ class FormData {
     }
     getDeleteConfirmValues() {
         let formValues = {
-            category_id: document.getElementById( 'delete_confirm_massage_id' ).value
+            company_id: document.getElementById( 'delete_confirm_massage_id' ).value
         }
         return formValues
     }
@@ -278,8 +278,8 @@ class Ajax {
             .then( onSuccess )
             .catch( onFail )
     }
-    getCategoryByIdForDeleteActions( categoryId ) {
-        const payload = this.createPayload( 'POST', { 'category_id': categoryId } )
+    getCompanyByIdForDeleteActions( companyId ) {
+        const payload = this.createPayload( 'POST', { 'company_id': companyId } )
         const onSuccess = ( response ) => {
             if ( !response.data.length ) new Alert().failedAjax( response.msg );
             let recordValues = response.data[ 0 ]
@@ -291,7 +291,7 @@ class Ajax {
         const onFail = ( error ) => {
             new Alert().error()
         }
-        fetch( '/category_product_api_search', payload )
+        fetch( '/company_api_search', payload )
             .then( response => response.json() )
             .then( onSuccess )
             .catch( onFail )
@@ -334,9 +334,9 @@ class Ajax {
             new Alert().error()
         }
         const onFinal = () => {
-            new ModalForm().enableFormButton( '#button_delete_category' )
+            new ModalForm().enableFormButton( '#button_delete_company' )
         }
-        fetch( '/category_product_api', payload )
+        fetch( '/company_api', payload )
             .then( response => response.json() )
             .then( onSuccess )
             .catch( onFail )
@@ -385,8 +385,8 @@ class FormValidation {
         return this.validateResult( 'Data is valid', true )
     }
     validateDeleteParameter( deleteParameter ) {
-        if ( !deleteParameter.category_id || deleteParameter.category_id.length < 0 ) {
-            return this.validateResult( 'Category Id doesnt found' )
+        if ( !deleteParameter.company_id || deleteParameter.company_id.length < 0 ) {
+            return this.validateResult( 'Company Id doesnt found' )
         }
         return this.validateResult( 'Data is valid', true )
     }
@@ -400,7 +400,7 @@ const runScript = () => {
     const modalButtonEvent = new ModalButtonEvent()
     $( document ).ready( function () {
         api.initiateDatatable()
-        // modalForm.registerModalButtonEvent()
+        modalForm.registerModalButtonEvent()
         modalForm.registerModalDefaultEvent()
         modalButtonEvent.bindEvent()
     } )

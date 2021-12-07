@@ -222,3 +222,19 @@ def testSuccessOnUpdate():
     response=requests.put(host+'/company_api', json=payload)
     jsonResponse=response.json()
     assert jsonResponse.get('status')==True
+
+# delete records
+@pytest.mark.deleteFailed
+def testEmptyCompanyOnDelete():
+    payload={'company_id':''}
+    response=requests.delete(host+'/company_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==False
+
+# need to change the id to existing id before run the test
+@pytest.mark.deleteSuccess
+def testCompanyOnDelete():
+    payload={'company_id':'3'}
+    response=requests.delete(host+'/company_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==True
