@@ -37,8 +37,8 @@ class DatatableAttributes {
     }
     columnName=  [
     { "name": "no",   "targets": 0 },
-    { "name": "company_id",  "targets": 1 },
-    { "name": "company", "targets": 2 },
+    { "name": "category_id",  "targets": 1 },
+    { "name": "category", "targets": 2 },
     { "name": "active_status",  "targets": 3 },
     { "name": "action",    "targets": 4 }
   ]

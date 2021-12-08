@@ -1,9 +1,7 @@
 from flask import request
-from flask_sqlalchemy.model import Model
-from marshmallow.schema import Schema
-from .categoryProductModel import db,CategoryProductSchema, CategoryProduct
 from sqlalchemy import func
-from application.master.baseMasterController import MasterController, DataHandler, ParameterHandler, ValidationHandler
+from .categoryProductModel import db,CategoryProductSchema, CategoryProduct
+from ..baseMasterController import MasterController, DataHandler, ParameterHandler, ValidationHandler
 
 class CategoryProductController(MasterController):
     def __init__(self):
@@ -42,26 +40,29 @@ class DataHandlerImpl(DataHandler):
         orderStatement=None
         columnToOrder=datatableConfig.get('orderBy')
         orderDirection=datatableConfig.get('orderDirection')
-
         if columnToOrder=='msc_id': 
-            if orderDirection=='asc':
-                orderStatement=self.Model.msc_id.asc()
-            if orderDirection=='desc':
-                orderStatement=self.Model.msc_id.desc()
-
-        if columnToOrder=='msc_desc':
-            if orderDirection=='asc':
-                orderStatement=self.Model.msc_desc.asc()
-            if orderDirection=='desc':
-                orderStatement=self.Model.msc_desc.desc()
-
-        if columnToOrder=='msc_active_status':
-            if orderDirection=='asc':
-                orderStatement=self.Model.msc_active_status.asc()
-            if orderDirection=='desc':
-                orderStatement=self.Model.msc_active_status.desc()
+            orderStatement=self.getOrderDirectionById(orderDirection)
+        elif columnToOrder=='msc_desc':
+            orderStatement=self.getOrderDirectionByDesc(orderDirection)
+        elif columnToOrder=='msc_active_status':
+            orderStatement=self.getOrderDirectionByActiveStatus(orderDirection)
 
         return orderStatement
+
+    def getOrderDirectionById(self, orderDirection):
+        if orderDirection=='desc':
+            return self.Model.msc_id.desc()
+        return self.Model.msc_id.asc()
+
+    def getOrderDirectionByDesc(self,orderDirection):
+        if orderDirection=='desc':
+            return self.Model.msc_desc.desc()
+        return self.Model.msc_desc.asc()
+
+    def getOrderDirectionByActiveStatus(self,orderDirection):
+        if orderDirection=='desc':
+            return self.Model.msc_active_status.desc()
+        return self.Model.msc_active_status.asc()
         
 
 class ParameterHandlerImpl(ParameterHandler):
@@ -80,6 +81,7 @@ class ParameterHandlerImpl(ParameterHandler):
             'msc_id':request.json.get('category_id')
         }
         return dataFromRequest
+
     def getIdFromRequest(self):
         parameterFromRequest={
             'msc_id':request.json.get('category_id')
@@ -116,7 +118,7 @@ class ValidationHandlerImpl(ValidationHandler):
         if not paramFromRequest.get('msc_id'):
             return False
         return True
-        
+
     def isParamDeleteValid(self, paramFromRequest):
         return self.isParamSearchValid(paramFromRequest)
 

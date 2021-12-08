@@ -40,7 +40,7 @@ class MasterController:
 
     def deleteData(self):
         try:
-            dataFromRequest=self.parameterHandler.getIdFromRequests()
+            dataFromRequest=self.parameterHandler.getIdFromRequest()
             if not self.validationHandler.isParamDeleteValid(dataFromRequest):
                 return Response.statusAndMsg(False,'Data is not valid, delete process has been canceled' )
             self.dataHandler.deleteData(dataFromRequest)
@@ -49,16 +49,16 @@ class MasterController:
             return Response.statusAndMsg(False,'Data failed to removed' )
 
     def searchSingleData(self):
-        try:
-            paramFromRequest=self.parameterHandler.getIdFromRequest()
-            if not self.validationHandler.isParamSearchValid(paramFromRequest):
-                return Response.make(False,'Data ID is not valid, process has been canceled' )
-            singleData=self.dataHandler.grabSingleData(paramFromRequest)
-            if not self.dataHandler.isDataExist(singleData):
-                return Response.make(False,'Data is not found' )
-            return Response.make(msg='Data Found', data=singleData)
-        except:
-            return Response.make(False,'Cant find data' )
+        # try:
+        paramFromRequest=self.parameterHandler.getIdFromRequest()
+        if not self.validationHandler.isParamSearchValid(paramFromRequest):
+            return Response.make(False,'Data ID is not valid, process has been canceled' )
+        singleData=self.dataHandler.grabSingleData(paramFromRequest)
+        if not self.dataHandler.isDataExist(singleData):
+            return Response.make(False,'Data is not found' )
+        return Response.make(msg='Data Found', data=singleData)
+        # except:
+        #     return Response.make(False,'Cant find data' )
 
 
 
@@ -81,7 +81,7 @@ class DataHandler:
 
     def grabSingleData(self, paramFromRequest):
         groupOfObjectResult=self.grabOne(paramFromRequest)
-        return self.Schema(many=True).dump(groupOfObjectResult)
+        return self.Schema(many=True).dump([groupOfObjectResult])
 
     def grabData(self):
         """Grab data based on parameter sended. 
