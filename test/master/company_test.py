@@ -148,7 +148,7 @@ def testInsertSuccess():
 @pytest.mark.company
 @pytest.mark.selectSingleSuccess
 def testCompanyOnSelectSingle():
-    payload={'company_id':'2'}
+    payload={'company_id':'4'}
     response=requests.post(host+'/company_api_search', json=payload)
     jsonResponse=response.json()
     validResponse=jsonResponse.get('status')==True and bool(len(jsonResponse.get('data'))>0)
@@ -183,7 +183,7 @@ def testEmptyCompanyId():
 @pytest.mark.company
 @pytest.mark.updateFailed
 def testEmptyActiveStatus():
-    payload={'company':'this is new value', 'company_id':'2', 'active_status':''}
+    payload={'company':'this is new value', 'company_id':'4', 'active_status':''}
     response=requests.put(host+'/company_api', json=payload)
     jsonResponse=response.json()
     assert jsonResponse.get('status')==False
@@ -191,7 +191,7 @@ def testEmptyActiveStatus():
 @pytest.mark.company
 @pytest.mark.updateFailed
 def testEmptyParameterOnUpdate():
-    payload={'company':'', 'company_id':'2', 'active_status':'Y'}
+    payload={'company':'', 'company_id':'4', 'active_status':'Y'}
     response=requests.put(host+'/company_api', json=payload)
     jsonResponse=response.json()
     assert jsonResponse.get('status')==False
@@ -201,7 +201,7 @@ def testEmptyParameterOnUpdate():
 def testMaxLengthOnUpdate():
     payload={'company':"""Lorem ipsum dolor sit amet consectetur adipisicing elit. 
     Dolorem commodi facere voluptatem earum dolor alias debitis laborum iste error adipisci? 
-    Vitae deleniti natus dignissimos illo Vitae deleniti natus dignissimos illo.""",'company_id':'2', 'active_status':'Y' 
+    Vitae deleniti natus dignissimos illo Vitae deleniti natus dignissimos illo.""",'company_id':'4', 'active_status':'Y' 
                 }
     response=requests.put(host+'/company_api', json=payload)
     jsonResponse=response.json()
@@ -210,7 +210,7 @@ def testMaxLengthOnUpdate():
 @pytest.mark.company
 @pytest.mark.updateFailed
 def testMinLengthOnUpdate():
-    payload={'company':'L', 'company_id':'2', 'active_status':'Y'}
+    payload={'company':'L', 'company_id':'4', 'active_status':'Y'}
     response=requests.put(host+'/company_api', json=payload)
     jsonResponse=response.json()
     assert jsonResponse.get('status')==False
@@ -218,7 +218,7 @@ def testMinLengthOnUpdate():
 @pytest.mark.company
 @pytest.mark.updateSuccess
 def testSuccessOnUpdate():
-    payload={'company':'this is new value', 'company_id':'2', 'active_status':'Y'}
+    payload={'company':'this is new value', 'company_id':'4', 'active_status':'Y'}
     response=requests.put(host+'/company_api', json=payload)
     jsonResponse=response.json()
     assert jsonResponse.get('status')==True
@@ -234,7 +234,7 @@ def testEmptyCompanyOnDelete():
 # need to change the id to existing id before run the test
 @pytest.mark.deleteSuccess
 def testCompanyOnDelete():
-    payload={'company_id':'3'}
+    payload={'company_id':'6'}
     response=requests.delete(host+'/company_api', json=payload)
     jsonResponse=response.json()
     assert jsonResponse.get('status')==True
