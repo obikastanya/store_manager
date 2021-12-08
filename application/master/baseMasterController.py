@@ -5,9 +5,11 @@ from application.utilities.response import Response
 
 class MasterController:
     def __init__(self):
-        self.dataHandler=DataHandler()
-        self.validationHandler=ValidationHandler()
-        self.parameterHandler=ParameterHandler()
+        # create instance from DataHandler, ValidationHandler and ParameterHandler
+        self.dataHandler=None
+        self.validationHandler=None
+        self.parameterHandler=None
+
     # All method bellow is a method whos being called by route function
     def getData(self):
         try:
@@ -38,7 +40,7 @@ class MasterController:
 
     def deleteData(self):
         try:
-            dataFromRequest=self.parameterHandler.geIdFromRequests()
+            dataFromRequest=self.parameterHandler.getIdFromRequests()
             if not self.validationHandler.isParamDeleteValid(dataFromRequest):
                 return Response.statusAndMsg(False,'Data is not valid, delete process has been canceled' )
             self.dataHandler.deleteData(dataFromRequest)
@@ -51,10 +53,10 @@ class MasterController:
             paramFromRequest=self.parameterHandler.getIdFromRequest()
             if not self.validationHandler.isParamSearchValid(paramFromRequest):
                 return Response.make(False,'Data ID is not valid, process has been canceled' )
-            categoryProduct=self.dataHandler.grabSingleData(paramFromRequest)
-            if not self.dataHandler.isDataExist(categoryProduct):
+            singleData=self.dataHandler.grabSingleData(paramFromRequest)
+            if not self.dataHandler.isDataExist(singleData):
                 return Response.make(False,'Data is not found' )
-            return Response.make(msg='Data Found', data=categoryProduct)
+            return Response.make(msg='Data Found', data=singleData)
         except:
             return Response.make(False,'Cant find data' )
 
@@ -65,17 +67,27 @@ class DataHandler:
     def __init__(self):
         self.Schema=None
         self.Model=None
+        self.parameterHandler=None
 
     def insertNewData(self,dataFromRequest):
         objectToInsert=self.Model(**dataFromRequest)
         db.session.add(objectToInsert)
         db.session.commit()
-    
+
+    def deleteData(self, paramFromRequest):
+        objectToDelete=self.grabOne(paramFromRequest)
+        db.session.delete(objectToDelete)
+        db.session.commit()
+
+    def grabSingleData(self, paramFromRequest):
+        groupOfObjectResult=self.grabOne(paramFromRequest)
+        return self.Schema(many=True).dump(groupOfObjectResult)
+
     def grabData(self):
         """Grab data based on parameter sended. 
             Returning list of category product to be shown, total records selected
             and total records after filtered"""
-        datatableConfig=ParameterHandler().getDatatableConfiguration()
+        datatableConfig=self.parameterHandler.getDatatableConfiguration()
         totalRecords=self.grabTotalRecords()
         totalRecordsFiltered=None
         categoryProductData=[]
@@ -91,28 +103,33 @@ class DataHandler:
             categoryProductData= self.grabDataDefault(datatableConfig)
         return categoryProductData,totalRecords, totalRecordsFiltered
 
+    def grabDataDefault(self, datatableConfig):
+        groupOfObjectResult=self.Model.query.offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        return self.Schema(many=True).dump(groupOfObjectResult)
+
+    def grabDataWithKeywordAndOrder(self,datatableConfig):
+        orderStatement=self.getOrderStatement(datatableConfig)
+        searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
+        groupOfObjectResult=self.Model.query.filter(searchKeyWord).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        return self.Schema(many=True).dump(groupOfObjectResult)
+
+    
+    def grabDataWithKeyword(self,datatableConfig):
+        searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
+        groupOfObjectResult=self.Model.query.filter(searchKeyWord).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        return self.Schema(many=True).dump(groupOfObjectResult)
+    
+    def grabDataWithOrderby(self, datatableConfig):
+        orderStatement=self.getOrderStatement(datatableConfig)
+        groupOfObjectResult=self.Model.query.order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        return self.Schema(many=True).dump(groupOfObjectResult)
+
     def isDataExist(self, queryResult):
         if(len(queryResult)>0):
             return True
         return False
-    def deleteData(self, paramFromRequest):
-        pass
     
     def updateData(self, dataFromRequest):
-        pass
-
-    def grabSingleData(self, paramFromRequest):
-        pass
-    def grabDataDefault(self, datatableConfig):
-        pass
-
-    def grabDataWithKeywordAndOrder(self,datatableConfig):
-        pass
-
-    def grabDataWithKeyword(self,datatableConfig):
-        pass
-
-    def grabDataWithOrderby(self, datatableConfig):
         pass
 
     def grabTotalRecords(self):
@@ -125,6 +142,8 @@ class DataHandler:
 
     def getOrderStatement(self,datatableConfig):
        pass
+    def grabOne(self,paramFromRequest):
+        pass
         
 
 class ParameterHandler:
