@@ -96,24 +96,24 @@ def testSuccessOnUpdate():
 # select single data case
 @pytest.mark.selectSingleSuccess
 def testCategoryOnSelectSingle():
-    payload={'category_id':'66'}
-    response=requests.get(host+'/category_product_api_search', json=payload)
+    payload={'category_id':'68'}
+    response=requests.post(host+'/category_product_api_search', json=payload)
     jsonResponse=response.json()
-    validResponse=jsonResponse.get('status')==True and bool(len(jsonResponse.get('data'))>0)
+    validResponse=jsonResponse.get('status')==True 
     assert validResponse==True
 
 @pytest.mark.selectSingleFailed
 def testNotFoundCategoryOnSelectSingle():
     payload={'category_id':'000'}
-    response=requests.get(host+'/category_product_api_search', json=payload)
+    response=requests.post(host+'/category_product_api_search', json=payload)
     jsonResponse=response.json()
-    validResponse=jsonResponse.get('status')==False and bool(len(jsonResponse.get('data'))<1)
-    assert validResponse==True
+    validResponse=jsonResponse.get('status')
+    assert validResponse==False
 
 @pytest.mark.selectSingleFailed
 def testEmptyCategoryOnSelectSingle():
     payload={'category_id':''}
-    response=requests.get(host+'/category_product_api_search', json=payload)
+    response=requests.post(host+'/category_product_api_search', json=payload)
     jsonResponse=response.json()
     assert jsonResponse.get('status')==False
 

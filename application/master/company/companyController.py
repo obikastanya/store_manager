@@ -10,7 +10,7 @@ class CompanyController(MasterController):
         self.validationHandler=ValidationHandlerImpl()
         self.parameterHandler=ParameterHandlerImpl()
 
-class DataHandlerImpl:
+class DataHandlerImpl(DataHandler):
     def __init__(self):
         super().__init__()
         self.Model=Company
@@ -25,7 +25,7 @@ class DataHandlerImpl:
         db.session.commit()
 
     def grabOne(self, paramFromRequest):
-        return self.Model.query.filter_by(mscp_id=paramFromRequest.get('mscp_id'))
+        return self.Model.query.filter_by(mscp_id=paramFromRequest.get('mscp_id')).first()
 
     def grabTotalRecords(self):
         return db.session.query(func.count(self.Model.mscp_id)).scalar()
@@ -37,21 +37,16 @@ class DataHandlerImpl:
     def getSearchKeywordStatement(self, datatableConfig):
         return self.Model.mscp_desc.like("%{}%".format(datatableConfig.get('searchKeyWord')))
     
-    def isDataExist(self, dataCompany):
-        if(len(dataCompany)>0):
-            return True
-        return False
-    
     def getOrderStatement(self,datatableConfig):
         orderStatement=None
         columnToOrder=datatableConfig.get('orderBy')
         orderDirection=datatableConfig.get('orderDirection')
 
-        if columnToOrder=='msc_id': 
+        if columnToOrder=='mscp_id': 
             orderStatement=self.getOrderDirectionById(orderDirection)
-        elif columnToOrder=='msc_desc':
+        elif columnToOrder=='mscp_desc':
             orderStatement=self.getOrderDirectionByDesc(orderDirection)
-        elif columnToOrder=='msc_active_status':
+        elif columnToOrder=='mscp_active_status':
             orderStatement=self.getOrderDirectionByActiveStatus(orderDirection)
 
         return orderStatement
@@ -68,10 +63,10 @@ class DataHandlerImpl:
 
     def getOrderDirectionByActiveStatus(self,orderDirection):
         if orderDirection=='desc':
-            return self.Model.mscp_active_status.asc()
-        return self.Model.mscp_active_status.desc()
+            return self.Model.mscp_active_status.desc()
+        return self.Model.mscp_active_status.asc()
 
-class ParameterHandlerImpl:
+class ParameterHandlerImpl(ParameterHandler):
     def getValuesFromRequests(self):
         dataFromRequest={
             'mscp_desc':request.json.get('company'),
@@ -104,8 +99,7 @@ class ParameterHandlerImpl:
             return 'mscp_active_status'
         return None
 
-class ValidationHandlerImpl:
-
+class ValidationHandlerImpl(ValidationHandler):
     def isParamSearchValid(self, paramFromRequest):
             if not paramFromRequest.get('mscp_id'):
                 return False

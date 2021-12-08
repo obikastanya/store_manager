@@ -5,7 +5,8 @@ from application.utilities.response import Response
 
 class MasterController:
     def __init__(self):
-        # create instance from DataHandler, ValidationHandler and ParameterHandler
+        # create instance from DataHandler, ValidationHandler and ParameterHandler. 
+        # This class would be implemented by controller class.
         self.dataHandler=None
         self.validationHandler=None
         self.parameterHandler=None
@@ -49,16 +50,18 @@ class MasterController:
             return Response.statusAndMsg(False,'Data failed to removed' )
 
     def searchSingleData(self):
-        # try:
-        paramFromRequest=self.parameterHandler.getIdFromRequest()
-        if not self.validationHandler.isParamSearchValid(paramFromRequest):
-            return Response.make(False,'Data ID is not valid, process has been canceled' )
-        singleData=self.dataHandler.grabSingleData(paramFromRequest)
-        if not self.dataHandler.isDataExist(singleData):
-            return Response.make(False,'Data is not found' )
-        return Response.make(msg='Data Found', data=singleData)
-        # except:
-        #     return Response.make(False,'Cant find data' )
+        try:
+            paramFromRequest=self.parameterHandler.getIdFromRequest()
+            print('is valid',self.validationHandler.isParamSearchValid(paramFromRequest))
+            if not self.validationHandler.isParamSearchValid(paramFromRequest):
+                return Response.make(False,'Data ID is not valid, process has been canceled' )
+            singleData=self.dataHandler.grabSingleData(paramFromRequest)
+            print('is data exist ',self.dataHandler.isDataExist(singleData))
+            if not self.dataHandler.isDataExist(singleData):
+                return Response.make(False,'Data is not found' )
+            return Response.make(msg='Data Found', data=singleData)
+        except:
+            return Response.make(False,'Cant find data' )
 
 
 
@@ -84,8 +87,7 @@ class DataHandler:
         return self.Schema(many=True).dump([groupOfObjectResult])
 
     def grabData(self):
-        """Grab data based on parameter sended. 
-            Returning list of category product to be shown, total records selected
+        """Returning list of category product to be shown, total records selected
             and total records after filtered"""
         datatableConfig=self.parameterHandler.getDatatableConfiguration()
         totalRecords=self.grabTotalRecords()
@@ -125,9 +127,12 @@ class DataHandler:
         return self.Schema(many=True).dump(groupOfObjectResult)
 
     def isDataExist(self, queryResult):
-        if(len(queryResult)>0):
-            return True
-        return False
+        # first check if the array is not empty, then check if its contain empty dictionary
+        if len(queryResult)<1:
+            return False
+        if not queryResult[0]:
+            return False
+        return True
     
     def updateData(self, dataFromRequest):
         pass
