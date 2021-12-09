@@ -10,7 +10,7 @@ class ButtonSelector{
         this.modalAddNewRecordId = 'id_modal_for_add_new_data'
     }
 }
-class DatatableTools extends ButtonSelector {
+class DatatableTools extends ButtonSelector {    
     buttonEdit = `<button type="button" class="btn btn-warning btn-edit-data" 
                     onclick="new ModalForm().showModal('${this.modalEditId}')"
                     value="_data_">Edit</button>`
@@ -41,7 +41,6 @@ class BaseDatatable extends DatatableTools {
         this.tableColumns = []
         this.datatableId = ''
         this.apiEndpoint = '/'
-        this.AjaxInstance = undefined
     }
     getTableSetup(){
         const tableSetup = {
@@ -78,26 +77,12 @@ class BaseDatatable extends DatatableTools {
             } );
         } ).draw();
     }
-    bindEventForActionsButton( datatableInstance ) {
-        datatableInstance.on( 'click', this.btnClassEditData,  function( e ){
-            new AjaxImpl().getSingleData( e.target.value )
-        } )
-        datatableInstance.on( 'click', this.btnClassDeleteData, ( e ) =>{
-            new AjaxImpl().getSingleDataForDeleteActions( e.target.value )
-        } )
-    }
+    bindEventForActionsButton( datatableInstance ) {}
 }
 
 
 /**Class to manage event in button inside modal pop up, its about final action such as save data, remove, etc */
 class ButtonEvent extends ButtonSelector{
-    constructor(){
-        super()
-        this.FormDataInstance=undefined
-        this.FormValidationInstance=undefined
-        this.AjaxInstance=undefined
-        this.ModalFormInstance=undefined
-    }
     bindEventWithAjax() {
         const buttonSaveNewData = document.querySelector(this.saveNewRecord  )
         const buttonSaveChanges = document.querySelector(  this.btnSaveUpdatedRecord)
@@ -106,39 +91,9 @@ class ButtonEvent extends ButtonSelector{
         buttonSaveChanges.addEventListener( 'click', this.saveUpdatedData )
         buttonDelete.addEventListener( 'click', this.deleteData )
     }
-    saveNewData() {
-        const insertParams = this.FormDataInstance.getAddNewDataFormValues()
-        const validationResult = this.FormValidationInstance.validateInsertParams( insertParams )
-        if ( !validationResult.isValid ) {
-            new Alert().showWarning( validationResult.message )
-            this.ModalFormInstance.enableFormButton( this.saveNewRecord )
-            return
-        }
-        this.ModalFormInstance.disableFormButton( this.saveNewRecord )
-        this.AjaxInstance.saveNewRecord( insertParams )
-    }
-    saveUpdatedData() {
-        const updateParams = this.FormDataInstance.getUpdateFormValues()
-        const validationResult = this.FormValidationInstance.validateUpdateParams( updateParams )
-        if ( !validationResult.isValid ) {
-            new Alert().showWarning( validationResult.message )
-            this.ModalFormInstance.enableFormButton( this.btnSaveUpdatedRecord)
-            return
-        }
-        this.ModalFormInstance.disableFormButton( this.btnSaveUpdatedRecord )
-        this.AjaxInstance.updateData( updateParams )
-    }
-    deleteData() {
-        const deleteParams = this.FormDataInstance.getDeleteFormValues()
-        const validationResult = this.FormValidationInstance.validateDeleteParams( deleteParams )
-        if ( !validationResult.isValid ) {
-            new Alert().showWarning( validationResult.message )
-            this.ModalFormInstance.enableFormButton( this.btnDeleteId )
-            return
-        }
-        this.ModalFormInstance.disableFormButton( thid.btnDeleteId )
-        this.AjaxInstance.deleteData( deleteParams )
-    }
+    saveNewData() {}
+    saveUpdatedData() {}
+    deleteData() {}
     
 }
 
@@ -177,6 +132,7 @@ class ModalForm extends ButtonSelector{
         document.querySelector( buttonSelector ).setAttribute( 'disabled', '' )
     }
     enableFormButton( buttonSelector ) {
+        console.log(buttonSelector)
         document.querySelector( buttonSelector ).removeAttribute( 'disabled' )
     }
     setDeleteConfirmMessage( formValues ) {}
@@ -226,60 +182,3 @@ class FormValidation {
     validateDeleteParams( deleteParams ) {}
     validateInsertParams(insertParams) {}
 }
-
-// // sample 
-// class DatatableCompanyImpl extends BaseDatatable{
-//     constructor() {
-//         super()
-//         this.columnName = []
-//         this.tableColumns = []
-//         this.datatableId = ''
-//         this.apiEndpoint = '/'
-//         this.AjaxInstance = undefined
-//         this.textModalFormClass = 'new ModalForm()'
-//     }
-// }
-// class FormDataImpl extends FormData {
-//     saveNewRecord( formData ) { }
-//     getSingleData( recordId ) { }
-//     getSingleDataForDeleteActions( recordId ) { }
-//     updateData( formData ) { }
-//     deleteData( formData ) { }
-// }
-// class AjaxImpl extends Ajax{
-//     saveNewRecord( formData ) { }
-//     getSingleData( recordId ) { }
-//     getSingleDataForDeleteActions( recordId ) { }
-//     updateData( formData ) { }
-//     deleteData( formData ) { }
-// }
-// class FormValidationImpl extends FormValidation{
-//     validateUpdateParams( updateParams ) { }
-//     validateDeleteParams( deleteParams ) { }
-//     validateInsertParams( insertParams ) { }
-// }
-// class ModalFormImpl extends ModalForm{
-//     setDeleteConfirmMessage( formValues ) { }
-//     clearAddNewDataForm() { }
-// }
-
-// const runScript = () => {
-//     $( document ).ready( function () {
-//         const modalForm = new ModalFormImpl()
-//         new DatatableCompanyImpl().initiateDatatable()
-//         modalForm.registerOnHideModal()
-//         modalForm.disabledBtnNewDataOnClick()
-//         new ModalButtonEvent().bindEventWithAjax()
-//     } )
-// }
-
-// class ButtonEventImpl extends ButtonEvent{
-//     constructor() {
-//         super()
-//         this.FormDataInstance = undefined
-//         this.FormValidationInstance = undefined
-//         this.AjaxInstance = undefined
-//         this.ModalFormInstance = undefined
-//     }
-// }
-// runScript()

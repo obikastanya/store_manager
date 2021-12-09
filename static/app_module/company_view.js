@@ -25,11 +25,21 @@ class DatatableCompanyImpl extends BaseDatatable {
         ]
         this.datatableId = '#company_datatable_id'
         this.apiEndpoint = '/company_api'
-        this.AjaxInstance = new AjaxImpl()
-        this.textModalFormClass = 'new ModalFormImpl()'
+    }
+    bindEventForActionsButton( datatableInstance ) {
+        datatableInstance.on( 'click', this.btnClassEditData, function ( e ) {
+            new AjaxImpl().getSingleData( e.target.value )
+        } )
+        datatableInstance.on( 'click', this.btnClassDeleteData, ( e ) => {
+            new AjaxImpl().getSingleDataForDeleteActions( e.target.value )
+        } )
     }
 }
+
 class FormDataImpl extends FormData {
+    constructor(){
+        super()
+    }
     getAddNewDataFormValues() { 
         let formValues = {
             company: document.querySelector( '#companyFields' ).value
@@ -57,119 +67,10 @@ class FormDataImpl extends FormData {
         document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
     }
 }
-class AjaxImpl extends Ajax {
-    saveNewRecord( formData ) {
-        const payload = this.createPayload( 'POST', formValues )
-        const onSuccess = ( response ) => {
-            if ( response.status ) {
-                new ModalFormImpl().hideModal( 'id_modal_for_add_new_data' )
-                new Alert().successAjax( response.msg )
-                new DatatableCompanyImpl().reloadDatatable()
-                return
-            }
-            new Alert().failedAjax( response.msg )
-        }
-        const ajaxCallback={
-            onSuccess:onSuccess,
-            onFail : ( error ) => {
-                new Alert().error()
-            },
-            onFinal :() => {
-                new ModalForm().enableSaveConfirmBtn()
-            }
-        }
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback)
-     }
-    getSingleData( recordId ) { 
-        const payload = this.createPayload( 'POST', { 'company_id': recordId } )
-        const onSuccess = ( response ) => {
-            console.log( response )
-            if ( !response.data.length ) new Alert().failedAjax( response.msg );
-            let recordValues = response.data[ 0 ]
-
-            // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
-            recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
-
-            new FormDataImpl().setUpdateFormValues( recordValues )
-            return
-        }
-        const ajaxCallback = {
-            onSuccess: onSuccess,
-            onFail: ( error ) => {
-                new Alert().error()
-            },
-            onFinal: () => {}
-        }
-        this.sendAjax( { url: '/company_api_search', payload: payload }, ajaxCallback )
-    }
-    getSingleDataForDeleteActions( recordId ) {
-        const payload = this.createPayload( 'POST', { 'company_id': recordId } )
-        const onSuccess = ( response ) => {
-            if ( !response.data.length ) new Alert().failedAjax( response.msg );
-            let recordValues = response.data[ 0 ]
-            // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
-            recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
-            new ModalFormImpl().setDeleteConfirmMessage( recordValues )
-            return
-        }
-        const ajaxCallback = {
-            onSuccess: onSuccess,
-            onFail: ( error ) => {
-                new Alert().error()
-            },
-            onFinal: () => {}
-        }
-        this.sendAjax( { url: '/company_api_search', payload: payload }, ajaxCallback )
-
-     }
-    updateData( formData ) {
-        const payload = this.createPayload( 'PUT', formData )
-        const onSuccess = ( response ) => {
-            if ( !response.status ) {
-                return new Alert().failedAjax( response.msg )
-            }
-            new Alert().successAjax( response.msg )
-            new ApiForDatatableCompany().reloadDatatable()
-            new ModalForm().hideModalCompany( 'id_modal_for_edit' )
-            return
-        }
-        const ajaxCallback = {
-            onSuccess: onSuccess,
-            onFail: ( error ) => {
-                new Alert().error()
-            },
-            onFinal : () => {
-                new ModalFormImpl().enableFormButton( '#button_save_updated_data' )
-            }
-        }
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
-
-     }
-    deleteData( formData ) {
-        const payload = this.createPayload( 'DELETE', formData )
-        const onSuccess = ( response ) => {
-            if ( !response.status ) {
-                return new Alert().failedAjax( response.msg )
-            }
-            new Alert().successAjax( response.msg )
-            new DatatableCompanyImpl().reloadDatatable()
-            new ModalFormImpl().hideModal( 'id_modal_for_delete' )
-            return
-        }
-        const ajaxCallback = {
-            onSuccess: onSuccess,
-            onFail: ( error ) => {
-                new Alert().error()
-            },
-            onFinal: () => {
-                new ModalForm().enableFormButton( '#button_delete_company' )
-            }
-        }
-     
-     this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
-    }
-}
 class FormValidationImpl extends FormValidation {
+    constructor() {
+        super()
+    }
     validateUpdateParams( updateParams ) {
         const validIdCompany = this.validateIdCompany( updateParams )
         const validCompany = this.validateCompany( updateParams )
@@ -219,6 +120,9 @@ class FormValidationImpl extends FormValidation {
     }
 }
 class ModalFormImpl extends ModalForm {
+    constructor() {
+        super()
+    }
     setDeleteConfirmMessage( formValues ) { 
         const confirmMessage = `Area you sure to delete ${ formValues.company_id } - ${ formValues.company } ?`
         document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
@@ -228,13 +132,158 @@ class ModalFormImpl extends ModalForm {
         document.querySelector( '#companyFields' ).value = ''
      }
 }
+
 class ButtonEventImpl extends ButtonEvent {
     constructor() {
         super()
-        this.FormDataInstance = new FormDataImpl()
-        this.FormValidationInstance = new FormValidationImpl()
-        this.AjaxInstance = new AjaxImpl()
-        this.ModalFormInstance = new ModalFormImpl()
+    }
+    saveNewData() {
+        const insertParams = new FormDataImpl().getAddNewDataFormValues()
+        const validationResult = new FormValidationImpl().validateInsertParams( insertParams )
+        if ( !validationResult.isValid ) {
+            new Alert().showWarning( validationResult.message )
+            new ModalFormImpl().enableFormButton(  new ButtonSelector().saveNewRecord )
+            return
+        }
+        new ModalFormImpl().disableFormButton( new ButtonSelector().saveNewRecord )
+        new AjaxImpl().saveNewRecord( insertParams )
+    }
+    saveUpdatedData() {
+        const updateParams = new FormDataImpl().getUpdateFormValues()
+        const validationResult = new FormValidationImpl().validateUpdateParams( updateParams )
+        if ( !validationResult.isValid ) {
+            new Alert().showWarning( validationResult.message )
+            new ModalFormImpl().enableFormButton( new ButtonSelector().btnSaveUpdatedRecord )
+            return
+        }
+        new ModalFormImpl().disableFormButton( new ButtonSelector().btnSaveUpdatedRecord )
+        new AjaxImpl().updateData( updateParams )
+    }
+    deleteData() {
+        const deleteParams = new FormDataImpl().getDeleteFormValues()
+        const validationResult = new FormValidationImpl().validateDeleteParams( deleteParams )
+        if ( !validationResult.isValid ) {
+            new Alert().showWarning( validationResult.message )
+            new ModalFormImpl().enableFormButton( new ButtonSelector().btnDeleteId )
+            return
+        }
+        new ModalFormImpl().disableFormButton( new ButtonSelector().btnDeleteId )
+        new AjaxImpl().deleteData( deleteParams )
+    }
+}
+class AjaxImpl extends Ajax {
+    constructor() {
+        super()
+    }
+    saveNewRecord( formData ) {
+        const payload = this.createPayload( 'POST', formData )
+        const onSuccess = ( response ) => {
+            if ( response.status ) {
+                new ModalFormImpl().hideModal( 'id_modal_for_add_new_data' )
+                new Alert().successAjax( response.msg )
+                new DatatableCompanyImpl().reloadDatatable()
+                return
+            }
+            new Alert().failedAjax( response.msg )
+        }
+        const ajaxCallback = {
+            onSuccess: onSuccess,
+            onFail: ( error ) => {
+                new Alert().error()
+            },
+            onFinal: () => {
+                new ModalForm().enableSaveConfirmBtn()
+            }
+        }
+        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+    }
+    getSingleData( recordId ) {
+        const payload = this.createPayload( 'POST', { 'company_id': recordId } )
+        const onSuccess = ( response ) => {
+            console.log( response )
+            if ( !response.data.length ) new Alert().failedAjax( response.msg );
+            let recordValues = response.data[ 0 ]
+
+            // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
+            recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
+
+            new FormDataImpl().setUpdateFormValues( recordValues )
+            return
+        }
+        const ajaxCallback = {
+            onSuccess: onSuccess,
+            onFail: ( error ) => {
+                new Alert().error()
+            },
+            onFinal: () => { }
+        }
+        this.sendAjax( { url: '/company_api_search', payload: payload }, ajaxCallback )
+    }
+    getSingleDataForDeleteActions( recordId ) {
+        const payload = this.createPayload( 'POST', { 'company_id': recordId } )
+        const onSuccess = ( response ) => {
+            if ( !response.data.length ) new Alert().failedAjax( response.msg );
+            let recordValues = response.data[ 0 ]
+            // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
+            recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
+            new ModalFormImpl().setDeleteConfirmMessage( recordValues )
+            return
+        }
+        const ajaxCallback = {
+            onSuccess: onSuccess,
+            onFail: ( error ) => {
+                new Alert().error()
+            },
+            onFinal: () => { }
+        }
+        this.sendAjax( { url: '/company_api_search', payload: payload }, ajaxCallback )
+
+    }
+    updateData( formData ) {
+        const payload = this.createPayload( 'PUT', formData )
+        const onSuccess = ( response ) => {
+            if ( !response.status ) {
+                return new Alert().failedAjax( response.msg )
+            }
+            new Alert().successAjax( response.msg )
+            new DatatableCompanyImpl().reloadDatatable()
+            new ModalFormImpl().hideModal( 'id_modal_for_edit' )
+            return
+        }
+        const ajaxCallback = {
+            onSuccess: onSuccess,
+            onFail: ( error ) => {
+                new Alert().error()
+            },
+            onFinal: () => {
+                new ModalFormImpl().enableFormButton( '#button_save_updated_data_id' )
+            }
+        }
+        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+
+    }
+    deleteData( formData ) {
+        const payload = this.createPayload( 'DELETE', formData )
+        const onSuccess = ( response ) => {
+            if ( !response.status ) {
+                return new Alert().failedAjax( response.msg )
+            }
+            new Alert().successAjax( response.msg )
+            new DatatableCompanyImpl().reloadDatatable()
+            new ModalFormImpl().hideModal( 'id_modal_for_delete' )
+            return
+        }
+        const ajaxCallback = {
+            onSuccess: onSuccess,
+            onFail: ( error ) => {
+                new Alert().error()
+            },
+            onFinal: () => {
+                new ModalFormImpl().enableFormButton( '#button_delete_data_id' )
+            }
+        }
+
+        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
     }
 }
 
