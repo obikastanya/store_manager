@@ -169,6 +169,10 @@ class Ajax {
             .catch( callback.onFail )
             .finally( callback.onFinal )
     }
+    defaultOnFail( error ) {
+        new Alert().error()
+    }
+    defaultOnFinal() { }
     saveNewRecord( formData ) {}
     getSingleData( recordId ) {}
     getSingleDataForDeleteActions( recordId ) {}
