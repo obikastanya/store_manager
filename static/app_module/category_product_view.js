@@ -8,7 +8,13 @@ class DatatableCategoryProductImpl extends BaseDatatable {
             },
             { data: 'category_id' },
             { data: 'category' },
-            { data: 'active_status' },
+            {
+                data: 'active_status',
+                render: ( data ) => {
+                    if ( data == 'Y' ) return 'Active';
+                    return 'Non-Active'
+                }
+            },
             {
                 data: null,
                 render: ( data ) => {
@@ -88,7 +94,7 @@ class FormValidationImpl extends FormValidation {
         return this.validateResult( 'Data is valid', true )
     }
     validateInsertParams( insertParams ) {
-        return this.validateCategory(insertParams)
+        return this.validateCategory( insertParams )
     }
     validateCategory( formData ) {
         if ( !formData.category ) {
@@ -203,7 +209,7 @@ class AjaxImpl extends Ajax {
             recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
             new FormDataImpl().setUpdateFormValues( recordValues )
             return
-         }
+        }
         const ajaxCallback = {
             onSuccess: onSuccess,
             onFail: this.defaultOnFail,
@@ -220,16 +226,16 @@ class AjaxImpl extends Ajax {
             recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
             new ModalFormImpl().setDeleteConfirmMessage( recordValues )
             return
-         }
+        }
         const ajaxCallback = {
             onSuccess: onSuccess,
             onFail: this.defaultOnFail,
-            onFinal:this.defaultOnFinal
+            onFinal: this.defaultOnFinal
         }
         this.sendAjax( { url: '/category_product_api_search', payload: payload }, ajaxCallback )
     }
     updateData( formData ) {
-        console.log('ruunnn')
+        console.log( 'ruunnn' )
         const payload = this.createPayload( 'PUT', formData )
         const onSuccess = ( response ) => {
             if ( !response.status ) {
@@ -239,7 +245,7 @@ class AjaxImpl extends Ajax {
             new DatatableCategoryProductImpl().reloadDatatable()
             new ModalFormImpl().hideModal( 'id_modal_for_edit' )
             return
-         }
+        }
         const ajaxCallback = {
             onSuccess: onSuccess,
             onFail: this.defaultOnFail,
@@ -251,7 +257,7 @@ class AjaxImpl extends Ajax {
     }
     deleteData( formData ) {
         const payload = this.createPayload( 'DELETE', formData )
-        const onSuccess = ( response ) => { 
+        const onSuccess = ( response ) => {
             if ( !response.status ) {
                 return new Alert().failedAjax( response.msg )
             }
@@ -264,7 +270,7 @@ class AjaxImpl extends Ajax {
             onSuccess: onSuccess,
             onFail: this.defaultOnFail,
             onFinal: () => {
-                new ModalFormImpl().enableFormButton( '#button_delete_data_id')
+                new ModalFormImpl().enableFormButton( '#button_delete_data_id' )
             }
         }
         this.sendAjax( { url: '/category_product_api', payload: payload }, ajaxCallback )

@@ -8,7 +8,13 @@ class DatatableCompanyImpl extends BaseDatatable {
             },
             { data: 'company_id' },
             { data: 'company' },
-            { data: 'active_status' },
+            {
+                data: 'active_status',
+                render: ( data ) => {
+                    if ( data == 'Y' ) return 'Active';
+                    return 'Non-Active'
+                }
+            },
             {
                 data: null,
                 render: ( data ) => {
@@ -37,10 +43,10 @@ class DatatableCompanyImpl extends BaseDatatable {
 }
 
 class FormDataImpl extends FormData {
-    constructor(){
+    constructor() {
         super()
     }
-    getAddNewDataFormValues() { 
+    getAddNewDataFormValues() {
         let formValues = {
             company: document.querySelector( '#companyFields' ).value
         }
@@ -51,7 +57,7 @@ class FormDataImpl extends FormData {
             company_id: document.getElementById( 'delete_confirm_massage_id' ).value
         }
         return formValues
-     }
+    }
     getUpdateFormValues() {
         let formValues = {
             company: document.querySelector( '#companyFieldsUpdate' ).value,
@@ -59,8 +65,8 @@ class FormDataImpl extends FormData {
             active_status: this.getActiveStatusValue( '#activeStatusFields' )
         }
         return formValues
-     }
-    setUpdateFormValues( recordValues ) { 
+    }
+    setUpdateFormValues( recordValues ) {
         document.querySelector( '#idCompanyFields' ).value = recordValues.company_id
         document.querySelector( '#companyFieldsUpdate' ).value = recordValues.company
         document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
@@ -80,15 +86,15 @@ class FormValidationImpl extends FormValidation {
         if ( !validCompany ) return validCompany;
         if ( !validActiveStatus ) return validActiveStatus;
         return this.validateResult( 'Data is valid', true )
-     }
+    }
     validateDeleteParams( deleteParams ) {
         if ( !deleteParams.company_id || deleteParams.company_id.length < 0 ) {
             return this.validateResult( 'Company Id doesnt found' )
         }
         return this.validateResult( 'Data is valid', true )
-     }
-    validateInsertParams( insertParams ) { 
-        return this.validateCompany(insertParams)
+    }
+    validateInsertParams( insertParams ) {
+        return this.validateCompany( insertParams )
     }
     validateCompany( formData ) {
         if ( !formData.company ) {
@@ -123,14 +129,14 @@ class ModalFormImpl extends ModalForm {
     constructor() {
         super()
     }
-    setDeleteConfirmMessage( formValues ) { 
+    setDeleteConfirmMessage( formValues ) {
         const confirmMessage = `Area you sure to delete ${ formValues.company_id } - ${ formValues.company } ?`
         document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
         document.getElementById( 'delete_confirm_massage_id' ).value = formValues.company_id
     }
     clearAddNewDataForm() {
         document.querySelector( '#companyFields' ).value = ''
-     }
+    }
 }
 
 class ButtonEventImpl extends ButtonEvent {
@@ -142,7 +148,7 @@ class ButtonEventImpl extends ButtonEvent {
         const validationResult = new FormValidationImpl().validateInsertParams( insertParams )
         if ( !validationResult.isValid ) {
             new Alert().showWarning( validationResult.message )
-            new ModalFormImpl().enableFormButton(  new ButtonSelector().saveNewRecord )
+            new ModalFormImpl().enableFormButton( new ButtonSelector().saveNewRecord )
             return
         }
         new ModalFormImpl().disableFormButton( new ButtonSelector().saveNewRecord )
