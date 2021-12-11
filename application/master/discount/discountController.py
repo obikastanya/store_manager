@@ -82,10 +82,12 @@ class DataHandlerImpl(DataHandler):
         return self.Model.msd_active_status.asc()
 
 class ParameterHandlerImpl(ParameterHandler):
-    def getValuesFromRequests(self):
+    def getParamInsertFromRequests(self):
         dataFromRequest={
-            'mscp_desc':request.json.get('company'),
-            'mscp_active_status':request.json.get('active_status','Y')
+            'msd_msdt_id':request.json.get('discount_type'),
+            'msd_desc':request.json.get('discount'),
+            'msd_nominal':int(request.json.get('nominal',0)),
+            'msd_active_status':request.json.get('active_status','Y')
         }
         return dataFromRequest
 
@@ -134,16 +136,52 @@ class ValidationHandlerImpl(ValidationHandler):
         return True
 
     def isParamInsertValid(self, dataFromRequest):
-        return self.isCompanyValid(dataFromRequest)
+        if not self.isDiscountNameValid(dataFromRequest):
+            return False
+        if not self.isDiscountTypeValid(dataFromRequest):
+            return False
+        if not self.isDiscountNominalValid(dataFromRequest):
+            return False
+        if not self.isValidActiveStatus(dataFromRequest):
+            return False
+        return True
+
 
     def isParamDeleteValid(self, paramFromRequest):
         return self.isParamSearchValid(paramFromRequest)
 
-    def isCompanyValid(self,dataFromRequest):
-        if not dataFromRequest.get('mscp_desc'):
+    def isDiscountTypeValid(self,dataFromRequest):
+        if not dataFromRequest.get('msd_msdt_id'):
             return False
-        if len(dataFromRequest.get('mscp_desc'))<3:
+        if not self.isNumber(dataFromRequest.get('msd_msdt_id')):
             return False
-        if len(dataFromRequest.get('mscp_desc'))>200:
+        return True
+
+    def isDiscountNameValid(self,dataFromRequest):
+        if not dataFromRequest.get('msd_desc'):
+            return False
+        if len(dataFromRequest.get('msd_desc'))<3:
+            return False
+        if len(dataFromRequest.get('msd_desc'))>200:
+            return False
+        return True
+    def isDiscountNominalValid(self,dataFromRequest):
+        if not dataFromRequest.get('msd_nominal'):
+            return False
+        if not self.isNumber(dataFromRequest.get('msd_nominal')):
+            return False
+        if int(dataFromRequest.get('msd_nominal'))<1:
+            return False
+        return True
+    def isNumber(self,value):
+        # try to parse data to numeric, if work, 
+        # then the data is a number.
+        try:
+            int(value)
+        except:
+            return False
+        return True
+    def isValidActiveStatus(self,dataFromRequest):
+        if dataFromRequest.get('msd_active_status') not in ['Y','N']:
             return False
         return True

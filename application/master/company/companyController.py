@@ -67,7 +67,7 @@ class DataHandlerImpl(DataHandler):
         return self.Model.mscp_active_status.asc()
 
 class ParameterHandlerImpl(ParameterHandler):
-    def getValuesFromRequests(self):
+    def getParamInsertFromRequests(self):
         dataFromRequest={
             'mscp_desc':request.json.get('company'),
             'mscp_active_status':request.json.get('active_status','Y')

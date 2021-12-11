@@ -20,14 +20,14 @@ class MasterController:
         #     return Response.make(status=False,msg='Eror while trying to retrieve data' )
 
     def insertNewData(self):
-        try:
-            dataFromRequest=self.parameterHandler.getValuesFromRequests()
-            if not self.validationHandler.isParamInsertValid(dataFromRequest):
-                return Response.statusAndMsg(False,'Data is not valid, insert process has been canceled' )
-            self.dataHandler.insertNewData(dataFromRequest)
-            return Response.statusAndMsg(msg='Data successfully added' )
-        except:
-            return Response.statusAndMsg(False,'Insert data failed' )
+        # try:
+        dataFromRequest=self.parameterHandler.getParamInsertFromRequests()
+        if not self.validationHandler.isParamInsertValid(dataFromRequest):
+            return Response.statusAndMsg(False,'Data is not valid, insert process has been canceled' )
+        self.dataHandler.insertNewData(dataFromRequest)
+        return Response.statusAndMsg(msg='Data successfully added' )
+        # except:
+        #     return Response.statusAndMsg(False,'Insert data failed' )
 
     def updateData(self):
         try:
@@ -162,7 +162,7 @@ class ParameterHandler:
             'limit':request.args.get('length')
         }
         return datatableConfig
-    def getValuesFromRequests(self):
+    def getParamInsertFromRequests(self):
         pass
 
     def getUpdateValuesFromRequests(self):

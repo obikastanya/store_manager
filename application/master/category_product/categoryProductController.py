@@ -67,7 +67,7 @@ class DataHandlerImpl(DataHandler):
 
 class ParameterHandlerImpl(ParameterHandler):
     # All method bellow is a method to process data and request
-    def getValuesFromRequests(self):
+    def getParamInsertFromRequests(self):
         dataFromRequest={
             'msc_desc':request.json.get('category'),
             'msc_active_status':request.json.get('active_status','Y')

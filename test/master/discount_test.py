@@ -19,3 +19,11 @@ def testSelectDiscountWithKeywordAndOrder():
     assert jsonResponse.get('status')==True
 
 
+
+@pytest.mark.discount
+@pytest.mark.insertSuccess
+def testInsertDiscountSuccess():
+    payload={'discount':'12.12', 'discount_type':1, 'nominal':10}
+    response=requests.post(host+'/discount_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==True
