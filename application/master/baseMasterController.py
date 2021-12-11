@@ -13,11 +13,11 @@ class MasterController:
 
     # All method bellow is a method whos being called by route function
     def getData(self):
-        try:
-            data,totalRecords, totalRecordsFiltered=self.dataHandler.grabData()
-            return Response.datatable(data={'datas':data,'totalRecords':totalRecords,'totalRecordsFiltered':totalRecordsFiltered})
-        except:
-            return Response.make(status=False,msg='Eror while trying to retrieve data' )
+        # try:
+        data,totalRecords, totalRecordsFiltered=self.dataHandler.grabData()
+        return Response.datatable(data={'datas':data,'totalRecords':totalRecords,'totalRecordsFiltered':totalRecordsFiltered})
+        # except:
+        #     return Response.make(status=False,msg='Eror while trying to retrieve data' )
 
     def insertNewData(self):
         try:

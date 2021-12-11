@@ -22,9 +22,14 @@ def manageDiscountPage():
 def reportPage():
     return render_template('report.html')
 
+# master route
 @app.get('/category-product')
-def companyPage():
+def categoryProductPage():
     return render_template('master/category_product.html')
 @app.get('/company')
-def categoryProductPage():
+def companyPage():
     return render_template('master/company.html')
+@app.get('/discount')
+def discountPage():
+    return render_template('master/discount.html')
+    

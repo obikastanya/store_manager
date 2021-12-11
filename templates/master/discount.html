@@ -1,17 +1,19 @@
 {% extends 'base_template.html'%}
 
-{%block menu_title %}Company{% endblock %}
+{%block menu_title %}Discount{% endblock %}
 
 {% block main_content%}
 <!-- datatables company -->
 <div class="row">
     <div class="col-sm-12">
-        <table class="table table-bordered table-striped" id='company_datatable_id' width='100%'>
+        <table class="table table-bordered table-striped" id='discount_datatable_id' width='100%'>
             <thead>
                 <tr>
                     <th scope="col">No</th>
-                    <th scope="col">Company Code</th>
+                    <th scope="col">Discount Code</th>
+                    <th scope="col">Discount Type</th>
                     <th scope="col">Description</th>
+                    <th scope="col">Nominal</th>
                     <th scope="col">Active Status</th>
                     <th scope="col">Action</th>
                 </tr>
@@ -28,19 +30,19 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Update Company</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Update Discount</h5>
                 <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id='formAddNewData'>
                     <div class="mb-3">
-                        <label for="idCompanyFields" class="form-label">Company Code</label>
-                        <input type="text" class="form-control" id="idCompanyFields" placeholder="Company Code"
+                        <label for="idDiscountFields" class="form-label">Discount Code</label>
+                        <input type="text" class="form-control" id="idDiscountFields" placeholder="Discount Code"
                             disabled>
                     </div>
                     <div class="mb-3">
-                        <label for="companyFieldsUpdate" class="form-label">Description</label>
-                        <input type="text" class="form-control" id="companyFieldsUpdate" placeholder="Company">
+                        <label for="discountFieldsUpdate" class="form-label">Description</label>
+                        <input type="text" class="form-control" id="discountFieldsUpdate" placeholder="Discount">
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="" id="activeStatusFields">
@@ -61,7 +63,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Delete Company</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Delete Company Product</h5>
                 <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -87,8 +89,8 @@
             <div class="modal-body">
                 <form id='formAddNewData'>
                     <div class="mb-3">
-                        <label for="companyFields" class="form-label">Company</label>
-                        <input type="text" class="form-control" id="companyFields" placeholder="Company">
+                        <label for="discountFields" class="form-label">Company</label>
+                        <input type="text" class="form-control" id="discountFields" placeholder="Company">
                     </div>
                 </form>
             </div>
@@ -103,6 +105,6 @@
 
 {% block custom_script %}
 <script src="/static/app_module/base_view.js"></script>
-<script src="/static/app_module/company_view.js"></script>
+<script src="/static/app_module/discount_view.js"></script>
 
 {% endblock %}

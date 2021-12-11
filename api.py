@@ -35,3 +35,15 @@ def companyApi():
 @app.post('/company_api_search')
 def companyApiSearch():
     return CompanyController().searchSingleData()
+
+# bellow is all route for master discount 
+@app.route('/discount_api')
+def discountApi():
+    # if request.method== 'POST':
+    #     return CompanyController().insertNewData()
+    if request.method=='GET':
+        return DiscountController().getData()
+    # if request.method=='PUT':
+    #     return CompanyController().updateData()
+    # if request.method=='DELETE':
+    #     return CompanyController().deleteData()

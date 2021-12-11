@@ -61,7 +61,7 @@ class AjaxImpl extends Ajax {
     }
     saveNewRecord( formData ) {
         const payload = this.createPayload( 'POST', formData )
-        const onSuccess = ( response ) => {}
+        const onSuccess = ( response ) => { }
         const ajaxCallback = {
             onSuccess: onSuccess,
             onFail: ( error ) => {
@@ -72,7 +72,7 @@ class AjaxImpl extends Ajax {
             }
         }
         this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
-     }
+    }
     getSingleData( recordId ) { }
     getSingleDataForDeleteActions( recordId ) { }
     updateData( formData ) { }
