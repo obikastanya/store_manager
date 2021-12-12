@@ -1,5 +1,5 @@
 from marshmallow import fields, Schema
-from sqlalchemy.dialects import postgresql
+from sqlalchemy.orm import relationship
 from app import db
 
 class DiscountType(db.Model):
@@ -12,6 +12,7 @@ class DiscountType(db.Model):
     msdt_create_date=db.Column(db.Date())
     msdt_update_user=db.Column(db.String(30))
     msdt_update_date=db.Column(db.Date())
+    discount_type=relationship('ms_discount', backref='ms_discount_type')
 
 class DiscountTypeSchema(Schema):
     """Schema to retrieve data from Model Discount Type as dictionary.

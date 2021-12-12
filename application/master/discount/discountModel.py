@@ -1,11 +1,13 @@
 from marshmallow import fields, Schema
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql.schema import ForeignKey
 from app import db
 
 class Discount(db.Model):
     __tablename__='ms_discount'
     msd_id=db.Column(db.Integer(), primary_key=True)
-    msd_msdt_id=db.Column(db.Integer())
+    msd_msdt_id=db.Column(db.Integer(), ForeignKey('ms_discount_type.msdt_id'))
     msd_desc=db.Column(db.String(150))
     msd_nominal=db.Column(postgresql.NUMERIC(12))
     msd_active_status=db.Column(db.String(1))
