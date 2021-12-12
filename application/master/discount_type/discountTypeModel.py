@@ -12,7 +12,7 @@ class DiscountType(db.Model):
     msdt_create_date=db.Column(db.Date())
     msdt_update_user=db.Column(db.String(30))
     msdt_update_date=db.Column(db.Date())
-    discount_type=relationship('ms_discount', backref='ms_discount_type')
+    discount_type=db.relationship('Discount', backref='ms_discount_type')
 
 class DiscountTypeSchema(Schema):
     """Schema to retrieve data from Model Discount Type as dictionary.
