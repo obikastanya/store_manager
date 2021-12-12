@@ -30,14 +30,14 @@ class MasterController:
         #     return Response.statusAndMsg(False,'Insert data failed' )
 
     def updateData(self):
-        try:
-            dataFromRequest=self.parameterHandler.getUpdateValuesFromRequests()
-            if not self.validationHandler.isParamUpdateValid(dataFromRequest):
-                return Response.statusAndMsg(False,'Data is not valid, update process has been canceled' )
-            self.dataHandler.updateData(dataFromRequest)
-            return Response.statusAndMsg(msg='Data successfully updated' )
-        except:
-            return Response.statusAndMsg(False,'Update data failed' )
+        # try:
+        dataFromRequest=self.parameterHandler.getUpdateValuesFromRequests()
+        if not self.validationHandler.isParamUpdateValid(dataFromRequest):
+            return Response.statusAndMsg(False,'Data is not valid, update process has been canceled' )
+        self.dataHandler.updateData(dataFromRequest)
+        return Response.statusAndMsg(msg='Data successfully updated' )
+        # except:
+        #     return Response.statusAndMsg(False,'Update data failed' )
 
     def deleteData(self):
         try:
@@ -50,18 +50,16 @@ class MasterController:
             return Response.statusAndMsg(False,'Data failed to removed' )
 
     def searchSingleData(self):
-        try:
-            paramFromRequest=self.parameterHandler.getIdFromRequest()
-            print('is valid',self.validationHandler.isParamSearchValid(paramFromRequest))
-            if not self.validationHandler.isParamSearchValid(paramFromRequest):
-                return Response.make(False,'Data ID is not valid, process has been canceled' )
-            singleData=self.dataHandler.grabSingleData(paramFromRequest)
-            print('is data exist ',self.dataHandler.isDataExist(singleData))
-            if not self.dataHandler.isDataExist(singleData):
-                return Response.make(False,'Data is not found' )
-            return Response.make(msg='Data Found', data=singleData)
-        except:
-            return Response.make(False,'Cant find data' )
+        # try:
+        paramFromRequest=self.parameterHandler.getIdFromRequest()
+        if not self.validationHandler.isParamSearchValid(paramFromRequest):
+            return Response.make(False,'Data ID is not valid, process has been canceled' )
+        singleData=self.dataHandler.grabSingleData(paramFromRequest)
+        if not self.dataHandler.isDataExist(singleData):
+            return Response.make(False,'Data is not found' )
+        return Response.make(msg='Data Found', data=singleData)
+        # except:
+        #     return Response.make(False,'Cant find data' )
 
 
 

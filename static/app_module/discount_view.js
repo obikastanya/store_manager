@@ -20,7 +20,6 @@ class DatatableDiscountImpl extends BaseDatatable {
             {
                 data: null,
                 render: ( data ) => {
-                    console.log( data )
                     return this.buttonEdit.replace( "_data_", data.discount_id ) + '&nbsp;' + this.buttonDelete.replace( "_data_", data.discount_id )
                 }
             }
@@ -52,10 +51,14 @@ class FormDataImpl extends FormData {
         super()
     }
     getAddNewDataFormValues() {
-        let formValues = {
-            company: document.querySelector( '#companyFields' ).value
+        const formData = {
+            // discount type is still dummy, gonna update when master discount type is ready
+            discount: document.querySelector( '#discountFields' ).value,
+            // discount_type: document.querySelector( '#discountTypeFields' ).value,
+            discount_type: 1,
+            nominal: document.querySelector( '#discountNominalFields' ).value,
         }
-        return formValues
+        return formData
     }
     getDeleteFormValues() {
         let formValues = {
@@ -82,50 +85,77 @@ class FormValidationImpl extends FormValidation {
     constructor() {
         super()
     }
-    validateUpdateParams( updateParams ) {
-        const validIdCompany = this.validateIdCompany( updateParams )
-        const validCompany = this.validateCompany( updateParams )
-        const validActiveStatus = this.validateActiveStatus( updateParams )
+    // validateUpdateParams( updateParams ) {
+    //     const validIdCompany = this.validateIdCompany( updateParams )
+    //     const validCompany = this.validateCompany( updateParams )
+    //     const validActiveStatus = this.validateActiveStatus( updateParams )
 
-        if ( !validIdCompany ) return validIdCompany;
-        if ( !validCompany ) return validCompany;
-        if ( !validActiveStatus ) return validActiveStatus;
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateDeleteParams( deleteParams ) {
-        if ( !deleteParams.company_id || deleteParams.company_id.length < 0 ) {
-            return this.validateResult( 'Company Id doesnt found' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
+    //     if ( !validIdCompany ) return validIdCompany;
+    //     if ( !validCompany ) return validCompany;
+    //     if ( !validActiveStatus ) return validActiveStatus;
+    //     return this.validateResult( 'Data is valid', true )
+    // }
+    // validateDeleteParams( deleteParams ) {
+    //     if ( !deleteParams.company_id || deleteParams.company_id.length < 0 ) {
+    //         return this.validateResult( 'Company Id doesnt found' )
+    //     }
+    //     return this.validateResult( 'Data is valid', true )
+    // }
     validateInsertParams( insertParams ) {
-        return this.validateCompany( insertParams )
+        const validDiscountName = this.validateDiscountName( insertParams )
+        const validDiscountType = this.validateDiscountType( insertParams )
+        const validNominal = this.validateNominal( insertParams )
+        if ( !validDiscountName.isValid ) return validDiscountName;
+        if ( !validDiscountType.isValid ) return validDiscountType;
+        if ( !validNominal.isValid ) return validNominal;
+        return this.validateResult( 'Data is valid', true )
     }
-    validateCompany( formData ) {
-        if ( !formData.company ) {
-            return this.validateResult( 'Cant insert empty data' )
+    validateDiscountName( formData ) {
+        if ( !formData.discount ) {
+            return this.validateResult( 'Discount Name is empty' )
         }
-        if ( formData.company.length < 3 ) {
-            return this.validateResult( 'Company Name too short' )
+        if ( formData.discount.length < 3 ) {
+            return this.validateResult( 'Discount Name too short' )
         }
-        if ( formData.company.length > 200 ) {
-            return this.validateResult( 'Company Name too long' )
+        if ( formData.discount.length > 200 ) {
+            return this.validateResult( 'Discount Name too long' )
         }
         return this.validateResult( 'Data is valid', true )
     }
-    validateIdCompany( formData ) {
-        if ( !formData.company_id || formData.company_id.length < 0 ) {
-            return this.validateResult( 'There is no company id to update' )
+    validateDiscountType( formData ) {
+        if ( !formData.discount_type ) {
+            return this.validateResult( 'Discount Type is invalid' )
+        }
+        if ( Number.isNaN( formData.discount_type ) ) {
+            return this.validateResult( 'Cant Find Selected Discount Type' )
         }
         return this.validateResult( 'Data is valid', true )
     }
-    validateActiveStatus( formData ) {
-        const isValidStatus = [ 'Y', 'N' ].includes( formData.active_status )
-        if ( !isValidStatus ) {
-            return this.validateResult( 'Active status value is invalid' )
+    validateNominal( formData ) {
+        if ( !formData.nominal ) {
+            return this.validateResult( 'Cant insert data with empty nominal' )
+        }
+        if ( Number.isNaN( formData.nominal ) ) {
+            return this.validateResult( 'Nominal must be a number' )
+        }
+        if ( formData.nominal < 1 ) {
+            return this.validateResult( 'Nominal must be greater than 0' )
         }
         return this.validateResult( 'Data is valid', true )
     }
+    // validateIdCompany( formData ) {
+    //     if ( !formData.company_id || formData.company_id.length < 0 ) {
+    //         return this.validateResult( 'There is no company id to update' )
+    //     }
+    //     return this.validateResult( 'Data is valid', true )
+    // }
+    // validateActiveStatus( formData ) {
+    //     const isValidStatus = [ 'Y', 'N' ].includes( formData.active_status )
+    //     if ( !isValidStatus ) {
+    //         return this.validateResult( 'Active status value is invalid' )
+    //     }
+    //     return this.validateResult( 'Data is valid', true )
+    // }
     validateResult( message = '', isValid = false ) {
         return { isValid: isValid, message: message }
     }
@@ -159,28 +189,28 @@ class ButtonEventImpl extends ButtonEvent {
         new ModalFormImpl().disableFormButton( new ButtonSelector().saveNewRecord )
         new AjaxImpl().saveNewRecord( insertParams )
     }
-    saveUpdatedData() {
-        const updateParams = new FormDataImpl().getUpdateFormValues()
-        const validationResult = new FormValidationImpl().validateUpdateParams( updateParams )
-        if ( !validationResult.isValid ) {
-            new Alert().showWarning( validationResult.message )
-            new ModalFormImpl().enableFormButton( new ButtonSelector().btnSaveUpdatedRecord )
-            return
-        }
-        new ModalFormImpl().disableFormButton( new ButtonSelector().btnSaveUpdatedRecord )
-        new AjaxImpl().updateData( updateParams )
-    }
-    deleteData() {
-        const deleteParams = new FormDataImpl().getDeleteFormValues()
-        const validationResult = new FormValidationImpl().validateDeleteParams( deleteParams )
-        if ( !validationResult.isValid ) {
-            new Alert().showWarning( validationResult.message )
-            new ModalFormImpl().enableFormButton( new ButtonSelector().btnDeleteId )
-            return
-        }
-        new ModalFormImpl().disableFormButton( new ButtonSelector().btnDeleteId )
-        new AjaxImpl().deleteData( deleteParams )
-    }
+    // saveUpdatedData() {
+    //     const updateParams = new FormDataImpl().getUpdateFormValues()
+    //     const validationResult = new FormValidationImpl().validateUpdateParams( updateParams )
+    //     if ( !validationResult.isValid ) {
+    //         new Alert().showWarning( validationResult.message )
+    //         new ModalFormImpl().enableFormButton( new ButtonSelector().btnSaveUpdatedRecord )
+    //         return
+    //     }
+    //     new ModalFormImpl().disableFormButton( new ButtonSelector().btnSaveUpdatedRecord )
+    //     new AjaxImpl().updateData( updateParams )
+    // }
+    // deleteData() {
+    //     const deleteParams = new FormDataImpl().getDeleteFormValues()
+    //     const validationResult = new FormValidationImpl().validateDeleteParams( deleteParams )
+    //     if ( !validationResult.isValid ) {
+    //         new Alert().showWarning( validationResult.message )
+    //         new ModalFormImpl().enableFormButton( new ButtonSelector().btnDeleteId )
+    //         return
+    //     }
+    //     new ModalFormImpl().disableFormButton( new ButtonSelector().btnDeleteId )
+    //     new AjaxImpl().deleteData( deleteParams )
+    // }
 }
 class AjaxImpl extends Ajax {
     constructor() {
@@ -188,11 +218,12 @@ class AjaxImpl extends Ajax {
     }
     saveNewRecord( formData ) {
         const payload = this.createPayload( 'POST', formData )
+        console.log( payload )
         const onSuccess = ( response ) => {
             if ( response.status ) {
                 new ModalFormImpl().hideModal( 'id_modal_for_add_new_data' )
                 new Alert().successAjax( response.msg )
-                new DatatableCompanyImpl().reloadDatatable()
+                new DatatableDiscountImpl().reloadDatatable()
                 return
             }
             new Alert().failedAjax( response.msg )
@@ -206,96 +237,96 @@ class AjaxImpl extends Ajax {
                 new ModalForm().enableSaveConfirmBtn()
             }
         }
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/discount_api', payload: payload }, ajaxCallback )
     }
-    getSingleData( recordId ) {
-        const payload = this.createPayload( 'POST', { 'company_id': recordId } )
-        const onSuccess = ( response ) => {
-            console.log( response )
-            if ( !response.data.length ) new Alert().failedAjax( response.msg );
-            let recordValues = response.data[ 0 ]
+    // getSingleData( recordId ) {
+    //     const payload = this.createPayload( 'POST', { 'company_id': recordId } )
+    //     const onSuccess = ( response ) => {
+    //         console.log( response )
+    //         if ( !response.data.length ) new Alert().failedAjax( response.msg );
+    //         let recordValues = response.data[ 0 ]
 
-            // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
-            recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
+    //         // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
+    //         recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
 
-            new FormDataImpl().setUpdateFormValues( recordValues )
-            return
-        }
-        const ajaxCallback = {
-            onSuccess: onSuccess,
-            onFail: ( error ) => {
-                new Alert().error()
-            },
-            onFinal: () => { }
-        }
-        this.sendAjax( { url: '/company_api_search', payload: payload }, ajaxCallback )
-    }
-    getSingleDataForDeleteActions( recordId ) {
-        const payload = this.createPayload( 'POST', { 'company_id': recordId } )
-        const onSuccess = ( response ) => {
-            if ( !response.data.length ) new Alert().failedAjax( response.msg );
-            let recordValues = response.data[ 0 ]
-            // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
-            recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
-            new ModalFormImpl().setDeleteConfirmMessage( recordValues )
-            return
-        }
-        const ajaxCallback = {
-            onSuccess: onSuccess,
-            onFail: ( error ) => {
-                new Alert().error()
-            },
-            onFinal: () => { }
-        }
-        this.sendAjax( { url: '/company_api_search', payload: payload }, ajaxCallback )
+    //         new FormDataImpl().setUpdateFormValues( recordValues )
+    //         return
+    //     }
+    //     const ajaxCallback = {
+    //         onSuccess: onSuccess,
+    //         onFail: ( error ) => {
+    //             new Alert().error()
+    //         },
+    //         onFinal: () => { }
+    //     }
+    //     this.sendAjax( { url: '/company_api_search', payload: payload }, ajaxCallback )
+    // }
+    // getSingleDataForDeleteActions( recordId ) {
+    //     const payload = this.createPayload( 'POST', { 'company_id': recordId } )
+    //     const onSuccess = ( response ) => {
+    //         if ( !response.data.length ) new Alert().failedAjax( response.msg );
+    //         let recordValues = response.data[ 0 ]
+    //         // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
+    //         recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
+    //         new ModalFormImpl().setDeleteConfirmMessage( recordValues )
+    //         return
+    //     }
+    //     const ajaxCallback = {
+    //         onSuccess: onSuccess,
+    //         onFail: ( error ) => {
+    //             new Alert().error()
+    //         },
+    //         onFinal: () => { }
+    //     }
+    //     this.sendAjax( { url: '/company_api_search', payload: payload }, ajaxCallback )
 
-    }
-    updateData( formData ) {
-        const payload = this.createPayload( 'PUT', formData )
-        const onSuccess = ( response ) => {
-            if ( !response.status ) {
-                return new Alert().failedAjax( response.msg )
-            }
-            new Alert().successAjax( response.msg )
-            new DatatableCompanyImpl().reloadDatatable()
-            new ModalFormImpl().hideModal( 'id_modal_for_edit' )
-            return
-        }
-        const ajaxCallback = {
-            onSuccess: onSuccess,
-            onFail: ( error ) => {
-                new Alert().error()
-            },
-            onFinal: () => {
-                new ModalFormImpl().enableFormButton( '#button_save_updated_data_id' )
-            }
-        }
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+    // }
+    // updateData( formData ) {
+    //     const payload = this.createPayload( 'PUT', formData )
+    //     const onSuccess = ( response ) => {
+    //         if ( !response.status ) {
+    //             return new Alert().failedAjax( response.msg )
+    //         }
+    //         new Alert().successAjax( response.msg )
+    //         new DatatableCompanyImpl().reloadDatatable()
+    //         new ModalFormImpl().hideModal( 'id_modal_for_edit' )
+    //         return
+    //     }
+    //     const ajaxCallback = {
+    //         onSuccess: onSuccess,
+    //         onFail: ( error ) => {
+    //             new Alert().error()
+    //         },
+    //         onFinal: () => {
+    //             new ModalFormImpl().enableFormButton( '#button_save_updated_data_id' )
+    //         }
+    //     }
+    //     this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
 
-    }
-    deleteData( formData ) {
-        const payload = this.createPayload( 'DELETE', formData )
-        const onSuccess = ( response ) => {
-            if ( !response.status ) {
-                return new Alert().failedAjax( response.msg )
-            }
-            new Alert().successAjax( response.msg )
-            new DatatableCompanyImpl().reloadDatatable()
-            new ModalFormImpl().hideModal( 'id_modal_for_delete' )
-            return
-        }
-        const ajaxCallback = {
-            onSuccess: onSuccess,
-            onFail: ( error ) => {
-                new Alert().error()
-            },
-            onFinal: () => {
-                new ModalFormImpl().enableFormButton( '#button_delete_data_id' )
-            }
-        }
+    // }
+    // deleteData( formData ) {
+    //     const payload = this.createPayload( 'DELETE', formData )
+    //     const onSuccess = ( response ) => {
+    //         if ( !response.status ) {
+    //             return new Alert().failedAjax( response.msg )
+    //         }
+    //         new Alert().successAjax( response.msg )
+    //         new DatatableCompanyImpl().reloadDatatable()
+    //         new ModalFormImpl().hideModal( 'id_modal_for_delete' )
+    //         return
+    //     }
+    //     const ajaxCallback = {
+    //         onSuccess: onSuccess,
+    //         onFail: ( error ) => {
+    //             new Alert().error()
+    //         },
+    //         onFinal: () => {
+    //             new ModalFormImpl().enableFormButton( '#button_delete_data_id' )
+    //         }
+    //     }
 
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
-    }
+    //     this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+    // }
 }
 
 const runScript = () => {

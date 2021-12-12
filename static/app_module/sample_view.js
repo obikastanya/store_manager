@@ -61,6 +61,7 @@ class AjaxImpl extends Ajax {
     }
     saveNewRecord( formData ) {
         const payload = this.createPayload( 'POST', formData )
+        pr
         const onSuccess = ( response ) => { }
         const ajaxCallback = {
             onSuccess: onSuccess,
@@ -71,7 +72,7 @@ class AjaxImpl extends Ajax {
                 new ModalForm().enableSaveConfirmBtn()
             }
         }
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/discount_api', payload: payload }, ajaxCallback )
     }
     getSingleData( recordId ) { }
     getSingleDataForDeleteActions( recordId ) { }

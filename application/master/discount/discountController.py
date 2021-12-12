@@ -19,11 +19,12 @@ class DataHandlerImpl(DataHandler):
 
 
     def updateData(self, dataFromRequest):
-        pass
-        # company=self.grabOne(dataFromRequest)
-        # company.mscp_desc=dataFromRequest.get('mscp_desc')
-        # company.mscp_active_status=dataFromRequest.get('mscp_active_status')
-        # db.session.commit()
+        discount=self.grabOne(dataFromRequest)
+        discount.msd_msdt_id=dataFromRequest.get('msd_msdt_id')
+        discount.msd_desc=dataFromRequest.get('msd_desc')
+        discount.msd_nominal=dataFromRequest.get('msd_nominal')
+        discount.msd_active_status=dataFromRequest.get('msd_active_status')
+        db.session.commit()
 
     def grabOne(self, paramFromRequest):
         return self.Model.query.filter_by(msd_id=paramFromRequest.get('msd_id')).first()
@@ -93,15 +94,17 @@ class ParameterHandlerImpl(ParameterHandler):
 
     def getUpdateValuesFromRequests(self):
         dataFromRequest={
-            'mscp_desc':request.json.get('company'),
-            'mscp_active_status':request.json.get('active_status'),
-            'mscp_id':request.json.get('company_id')
+            'msd_id':request.json.get('discount_id'),
+            'msd_msdt_id':request.json.get('discount_type'),
+            'msd_desc':request.json.get('discount'),
+            'msd_nominal':int(request.json.get('nominal',0)),
+            'msd_active_status':request.json.get('active_status','Y')
         }
         return dataFromRequest
 
     def getIdFromRequest(self):
         parameterFromRequest={
-            'mscp_id':request.json.get('company_id')
+            'msd_id':request.json.get('discount_id')
         }
         return parameterFromRequest
 
@@ -122,16 +125,14 @@ class ParameterHandlerImpl(ParameterHandler):
 
 class ValidationHandlerImpl(ValidationHandler):
     def isParamSearchValid(self, paramFromRequest):
-            if not paramFromRequest.get('mscp_id'):
+            if not paramFromRequest.get('msd_id'):
                 return False
             return True
 
     def isParamUpdateValid(self,dataFromRequest):
-        if not dataFromRequest.get('mscp_id'):
+        if not self.isDiscountIdValid(dataFromRequest):
             return False
-        if not dataFromRequest.get('mscp_active_status'):
-            return False
-        if not  self.isCompanyValid(dataFromRequest):
+        if not self.isParamInsertValid(dataFromRequest):
             return False
         return True
 
@@ -154,6 +155,12 @@ class ValidationHandlerImpl(ValidationHandler):
         if not dataFromRequest.get('msd_msdt_id'):
             return False
         if not self.isNumber(dataFromRequest.get('msd_msdt_id')):
+            return False
+        return True
+    def isDiscountIdValid(self,dataFromRequest):
+        if not dataFromRequest.get('msd_id'):
+            return False
+        if not self.isNumber(dataFromRequest.get('msd_id')):
             return False
         return True
 

@@ -89,8 +89,20 @@
             <div class="modal-body">
                 <form id='formAddNewData'>
                     <div class="mb-3">
-                        <label for="discountFields" class="form-label">Company</label>
-                        <input type="text" class="form-control" id="discountFields" placeholder="Company">
+                        <label for="discountFields" class="form-label">Discount Name</label>
+                        <input type="text" class="form-control" id="discountFields" placeholder="Discount Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="discountTypeFields">Discount Type</label>
+                        <select class="form-control" id="discountTypeFields">
+                            <option>1. Percent</option>
+                            <option>2. Cut Off</option>
+                            <option>3. Cash Back</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="discountNominalFields" class="form-label">Nominal</label>
+                        <input type="number" class="form-control" id="discountNominalFields" placeholder="Nominal">
                     </div>
                 </form>
             </div>

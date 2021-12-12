@@ -43,7 +43,11 @@ def discountApi():
         return DiscountController().insertNewData()
     if request.method=='GET':
         return DiscountController().getData()
-    # if request.method=='PUT':
-    #     return CompanyController().updateData()
-    # if request.method=='DELETE':
-    #     return CompanyController().deleteData()
+    if request.method=='PUT':
+        return DiscountController().updateData()
+    if request.method=='DELETE':
+        return DiscountController().deleteData()
+
+@app.post('/discount_api_search')
+def discountApiSearch():
+    return DiscountController().searchSingleData()
