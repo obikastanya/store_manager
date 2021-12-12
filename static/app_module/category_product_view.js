@@ -82,9 +82,9 @@ class FormValidationImpl extends FormValidation {
         const validCategory = this.validateCategory( updateParams )
         const validActiveStatus = this.validateActiveStatus( updateParams )
 
-        if ( !validIdCategory ) return validIdCategory;
-        if ( !validCategory ) return validCategory;
-        if ( !validActiveStatus ) return validActiveStatus;
+        if ( !validIdCategory.isValid ) return validIdCategory;
+        if ( !validCategory.isValid ) return validCategory;
+        if ( !validActiveStatus.isValid ) return validActiveStatus;
         return this.validateResult( 'Data is valid', true )
     }
     validateDeleteParams( deleteParams ) {

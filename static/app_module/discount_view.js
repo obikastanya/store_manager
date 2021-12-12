@@ -52,10 +52,8 @@ class FormDataImpl extends FormData {
     }
     getAddNewDataFormValues() {
         const formData = {
-            // discount type is still dummy, gonna update when master discount type is ready
             discount: document.querySelector( '#discountFields' ).value,
-            // discount_type: document.querySelector( '#discountTypeFields' ).value,
-            discount_type: 1,
+            discount_type: document.querySelector( '#discountTypeFields' ).value,
             nominal: document.querySelector( '#discountNominalFields' ).value,
         }
         return formData
