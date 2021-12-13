@@ -7,7 +7,12 @@ class DatatableDiscountImpl extends BaseDatatable {
                 defaultContent: ''
             },
             { data: 'discount_id' },
-            { data: 'discount_type' },
+            {
+                data: 'discount_type',
+                render: ( data ) => {
+                    return data.discount_type
+                }
+            },
             { data: 'desc' },
             { data: 'discount_nominal' },
             {
@@ -77,7 +82,7 @@ class FormDataImpl extends FormData {
     setUpdateFormValues( recordValues ) {
         document.querySelector( '#idDiscountFields' ).value = recordValues.discount_id
         document.querySelector( '#discountUpdateFields' ).value = recordValues.desc
-        document.querySelector( '#discountTypeUpdateFields' ).value = recordValues.discount_type
+        document.querySelector( '#discountTypeUpdateFields' ).value = recordValues.discount_type.discount_type_id
         document.querySelector( '#discountNominalUpdateFields' ).value = recordValues.discount_nominal
         document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
         document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
