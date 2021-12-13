@@ -1,0 +1,28 @@
+{% extends 'base_template.html'%}
+
+{%block menu_title %}Discount Type{% endblock %}
+
+{% block main_content%}
+<!-- datatables discount type -->
+<div class="row">
+    <div class="col-sm-12">
+        <table class="table table-bordered table-striped" id='discount_type_datatable_id' width='100%'>
+            <thead>
+                <tr>
+                    <th scope="col">No</th>
+                    <th scope="col">Discount Type Code</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Active Status</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block custom_script %}
+<script src="/static/app_module/base_view.js"></script>
+<script src="/static/app_module/discount_type_view.js"></script>
+
+{% endblock %}

@@ -40,7 +40,6 @@ def testSuccessOnUpdate():
     payload={'discount_type_id':1,'discount_type':'Percent upd','active_status':'Y'}
     response=requests.put(host+'/discount_type_api', json=payload)
     jsonResponse=response.json()
-    print(jsonResponse)
     assert jsonResponse.get('status')==False
 
 @pytest.mark.deleteSuccess

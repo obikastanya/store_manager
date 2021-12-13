@@ -33,3 +33,7 @@ def companyPage():
 def discountPage():
     return render_template('master/discount.html')
     
+@app.get('/discount-type')
+def discountTypePage():
+    return render_template('master/discount_type.html')
+    
