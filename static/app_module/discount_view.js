@@ -87,6 +87,22 @@ class FormDataImpl extends FormData {
         document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
         document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
     }
+    generateOption( recordValues ) {
+        let options = ''
+        for ( const values of recordValues ) {
+            options += ` <option value=${ values.discount_type_id }>${ values.discount_type }</option> `
+        }
+        return options
+    }
+    setOptionForDiscountTypeMaster( recordValues ) {
+        // some dom manipulation
+        for ( const id of [ '#discountNominalUpdateFields', '#discountTypeFields' ] ) {
+            const options = this.generateOption( recordValues )
+            document.querySelector( id ).innerHTML = ''
+            document.querySelector( id ).innerHTML = options
+        }
+
+    }
 }
 class FormValidationImpl extends FormValidation {
     constructor() {
@@ -103,7 +119,6 @@ class FormValidationImpl extends FormValidation {
         return this.validateResult( 'Data is valid', true )
     }
     validateDeleteParams( deleteParams ) {
-        console.log( deleteParams )
         if ( !deleteParams.discount_id || deleteParams.discount_id.length < 0 ) {
             return this.validateResult( 'Discount Id doesnt found' )
         }
@@ -228,7 +243,6 @@ class AjaxImpl extends Ajax {
     }
     saveNewRecord( formData ) {
         const payload = this.createPayload( 'POST', formData )
-        console.log( payload )
         const onSuccess = ( response ) => {
             if ( response.status ) {
                 new ModalFormImpl().hideModal( 'id_modal_for_add_new_data' )
@@ -334,15 +348,30 @@ class AjaxImpl extends Ajax {
 
         this.sendAjax( { url: '/discount_api', payload: payload }, ajaxCallback )
     }
+    getOptionForDiscountTypeMaster() {
+        const onSuccess = ( response ) => {
+            new FormDataImpl().setOptionForDiscountTypeMaster( response.data )
+        }
+        const ajaxCallback = {
+            onSuccess: onSuccess,
+            onFail: ( err ) => { console.log( err ) }
+        }
+        fetch( '/discount_type_api' )
+            .then( response => response.json() )
+            .then( onSuccess )
+            .catch( ajaxCallback.onFail )
+
+    }
 }
 
 const runScript = () => {
     $( document ).ready( function () {
-        const modalForm = new ModalFormImpl()
         new DatatableDiscountImpl().initiateDatatable()
+        new AjaxImpl().getOptionForDiscountTypeMaster()
+        new ButtonEventImpl().bindEventWithAjax()
+        const modalForm = new ModalFormImpl()
         modalForm.registerOnHideModal()
         modalForm.disabledBtnNewDataOnClick()
-        new ButtonEventImpl().bindEventWithAjax()
     } )
 }
 
