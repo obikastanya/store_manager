@@ -1,8 +1,10 @@
 from marshmallow import fields, Schema
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import schema
 from sqlalchemy.sql.schema import ForeignKey
 from app import db
+from ..discount_type.discountTypeModel import DiscountTypeSchema
 
 class Discount(db.Model):
     __tablename__='ms_discount'
@@ -18,7 +20,7 @@ class Discount(db.Model):
 
 class DiscountSchema(Schema):
     msd_id=fields.Int(data_key='discount_id')
-    msd_msdt_id=fields.Int(data_key='discount_type')
     msd_desc=fields.Str(data_key='desc')
     msd_nominal=fields.Int(data_key='discount_nominal')
     msd_active_status=fields.Str(data_key='active_status')
+    discount_type=fields.Nested('DiscountTypeSchema',only=('msdt_id','msdt_desc'))

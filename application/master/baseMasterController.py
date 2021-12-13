@@ -85,23 +85,23 @@ class DataHandler:
         return self.Schema(many=True).dump([groupOfObjectResult])
 
     def grabData(self):
-        """Returning list of category product to be shown, total records selected
+        """Returning list of data to be shown, total records selected
             and total records after filtered"""
         datatableConfig=self.parameterHandler.getDatatableConfiguration()
         totalRecords=self.grabTotalRecords()
         totalRecordsFiltered=None
-        categoryProductData=[]
+        listData=[]
         if datatableConfig.get('searchKeyWord'):
             totalRecordsFiltered=self.grabTotalRecordsFiltered(datatableConfig)
         if bool(datatableConfig.get('searchKeyWord')) and bool(datatableConfig.get('orderBy')):
-            categoryProductData= self.grabDataWithKeywordAndOrder(datatableConfig)
+            listData= self.grabDataWithKeywordAndOrder(datatableConfig)
         elif datatableConfig.get('searchKeyWord'):
-            categoryProductData= self.grabDataWithKeyword(datatableConfig)
+            listData= self.grabDataWithKeyword(datatableConfig)
         elif datatableConfig.get('orderBy'):
-            categoryProductData= self.grabDataWithOrderby(datatableConfig)
+            listData= self.grabDataWithOrderby(datatableConfig)
         else:
-            categoryProductData= self.grabDataDefault(datatableConfig)
-        return categoryProductData,totalRecords, totalRecordsFiltered
+            listData= self.grabDataDefault(datatableConfig)
+        return listData,totalRecords, totalRecordsFiltered
 
     def grabDataDefault(self, datatableConfig):
         groupOfObjectResult=self.Model.query.offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
