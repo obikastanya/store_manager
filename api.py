@@ -49,3 +49,10 @@ def discountTypeApi():
 def discountTypeApiSearch():
     return DiscountController().searchSingleData()
 
+@app.route('/employee_api',methods=['GET','POST','PUT', 'DELETE'])
+def employeeApi():
+    return splitRouteByMethods(EmployeeController)
+
+@app.post('/employee_api_search')
+def employeeApiSearch():
+    return EmployeeController().searchSingleData()

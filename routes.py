@@ -36,4 +36,8 @@ def discountPage():
 @app.get('/discount-type')
 def discountTypePage():
     return render_template('master/discount_type.html')
+
+@app.get('/employee')
+def employeePage():
+    return render_template('master/employee.html')
     

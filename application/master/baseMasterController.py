@@ -20,9 +20,11 @@ class MasterController:
         #     return Response.make(status=False,msg='Eror while trying to retrieve data' )
 
     def insertNewData(self):
+        print('post request')
         # try:
         dataFromRequest=self.parameterHandler.getParamInsertFromRequests()
         if not self.validationHandler.isParamInsertValid(dataFromRequest):
+            print('not valid param insert')
             return Response.statusAndMsg(False,'Data is not valid, insert process has been canceled' )
         self.dataHandler.insertNewData(dataFromRequest)
         return Response.statusAndMsg(msg='Data successfully added' )
