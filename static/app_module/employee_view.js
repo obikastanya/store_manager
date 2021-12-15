@@ -66,30 +66,48 @@ class FormDataImpl extends FormData {
             address: get( '#addressFields' ),
             salary: get( '#salaryFields' ),
             position: get( '#positionFields' ),
-            start_working: get( '#startWorkingFields' ),
-            end_working: get( '#nameFields' )
+            start_working: get( '#startWorkingFields' )
         }
         return formValues
     }
     getDeleteFormValues() {
         let formValues = {
-            company_id: document.getElementById( 'delete_confirm_massage_id' ).value
+            employee_id: document.getElementById( 'delete_confirm_massage_id' ).value
         }
         return formValues
     }
     getUpdateFormValues() {
+        const get = ( id ) => {
+            return document.querySelector( id ).value
+        }
         let formValues = {
-            company: document.querySelector( '#companyFieldsUpdate' ).value,
-            company_id: document.querySelector( '#idCompanyFields' ).value,
-            active_status: this.getActiveStatusValue( '#activeStatusFields' )
+            employee_id: get( '#employeeIdFields' ),
+            employee_status_id: get( '#employeStatusUpdateFields' ),
+            name: get( '#nameUpdateFields' ),
+            phone_number: get( '#phoneNumberUpdateFields' ),
+            email: get( '#emailUpdateFields' ),
+            address: get( '#addressUpdateFields' ),
+            salary: get( '#salaryUpdateFields' ),
+            position: get( '#positionUpdateFields' ),
+            start_working: get( '#startWorkingUpdateFields' ),
+            end_working: get( '#endWorkingFields' )
         }
         return formValues
     }
     setUpdateFormValues( recordValues ) {
-        document.querySelector( '#idCompanyFields' ).value = recordValues.company_id
-        document.querySelector( '#companyFieldsUpdate' ).value = recordValues.company
-        document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
-        document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
+        const get = ( id ) => {
+            return document.querySelector( id )
+        }
+        get( '#employeeIdFields' ).value = recordValues.employee_id
+        get( '#employeStatusUpdateFields' ).value = recordValues.employee_status
+        get( '#nameUpdateFields' ).value = recordValues.name
+        get( '#phoneNumberUpdateFields' ).value = recordValues.phone_number
+        get( '#emailUpdateFields' ).value = recordValues.email
+        get( '#addressUpdateFields' ).value = recordValues.address
+        get( '#salaryUpdateFields' ).value = recordValues.salary
+        get( '#positionUpdateFields' ).value = recordValues.position
+        get( '#startWorkingUpdateFields' ).value = recordValues.start_working
+        get( '#endWorkingFields' ).value = recordValues.end_working
     }
 }
 class FormValidationImpl extends FormValidation {
@@ -97,18 +115,16 @@ class FormValidationImpl extends FormValidation {
         super()
     }
     validateUpdateParams( updateParams ) {
-        const validIdCompany = this.validateIdCompany( updateParams )
-        const validCompany = this.validateCompany( updateParams )
-        const validActiveStatus = this.validateActiveStatus( updateParams )
+        const validEmployeeId = this.validateEmployeeId( updateParams )
+        const validEmployeeData = this.validateInsertParams( updateParams )
 
-        if ( !validIdCompany.isValid ) return validIdCompany;
-        if ( !validCompany.isValid ) return validCompany;
-        if ( !validActiveStatus.isValid ) return validActiveStatus;
+        if ( !validEmployeeId.isValid ) return validEmployeeId;
+        if ( !validEmployeeData.isValid ) return validEmployeeData
         return this.validateResult( 'Data is valid', true )
     }
     validateDeleteParams( deleteParams ) {
-        if ( !deleteParams.company_id || deleteParams.company_id.length < 0 ) {
-            return this.validateResult( 'Company Id doesnt found' )
+        if ( !deleteParams.employee_id || deleteParams.employee_id.length < 0 ) {
+            return this.validateResult( 'Employee Id doesnt found' )
         }
         return this.validateResult( 'Data is valid', true )
     }
@@ -132,6 +148,15 @@ class FormValidationImpl extends FormValidation {
         if ( !validSalary.isValid ) return validSalary;
         if ( !validEmployeeStatusId.isValid ) return validEmployeeStatusId;
         if ( !validStartWorking.isValid ) return validStartWorking;
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateEmployeeId( formData ) {
+        if ( !formData.employee_id ) {
+            return this.validateResult( 'Employee id is empty' )
+        }
+        if ( Number.isNaN( formData.employee_id ) ) {
+            return this.validateResult( 'Invalid employee id' )
+        }
         return this.validateResult( 'Data is valid', true )
     }
     validateEmployeeStatusId( formData ) {
@@ -250,12 +275,22 @@ class ModalFormImpl extends ModalForm {
         super()
     }
     setDeleteConfirmMessage( formValues ) {
-        const confirmMessage = `Area you sure to delete ${ formValues.company_id } - ${ formValues.company } ?`
+        const confirmMessage = `Area you sure to delete  (${ formValues.employee_id }) ${ formValues.name } ?`
         document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
-        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.company_id
+        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.employee_id
     }
     clearAddNewDataForm() {
-        document.querySelector( '#companyFields' ).value = ''
+        const get = ( id ) => {
+            return document.querySelector( id )
+        }
+        get( '#employeStatusFields' ).value = ''
+        get( '#nameFields' ).value = ''
+        get( '#phoneNumberFields' ).value = ''
+        get( '#emailFields' ).value = ''
+        get( '#addressFields' ).value = ''
+        get( '#salaryFields' ).value = ''
+        get( '#positionFields' ).value = ''
+        get( '#startWorkingFields' ).value = ''
     }
 }
 
@@ -266,9 +301,7 @@ class ButtonEventImpl extends ButtonEvent {
     saveNewData() {
         const insertParams = new FormDataImpl().getAddNewDataFormValues()
         const validationResult = new FormValidationImpl().validateInsertParams( insertParams )
-        console.log( insertParams )
         if ( !validationResult.isValid ) {
-            console.log( validationResult )
             new Alert().showWarning( validationResult.message )
             new ModalFormImpl().enableFormButton( new ButtonSelector().saveNewRecord )
             return
@@ -326,16 +359,11 @@ class AjaxImpl extends Ajax {
         this.sendAjax( { url: '/employee_api', payload: payload }, ajaxCallback )
     }
     getSingleData( recordId ) {
-        const payload = this.createPayload( 'POST', { 'company_id': recordId } )
+        const payload = this.createPayload( 'POST', { 'employee_id': recordId } )
         const onSuccess = ( response ) => {
             console.log( response )
             if ( !response.data.length ) new Alert().failedAjax( response.msg );
-            let recordValues = response.data[ 0 ]
-
-            // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
-            recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
-
-            new FormDataImpl().setUpdateFormValues( recordValues )
+            new FormDataImpl().setUpdateFormValues( response.data[ 0 ] )
             return
         }
         const ajaxCallback = {
@@ -345,16 +373,13 @@ class AjaxImpl extends Ajax {
             },
             onFinal: () => { }
         }
-        this.sendAjax( { url: '/company_api_search', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/employee_api_search', payload: payload }, ajaxCallback )
     }
     getSingleDataForDeleteActions( recordId ) {
-        const payload = this.createPayload( 'POST', { 'company_id': recordId } )
+        const payload = this.createPayload( 'POST', { 'employee_id': recordId } )
         const onSuccess = ( response ) => {
             if ( !response.data.length ) new Alert().failedAjax( response.msg );
-            let recordValues = response.data[ 0 ]
-            // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
-            recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
-            new ModalFormImpl().setDeleteConfirmMessage( recordValues )
+            new ModalFormImpl().setDeleteConfirmMessage( response.data[ 0 ] )
             return
         }
         const ajaxCallback = {
@@ -364,7 +389,7 @@ class AjaxImpl extends Ajax {
             },
             onFinal: () => { }
         }
-        this.sendAjax( { url: '/company_api_search', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/employee_api_search', payload: payload }, ajaxCallback )
 
     }
     updateData( formData ) {
@@ -387,7 +412,7 @@ class AjaxImpl extends Ajax {
                 new ModalFormImpl().enableFormButton( '#button_save_updated_data_id' )
             }
         }
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/employee_api', payload: payload }, ajaxCallback )
 
     }
     deleteData( formData ) {
@@ -411,7 +436,7 @@ class AjaxImpl extends Ajax {
             }
         }
 
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/employee_api', payload: payload }, ajaxCallback )
     }
 }
 
