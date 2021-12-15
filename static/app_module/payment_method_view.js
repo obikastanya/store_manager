@@ -6,8 +6,8 @@ class DatatableCompanyImpl extends BaseDatatable {
                 data: null,
                 defaultContent: ''
             },
-            { data: 'company_id' },
-            { data: 'company' },
+            { data: 'payment_method_id' },
+            { data: 'payment_method' },
             {
                 data: 'active_status',
                 render: ( data ) => {
@@ -18,19 +18,19 @@ class DatatableCompanyImpl extends BaseDatatable {
             {
                 data: null,
                 render: ( data ) => {
-                    return this.buttonEdit.replace( "_data_", data.company_id ) + '&nbsp;' + this.buttonDelete.replace( "_data_", data.company_id )
+                    return this.buttonEdit.replace( "_data_", data.payment_method_id ) + '&nbsp;' + this.buttonDelete.replace( "_data_", data.payment_method_id )
                 }
             }
         ]
         this.columnName = [
             { "name": "no", "targets": 0 },
-            { "name": "company_id", "targets": 1 },
-            { "name": "company", "targets": 2 },
+            { "name": "payment_method_id", "targets": 1 },
+            { "name": "payment_method", "targets": 2 },
             { "name": "active_status", "targets": 3 },
             { "name": "action", "targets": 4 }
         ]
-        this.datatableId = '#company_datatable_id'
-        this.apiEndpoint = '/company_api'
+        this.datatableId = '#payment_method_datatable_id'
+        this.apiEndpoint = '/payment_method_api'
     }
     bindEventForActionsButton( datatableInstance ) {
         datatableInstance.on( 'click', this.btnClassEditData, function ( e ) {
