@@ -48,20 +48,20 @@ class FormDataImpl extends FormData {
     }
     getAddNewDataFormValues() {
         let formValues = {
-            company: document.querySelector( '#companyFields' ).value
+            payment_method: document.querySelector( '#paymentMethodFields' ).value
         }
         return formValues
     }
     getDeleteFormValues() {
         let formValues = {
-            company_id: document.getElementById( 'delete_confirm_massage_id' ).value
+            payment_method_id: document.getElementById( 'delete_confirm_massage_id' ).value
         }
         return formValues
     }
     getUpdateFormValues() {
         let formValues = {
-            company: document.querySelector( '#companyFieldsUpdate' ).value,
-            company_id: document.querySelector( '#idCompanyFields' ).value,
+            payment_method: document.querySelector( '#companyFieldsUpdate' ).value,
+            payment_method_id: document.querySelector( '#idCompanyFields' ).value,
             active_status: this.getActiveStatusValue( '#activeStatusFields' )
         }
         return formValues
@@ -79,7 +79,7 @@ class FormValidationImpl extends FormValidation {
     }
     validateUpdateParams( updateParams ) {
         const validIdCompany = this.validateIdCompany( updateParams )
-        const validCompany = this.validateCompany( updateParams )
+        const validCompany = this.validatePaymentMethodDesc( updateParams )
         const validActiveStatus = this.validateActiveStatus( updateParams )
 
         if ( !validIdCompany.isValid ) return validIdCompany;
@@ -94,17 +94,17 @@ class FormValidationImpl extends FormValidation {
         return this.validateResult( 'Data is valid', true )
     }
     validateInsertParams( insertParams ) {
-        return this.validateCompany( insertParams )
+        return this.validatePaymentMethodDesc( insertParams )
     }
-    validateCompany( formData ) {
-        if ( !formData.company ) {
+    validatePaymentMethodDesc( formData ) {
+        if ( !formData.payment_method ) {
             return this.validateResult( 'Cant insert empty data' )
         }
-        if ( formData.company.length < 3 ) {
-            return this.validateResult( 'Company Name too short' )
+        if ( formData.payment_method.length < 3 ) {
+            return this.validateResult( 'Payment method desc too short' )
         }
-        if ( formData.company.length > 200 ) {
-            return this.validateResult( 'Company Name too long' )
+        if ( formData.payment_method.length > 200 ) {
+            return this.validateResult( 'Payment method desc too long' )
         }
         return this.validateResult( 'Data is valid', true )
     }
@@ -201,7 +201,7 @@ class AjaxImpl extends Ajax {
                 new ModalForm().enableSaveConfirmBtn()
             }
         }
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/payment_method_api', payload: payload }, ajaxCallback )
     }
     getSingleData( recordId ) {
         const payload = this.createPayload( 'POST', { 'company_id': recordId } )
