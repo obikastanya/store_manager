@@ -70,7 +70,7 @@ class ParameterHandlerImpl(ParameterHandler):
     def getParamInsertFromRequests(self):
         dataFromRequest={
             'mspm_desc':request.json.get('payment_method'),
-            'mspm_active_status':request.json.get('active_status')
+            'mspm_active_status':request.json.get('active_status','Y')
         }
         return dataFromRequest
 

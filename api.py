@@ -57,7 +57,7 @@ def employeeApi():
 def employeeApiSearch():
     return EmployeeController().searchSingleData()
 
-@app.post('/payment_method_api')
+@app.route('/payment_method_api',methods=['GET','POST','PUT', 'DELETE'])
 def paymentMethodApi():
     return splitRouteByMethods(PaymentMethodContoller)
     
