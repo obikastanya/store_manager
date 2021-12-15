@@ -40,4 +40,8 @@ def discountTypePage():
 @app.get('/employee')
 def employeePage():
     return render_template('master/employee.html')
+
+@app.get('/payment-method')
+def paymentMethodPage():
+    return render_template('master/payment_method.html')
     

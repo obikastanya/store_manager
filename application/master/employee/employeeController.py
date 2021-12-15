@@ -1,7 +1,6 @@
 import re
 from flask import request
 from sqlalchemy import func
-from sqlalchemy.sql.expression import select
 from .employeeModel import db,Employee,EmployeeSchema
 from ..baseMasterController import MasterController, DataHandler, ParameterHandler, ValidationHandler
 

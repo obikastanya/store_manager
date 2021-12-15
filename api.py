@@ -56,3 +56,12 @@ def employeeApi():
 @app.post('/employee_api_search')
 def employeeApiSearch():
     return EmployeeController().searchSingleData()
+
+@app.post('/payment_method_api')
+def paymentMethodApi():
+    return splitRouteByMethods(PaymentMethodContoller)
+    
+@app.post('/payment_method_api_search')
+def paymentMethodApiSearch():
+    return PaymentMethodContoller().searchSingleData()
+
