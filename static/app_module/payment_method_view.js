@@ -1,4 +1,4 @@
-class DatatableCompanyImpl extends BaseDatatable {
+class DatatablePaymentMethodImpl extends BaseDatatable {
     constructor() {
         super()
         this.tableColumns = [
@@ -60,15 +60,15 @@ class FormDataImpl extends FormData {
     }
     getUpdateFormValues() {
         let formValues = {
-            payment_method: document.querySelector( '#companyFieldsUpdate' ).value,
-            payment_method_id: document.querySelector( '#idCompanyFields' ).value,
+            payment_method: document.querySelector( '#paymentMethodUpdateFields' ).value,
+            payment_method_id: document.querySelector( '#paymentMethodIdFields' ).value,
             active_status: this.getActiveStatusValue( '#activeStatusFields' )
         }
         return formValues
     }
     setUpdateFormValues( recordValues ) {
-        document.querySelector( '#idCompanyFields' ).value = recordValues.company_id
-        document.querySelector( '#companyFieldsUpdate' ).value = recordValues.company
+        document.querySelector( '#paymentMethodIdFields' ).value = recordValues.payment_method_id
+        document.querySelector( '#paymentMethodUpdateFields' ).value = recordValues.payment_method
         document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
         document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
     }
@@ -78,18 +78,18 @@ class FormValidationImpl extends FormValidation {
         super()
     }
     validateUpdateParams( updateParams ) {
-        const validIdCompany = this.validateIdCompany( updateParams )
-        const validCompany = this.validatePaymentMethodDesc( updateParams )
+        const validIdPayment = this.validatePaymentId( updateParams )
+        const validPaymentMethod = this.validatePaymentMethodDesc( updateParams )
         const validActiveStatus = this.validateActiveStatus( updateParams )
 
-        if ( !validIdCompany.isValid ) return validIdCompany;
-        if ( !validCompany.isValid ) return validCompany;
+        if ( !validIdPayment.isValid ) return validIdPayment;
+        if ( !validPaymentMethod.isValid ) return validPaymentMethod;
         if ( !validActiveStatus.isValid ) return validActiveStatus;
         return this.validateResult( 'Data is valid', true )
     }
     validateDeleteParams( deleteParams ) {
-        if ( !deleteParams.company_id || deleteParams.company_id.length < 0 ) {
-            return this.validateResult( 'Company Id doesnt found' )
+        if ( !deleteParams.payment_method_id || deleteParams.payment_method_id.length < 0 ) {
+            return this.validateResult( 'Payment method id doesnt found' )
         }
         return this.validateResult( 'Data is valid', true )
     }
@@ -108,9 +108,9 @@ class FormValidationImpl extends FormValidation {
         }
         return this.validateResult( 'Data is valid', true )
     }
-    validateIdCompany( formData ) {
-        if ( !formData.company_id || formData.company_id.length < 0 ) {
-            return this.validateResult( 'There is no company id to update' )
+    validatePaymentId( formData ) {
+        if ( !formData.payment_method_id || formData.payment_method_id.length < 0 ) {
+            return this.validateResult( 'There is no payment method to update' )
         }
         return this.validateResult( 'Data is valid', true )
     }
@@ -130,12 +130,12 @@ class ModalFormImpl extends ModalForm {
         super()
     }
     setDeleteConfirmMessage( formValues ) {
-        const confirmMessage = `Area you sure to delete ${ formValues.company_id } - ${ formValues.company } ?`
+        const confirmMessage = `Area you sure to delete ${ formValues.payment_method_id } - ${ formValues.payment_method } ?`
         document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
-        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.company_id
+        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.payment_method_id
     }
     clearAddNewDataForm() {
-        document.querySelector( '#companyFields' ).value = ''
+        document.querySelector( '#paymentMethodFields' ).value = ''
     }
 }
 
@@ -187,7 +187,7 @@ class AjaxImpl extends Ajax {
             if ( response.status ) {
                 new ModalFormImpl().hideModal( 'id_modal_for_add_new_data' )
                 new Alert().successAjax( response.msg )
-                new DatatableCompanyImpl().reloadDatatable()
+                new DatatablePaymentMethodImpl().reloadDatatable()
                 return
             }
             new Alert().failedAjax( response.msg )
@@ -204,12 +204,10 @@ class AjaxImpl extends Ajax {
         this.sendAjax( { url: '/payment_method_api', payload: payload }, ajaxCallback )
     }
     getSingleData( recordId ) {
-        const payload = this.createPayload( 'POST', { 'company_id': recordId } )
+        const payload = this.createPayload( 'POST', { 'payment_method_id': recordId } )
         const onSuccess = ( response ) => {
-            console.log( response )
             if ( !response.data.length ) new Alert().failedAjax( response.msg );
             let recordValues = response.data[ 0 ]
-
             // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
             recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
 
@@ -223,10 +221,10 @@ class AjaxImpl extends Ajax {
             },
             onFinal: () => { }
         }
-        this.sendAjax( { url: '/company_api_search', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/payment_method_api_search', payload: payload }, ajaxCallback )
     }
     getSingleDataForDeleteActions( recordId ) {
-        const payload = this.createPayload( 'POST', { 'company_id': recordId } )
+        const payload = this.createPayload( 'POST', { 'payment_method_id': recordId } )
         const onSuccess = ( response ) => {
             if ( !response.data.length ) new Alert().failedAjax( response.msg );
             let recordValues = response.data[ 0 ]
@@ -242,7 +240,7 @@ class AjaxImpl extends Ajax {
             },
             onFinal: () => { }
         }
-        this.sendAjax( { url: '/company_api_search', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/payment_method_api_search', payload: payload }, ajaxCallback )
 
     }
     updateData( formData ) {
@@ -252,7 +250,7 @@ class AjaxImpl extends Ajax {
                 return new Alert().failedAjax( response.msg )
             }
             new Alert().successAjax( response.msg )
-            new DatatableCompanyImpl().reloadDatatable()
+            new DatatablePaymentMethodImpl().reloadDatatable()
             new ModalFormImpl().hideModal( 'id_modal_for_edit' )
             return
         }
@@ -265,7 +263,7 @@ class AjaxImpl extends Ajax {
                 new ModalFormImpl().enableFormButton( '#button_save_updated_data_id' )
             }
         }
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/payment_method_api', payload: payload }, ajaxCallback )
 
     }
     deleteData( formData ) {
@@ -275,7 +273,7 @@ class AjaxImpl extends Ajax {
                 return new Alert().failedAjax( response.msg )
             }
             new Alert().successAjax( response.msg )
-            new DatatableCompanyImpl().reloadDatatable()
+            new DatatablePaymentMethodImpl().reloadDatatable()
             new ModalFormImpl().hideModal( 'id_modal_for_delete' )
             return
         }
@@ -289,14 +287,14 @@ class AjaxImpl extends Ajax {
             }
         }
 
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/payment_method_api', payload: payload }, ajaxCallback )
     }
 }
 
 const runScript = () => {
     $( document ).ready( function () {
         const modalForm = new ModalFormImpl()
-        new DatatableCompanyImpl().initiateDatatable()
+        new DatatablePaymentMethodImpl().initiateDatatable()
         modalForm.registerOnHideModal()
         modalForm.disabledBtnNewDataOnClick()
         new ButtonEventImpl().bindEventWithAjax()
