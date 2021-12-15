@@ -55,8 +55,19 @@ class FormDataImpl extends FormData {
         super()
     }
     getAddNewDataFormValues() {
+        const get = ( idElement ) => {
+            return document.querySelector( idElement ).value
+        }
         let formValues = {
-            company: document.querySelector( '#companyFields' ).value
+            employee_status_id: get( '#employeStatusFields' ),
+            name: get( '#nameFields' ),
+            phone_number: get( '#phoneNumberFields' ),
+            email: get( '#emailFields' ),
+            address: get( '#addressFields' ),
+            salary: get( '#salaryFields' ),
+            position: get( '#positionFields' ),
+            start_working: get( '#startWorkingFields' ),
+            end_working: get( '#nameFields' )
         }
         return formValues
     }
@@ -102,26 +113,123 @@ class FormValidationImpl extends FormValidation {
         return this.validateResult( 'Data is valid', true )
     }
     validateInsertParams( insertParams ) {
-        return this.validateCompany( insertParams )
+        // check all  data, is valid or not
+        const validEmployeeStatusId = this.validateEmployeeStatusId( insertParams )
+        const validName = this.validateName( insertParams )
+        const validPhoneNumber = this.validatePhoneNumber( insertParams )
+        const validEmail = this.validateEmail( insertParams )
+        const validAddress = this.validateAddress( insertParams )
+        const validSalary = this.validateSalary( insertParams )
+        const validPosition = this.validatePosition( insertParams )
+        const validStartWorking = this.validStartWorking( insertParams )
+
+        // return status and massage from validation if the validation isValid is false        
+        if ( !validName.isValid ) return validName;
+        if ( !validPosition.isValid ) return validPosition;
+        if ( !validPhoneNumber.isValid ) return validPhoneNumber;
+        if ( !validEmail.isValid ) return validEmail;
+        if ( !validAddress.isValid ) return validAddress;
+        if ( !validSalary.isValid ) return validSalary;
+        if ( !validEmployeeStatusId.isValid ) return validEmployeeStatusId;
+        if ( !validStartWorking.isValid ) return validStartWorking;
+        return this.validateResult( 'Data is valid', true )
     }
-    validateCompany( formData ) {
-        if ( !formData.company ) {
-            return this.validateResult( 'Cant insert empty data' )
+    validateEmployeeStatusId( formData ) {
+        if ( !formData.employee_status_id ) {
+            return this.validateResult( 'Employee status id is empty' )
         }
-        if ( formData.company.length < 3 ) {
-            return this.validateResult( 'Company Name too short' )
+        if ( Number.isNaN( formData.employee_status_id ) ) {
+            return this.validateResult( 'Invalid employee status id' )
         }
-        if ( formData.company.length > 200 ) {
-            return this.validateResult( 'Company Name too long' )
+        if ( ( formData.employee_status_id ).toString().length > 1 ) {
+            return this.validateResult( 'Invalid employee status id' )
         }
         return this.validateResult( 'Data is valid', true )
     }
-    validateIdCompany( formData ) {
-        if ( !formData.company_id || formData.company_id.length < 0 ) {
-            return this.validateResult( 'There is no company id to update' )
+    validateName( formData ) {
+        if ( !formData.name ) {
+            return this.validateResult( 'Employee name is empty' )
+        }
+        if ( formData.name.length < 3 ) {
+            return this.validateResult( 'Name minimun character is 3' )
+        }
+        if ( formData.name.length > 200 ) {
+            return this.validateResult( 'Name is too long' )
         }
         return this.validateResult( 'Data is valid', true )
     }
+    validatePhoneNumber( formData ) {
+        if ( !formData.phone_number ) {
+            return this.validateResult( 'Phone number is empty' )
+        }
+        if ( ( formData.phone_number ).toString().length < 3 ) {
+            return this.validateResult( 'Phone number minimum character is 3' )
+        }
+        if ( ( formData.phone_number ).toString().length > 30 ) {
+            return this.validateResult( 'Phone number is too long' )
+        }
+        if ( Number.isNaN( formData.phone_number ) ) {
+            return this.validateResult( 'Phone number is too long' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateEmail( formData ) {
+        if ( !formData.email ) {
+            return this.validateResult( 'Email is empty' )
+        }
+        if ( !this.isMatchEmailPattern( formData.email ) ) {
+            return this.validateResult( 'Invalid email format' )
+        }
+        if ( formData.email.length > 100 ) {
+            return this.validateResult( 'Email is too long' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateAddress( formData ) {
+        console.log( formData )
+        if ( !formData.address ) {
+            return this.validateResult( 'Address is empty' )
+        }
+        if ( formData.address.length < 3 ) {
+            return this.validateResult( 'Address is too short' )
+        }
+        if ( formData.address.length > 200 ) {
+            return this.validateResult( 'Address is too long' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateSalary( formData ) {
+        if ( ( formData.salary ).toString().length < 3 ) {
+            return this.validateResult( 'Minimum salary is 3 digit' )
+        }
+        if ( ( formData.salary ).toString().length > 12 ) {
+            return this.validateResult( 'Salary is too long' )
+        }
+        if ( Number.isNaN( formData.salary ) ) {
+            return this.validateResult( 'Invalid salary' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validatePosition( formData ) {
+        if ( !formData.position ) {
+            return this.validateResult( 'Employee position is empty' )
+        }
+        if ( formData.position.length < 3 ) {
+            return this.validateResult( 'Position Name minimun character is 3' )
+        }
+        if ( formData.position.length > 100 ) {
+            return this.validateResult( 'Position is too long' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validStartWorking( formData ) {
+        if ( !formData.start_working ) {
+            return this.validateResult( 'Start working is empty' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+
+
     validateActiveStatus( formData ) {
         const isValidStatus = [ 'Y', 'N' ].includes( formData.active_status )
         if ( !isValidStatus ) {
@@ -131,6 +239,10 @@ class FormValidationImpl extends FormValidation {
     }
     validateResult( message = '', isValid = false ) {
         return { isValid: isValid, message: message }
+    }
+    isMatchEmailPattern( email ) {
+        var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+        return emailPattern.test( email );
     }
 }
 class ModalFormImpl extends ModalForm {
@@ -154,7 +266,9 @@ class ButtonEventImpl extends ButtonEvent {
     saveNewData() {
         const insertParams = new FormDataImpl().getAddNewDataFormValues()
         const validationResult = new FormValidationImpl().validateInsertParams( insertParams )
+        console.log( insertParams )
         if ( !validationResult.isValid ) {
+            console.log( validationResult )
             new Alert().showWarning( validationResult.message )
             new ModalFormImpl().enableFormButton( new ButtonSelector().saveNewRecord )
             return
@@ -209,7 +323,7 @@ class AjaxImpl extends Ajax {
                 new ModalForm().enableSaveConfirmBtn()
             }
         }
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/employee_api', payload: payload }, ajaxCallback )
     }
     getSingleData( recordId ) {
         const payload = this.createPayload( 'POST', { 'company_id': recordId } )

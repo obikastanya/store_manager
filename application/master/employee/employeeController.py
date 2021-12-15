@@ -128,8 +128,7 @@ class ParameterHandlerImpl(ParameterHandler):
             'mse_address':request.json.get('address'),
             'mse_salary':request.json.get('salary'),
             'mse_position':request.json.get('position'),
-            'mse_start_working':request.json.get('start_working'),
-            'mse_end_working':request.json.get('end_working')
+            'mse_start_working':request.json.get('start_working')
         }
         return dataFromRequest
 
@@ -195,7 +194,6 @@ class ValidationHandlerImpl(ValidationHandler):
     def isParamInsertValid(self, dataFromRequest):
         if not self.isStatusEmployeeValid(dataFromRequest):
             return False
-        print(self.isNameValid(dataFromRequest))
         if not self.isNameValid(dataFromRequest):
             return False
         if not self.isPhoneNumberValid(dataFromRequest):
@@ -209,8 +207,6 @@ class ValidationHandlerImpl(ValidationHandler):
         if not self.isPositionValid(dataFromRequest):
             return False
         if not self.isStartWorkingValid(dataFromRequest):
-            return False
-        if not self.isEndWorkingValid(dataFromRequest):
             return False
         return True
     def isIdValid(self,dataFromRequest):
