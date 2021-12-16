@@ -4,7 +4,7 @@ from .productModel import db,Product, ProductSchema
 from ..baseMasterController import MasterController, DataHandler, ParameterHandler, ValidationHandler
 
 
-class ProductController:
+class ProductController(MasterController):
     def __init__(self):
         super().__init__()
         self.dataHandler=DataHandlerImpl()
@@ -20,167 +20,245 @@ class DataHandlerImpl(DataHandler):
 
 
     def updateData(self, dataFromRequest):
-        discount=self.grabOne(dataFromRequest)
-        discount.msd_msdt_id=dataFromRequest.get('msd_msdt_id')
-        discount.msd_desc=dataFromRequest.get('msd_desc')
-        discount.msd_nominal=dataFromRequest.get('msd_nominal')
-        discount.msd_active_status=dataFromRequest.get('msd_active_status')
+        product=self.grabOne(dataFromRequest)
+        product.msp_brand=dataFromRequest.get('msp_brand')
+        product.msp_msc_id=dataFromRequest.get('msp_category')
+        product.msp_price=dataFromRequest.get('msp_price')
+        product.msp_mssp_id=dataFromRequest.get('msp_mssp_id')
+        product.msp_mscp_id=dataFromRequest.get('msp_mscp_id')
+        product.msp_active_status=dataFromRequest.get('msp_active_status')
         db.session.commit()
 
     def grabOne(self, paramFromRequest):
-        return self.Model.query.filter_by(msd_id=paramFromRequest.get('msd_id')).first()
+        return self.Model.query.filter_by(msp_id=paramFromRequest.get('msp_id')).first()
 
     def grabTotalRecords(self):
-        return db.session.query(func.count(self.Model.msd_id)).scalar()
+        return db.session.query(func.count(self.Model.msp_id)).scalar()
 
     def grabTotalRecordsFiltered(self, datatableConfig):
         searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
-        return db.session.query(func.count(self.Model.msd_id)).filter(searchKeyWord ).scalar()
+        return db.session.query(func.count(self.Model.msp_id)).filter(searchKeyWord ).scalar()
 
     def getSearchKeywordStatement(self, datatableConfig):
-        return self.Model.msd_desc.like("%{}%".format(datatableConfig.get('searchKeyWord')))
+        return self.Model.msp_desc.like("%{}%".format(datatableConfig.get('searchKeyWord')))
     
     def getOrderStatement(self,datatableConfig):
         orderStatement=None
         columnToOrder=datatableConfig.get('orderBy')
         orderDirection=datatableConfig.get('orderDirection')
 
-        if columnToOrder=='msd_id': 
+        if columnToOrder=='msp_id': 
             orderStatement=self.getOrderDirectionById(orderDirection)
-        elif columnToOrder=='msd_msdt_id':
-            orderStatement=self.getOrderDirectionByTypeId(orderDirection)
-        elif columnToOrder=='msd_desc':
+        elif columnToOrder=='msp_brand':
+            orderStatement=self.getOrderDirectionByBrand(orderDirection)
+        elif columnToOrder=='msp_msc_id':
+            orderStatement=self.getOrderDirectionByCategoryId(orderDirection)
+        elif columnToOrder=='msp_price':
+            orderStatement=self.getOrderDirectionByPrice(orderDirection)
+        elif columnToOrder=='msp_desc':
             orderStatement=self.getOrderDirectionByDesc(orderDirection)
-        elif columnToOrder=='msd_nominal':
-            orderStatement=self.getOrderDirectionByNominal(orderDirection)
-        elif columnToOrder=='msd_active_status':
+        elif columnToOrder=='msp_mssp_id':
+            orderStatement=self.getOrderDirectionBySupplier(orderDirection)
+        elif columnToOrder=='msp_mscp_id':
+            orderStatement=self.getOrderDirectionByCompany(orderDirection)
+        elif columnToOrder=='msp_active_status':
             orderStatement=self.getOrderDirectionByActiveStatus(orderDirection)
-
         return orderStatement
 
     def getOrderDirectionById(self, orderDirection):
         if orderDirection=='desc':
-            return self.Model.msd_id.desc()
-        return self.Model.msd_id.asc()
-
-    def getOrderDirectionByTypeId(self, orderDirection):
+            return self.Model.msp_id.desc()
+        return self.Model.msp_id.asc()
+    
+    def getOrderDirectionByBrand(self, orderDirection):
         if orderDirection=='desc':
-            return self.Model.msd_msdt_id.desc()
-        return self.Model.msd_msdt_id.asc()
+            return self.Model.msp_brand.desc()
+        return self.Model.msp_brand.asc()
+
+    def getOrderDirectionByCategoryId(self,orderDirection):
+        if orderDirection=='desc':
+            return self.Model.msp_msc_id.desc()
+        return self.Model.msp_msc_id.asc()
+
+    def getOrderDirectionByPrice(self,orderDirection):
+        if orderDirection=='desc':
+            return self.Model.msp_price.desc()
+        return self.Model.msp_price.asc()
 
     def getOrderDirectionByDesc(self,orderDirection):
         if orderDirection=='desc':
-            return self.Model.msd_desc.desc()
-        return self.Model.msd_desc.asc()
+            return self.Model.msp_desc.desc()
+        return self.Model.msp_desc.asc()
 
-    def getOrderDirectionByNominal(self,orderDirection):
+    def getOrderDirectionBySupplier(self,orderDirection):
         if orderDirection=='desc':
-            return self.Model.msd_nominal.desc()
-        return self.Model.msd_nominal.asc()
+            return self.Model.msp_mssp_id.desc()
+        return self.Model.msp_mssp_id.asc()
+
+    def getOrderDirectionByCompany(self,orderDirection):
+        if orderDirection=='desc':
+            return self.Model.msp_mscp_id.desc()
+        return self.Model.msp_mscp_id.asc()
+        
 
     def getOrderDirectionByActiveStatus(self,orderDirection):
         if orderDirection=='desc':
-            return self.Model.msd_active_status.desc()
-        return self.Model.msd_active_status.asc()
+            return self.Model.msp_active_status.desc()
+        return self.Model.msp_active_status.asc()
 
 class ParameterHandlerImpl(ParameterHandler):
     def getParamInsertFromRequests(self):
         dataFromRequest={
-            'msd_msdt_id':request.json.get('discount_type'),
-            'msd_desc':request.json.get('discount'),
-            'msd_nominal':int(request.json.get('nominal',0)),
-            'msd_active_status':request.json.get('active_status','Y')
+            'msp_desc':request.json.get('product_desc'),
+            'msp_brand':request.json.get('brand'),
+            'msp_price':request.json.get('price',0),
+            'msp_msc_id':request.json.get('category'),
+            'msp_mssp_id':request.json.get('supplier'),
+            'msp_mscp_id':request.json.get('company'),
+            'msp_active_status':request.json.get('active_status','Y')
         }
+        print(dataFromRequest)
         return dataFromRequest
 
     def getUpdateValuesFromRequests(self):
         dataFromRequest={
-            'msd_id':request.json.get('discount_id'),
-            'msd_msdt_id':request.json.get('discount_type'),
-            'msd_desc':request.json.get('discount'),
-            'msd_nominal':int(request.json.get('nominal',0)),
-            'msd_active_status':request.json.get('active_status','Y')
+            'msp_id':request.json.get('product_id'),
+            'msp_desc':request.json.get('product_desc'),
+            'msp_brand':request.json.get('brand'),
+            'msp_price':request.json.get('price',0),
+            'msp_msc_id':request.json.get('category'),
+            'msp_mssp_id':request.json.get('supplier'),
+            'msp_mscp_id':request.json.get('company'),
+            'msp_active_status':request.json.get('active_status','Y')
         }
+        
         return dataFromRequest
 
     def getIdFromRequest(self):
         parameterFromRequest={
-            'msd_id':request.json.get('discount_id')
+            'msp_id':request.json.get('product_id')
         }
         return parameterFromRequest
 
     def getOrderColumnName(self):
         orderColumnIndex=request.args.get('order[0][column]','')
         orderColumnName=request.args.get('columns[%s][name]'%orderColumnIndex,'')
-        if orderColumnName=='discount_id':
-            return 'msd_id'
-        if orderColumnName=='discount':
-            return 'msd_desc'
-        if orderColumnName=='discount_type':
-            return 'msd_msdt_id'
-        if orderColumnName=='nominal':
-            return 'msd_nominal'
+        if orderColumnName=='product_id':
+            return 'msp_id'
+        if orderColumnName=='product_desc':
+            return 'msp_desc'
+        if orderColumnName=='brand':
+            return 'msp_brand'
+        if orderColumnName=='price':
+            return 'msp_price'
+        if orderColumnName=='category':
+            return 'msp_msc_id'
+        if orderColumnName=='supplier':
+            return 'msp_mssp_id'
+        if orderColumnName=='company':
+            return 'msp_mscp_id'
         if orderColumnName=='active_status':
-            return 'msd_active_status'
+            return 'msp_active_status'
         return None
 
 class ValidationHandlerImpl(ValidationHandler):
-    def isParamSearchValid(self, paramFromRequest):
-            if not paramFromRequest.get('msd_id'):
+    def isParamSearchValid(self, dataFromRequest):
+            if not dataFromRequest.get('msp_id'):
                 return False
             return True
 
     def isParamUpdateValid(self,dataFromRequest):
-        if not self.isDiscountIdValid(dataFromRequest):
+        if not self.isProductIdValid(dataFromRequest):
             return False
         if not self.isParamInsertValid(dataFromRequest):
             return False
         return True
 
     def isParamInsertValid(self, dataFromRequest):
-        if not self.isDiscountNameValid(dataFromRequest):
+        if not self.isProductDescValid(dataFromRequest):
             return False
-        if not self.isDiscountTypeValid(dataFromRequest):
+        if not self.isBrandValid(dataFromRequest):
             return False
-        if not self.isDiscountNominalValid(dataFromRequest):
+        if not self.isPriceValid(dataFromRequest):
             return False
-        if not self.isValidActiveStatus(dataFromRequest):
+        if not self.isCategoryIdValid(dataFromRequest):
             return False
-        return True
-
-
-    def isParamDeleteValid(self, paramFromRequest):
-        return self.isParamSearchValid(paramFromRequest)
-
-    def isDiscountTypeValid(self,dataFromRequest):
-        if not dataFromRequest.get('msd_msdt_id'):
+        if not self.isSupplierIdValid(dataFromRequest):
             return False
-        if not self.isNumber(dataFromRequest.get('msd_msdt_id')):
+        if not self.isCompanyIdValid(dataFromRequest):
             return False
-        return True
-    def isDiscountIdValid(self,dataFromRequest):
-        if not dataFromRequest.get('msd_id'):
-            return False
-        if not self.isNumber(dataFromRequest.get('msd_id')):
+        if not self.isActiveStatusValid(dataFromRequest):
             return False
         return True
 
-    def isDiscountNameValid(self,dataFromRequest):
-        if not dataFromRequest.get('msd_desc'):
+
+    def isParamDeleteValid(self, dataFromRequest):
+        return self.isParamSearchValid(dataFromRequest)
+
+    def isProductDescValid(self,dataFromRequest):
+        if not dataFromRequest.get('msp_desc'):
             return False
-        if len(dataFromRequest.get('msd_desc'))<3:
+        if len(dataFromRequest.get('msp_desc'))<3:
             return False
-        if len(dataFromRequest.get('msd_desc'))>200:
-            return False
-        return True
-    def isDiscountNominalValid(self,dataFromRequest):
-        if not dataFromRequest.get('msd_nominal'):
-            return False
-        if not self.isNumber(dataFromRequest.get('msd_nominal')):
-            return False
-        if int(dataFromRequest.get('msd_nominal'))<1:
+        if len(dataFromRequest.get('msp_desc'))>500:
             return False
         return True
+
+    def isBrandValid(self,dataFromRequest):
+        if not dataFromRequest.get('msp_brand'):
+            return False
+        if len(dataFromRequest.get('msp_desc'))<3:
+            return False
+        if len(dataFromRequest.get('msp_desc'))>100:
+            return False
+        return True
+
+    def isPriceValid(self,dataFromRequest):
+        if not dataFromRequest.get('msp_price'):
+            return False
+        if not self.isNumber(dataFromRequest.get('msp_price')):
+            return False
+        if int(dataFromRequest.get('msp_price'))<1:
+            return False
+        if len(str(dataFromRequest.get('msp_price')))>12:
+            return False
+        return True
+
+    def isCategoryIdValid(self, dataFromRequest):
+        if not dataFromRequest.get('msp_msc_id'):
+            return False
+        if not self.isNumber(dataFromRequest.get('msp_msc_id')):
+            return False
+        return True
+
+    def isSupplierIdValid(self,dataFromRequest):
+        if not dataFromRequest.get('msp_mssp_id'):
+            return False
+        if not self.isNumber(dataFromRequest.get('msp_mssp_id')):
+            return False
+        return True
+
+    def isProductIdValid(self,dataFromRequest):
+        if not dataFromRequest.get('msp_id'):
+            return False
+        if not self.isNumber(dataFromRequest.get('msp_id')):
+            return False
+        return True
+
+    def isCompanyIdValid(self,dataFromRequest):
+        if not dataFromRequest.get('msp_mscp_id'):
+            return False
+        if not self.isNumber(dataFromRequest.get('msp_mscp_id')):
+            return False
+        return True
+
+    def isActiveStatusValid(self,dataFromRequest):
+        if not dataFromRequest.get('msp_active_status'):
+            return False
+        if dataFromRequest.get('msp_active_status') not in ['N','Y']:
+            return False
+        return True
+
     def isNumber(self,value):
         # try to parse data to numeric, if work, 
         # then the data is a number.
@@ -189,7 +267,4 @@ class ValidationHandlerImpl(ValidationHandler):
         except:
             return False
         return True
-    def isValidActiveStatus(self,dataFromRequest):
-        if dataFromRequest.get('msd_active_status') not in ['Y','N']:
-            return False
-        return True
+

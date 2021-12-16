@@ -25,7 +25,7 @@ def testSelectProductWithKeywordAndOrder():
 def testInsertProductSuccess():
     payload={
         'product_desc':'Indomie rasa rendang',
-        'brand':'', 
+        'brand':'indomie', 
         'price':300,
         'category':1,
         'supplier':1,
@@ -49,7 +49,7 @@ def testSuccessOnUpdate():
     payload={
         'product_id':1,
         'product_desc':'Indomie rasa rendang',
-        'brand':'', 
+        'brand':'indomie', 
         'price':300,
         'category':1,
         'supplier':1,
