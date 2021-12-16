@@ -48,4 +48,8 @@ def paymentMethodPage():
 @app.get('/product')
 def productPage():
     return render_template('master/product.html')
+
+@app.get('/employee-status')
+def employeeStatusPage():
+    return render_template('master/employee_status.html')
     

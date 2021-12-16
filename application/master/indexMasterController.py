@@ -6,5 +6,5 @@ from .employee.employeeController import EmployeeController
 from .category_product.categoryProductController import CategoryProductController
 from .company.companyController import CompanyController
 from .payment_method.paymentMethodController import PaymentMethodContoller
-from .status_employee.statusEmployeeController import StatusEmployeeController
+from .status_employee.employeeStatusController import EmployeeStatusController
 from .supplier.supplierController import SupplierController

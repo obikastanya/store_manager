@@ -73,3 +73,11 @@ def productApi():
 def productApiSearch():
     return ProductController().searchSingleData()
 
+@app.route('/employee_status_api',methods=['GET','POST','PUT', 'DELETE'])
+def employeeStatusApi():
+    return splitRouteByMethods(EmployeeStatusController)
+    
+@app.post('/employee_status_api_search')
+def employeeStatusApiSearch():
+    return EmployeeStatusController().searchSingleData()
+
