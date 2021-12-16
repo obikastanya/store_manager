@@ -65,3 +65,11 @@ def paymentMethodApi():
 def paymentMethodApiSearch():
     return PaymentMethodContoller().searchSingleData()
 
+@app.route('/product_api',methods=['GET','POST','PUT', 'DELETE'])
+def productApi():
+    return splitRouteByMethods(ProductController)
+    
+@app.post('/product_api_search')
+def productApiSearch():
+    return ProductController().searchSingleData()
+

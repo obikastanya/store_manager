@@ -44,4 +44,8 @@ def employeePage():
 @app.get('/payment-method')
 def paymentMethodPage():
     return render_template('master/payment_method.html')
+
+@app.get('/product')
+def productPage():
+    return render_template('master/product.html')
     

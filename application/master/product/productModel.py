@@ -28,4 +28,4 @@ class ProductSchema(Schema):
     msp_desc=fields.Str(data_key='desc')
     msp_suplier_id=fields.Str(data_key='supplier')
     msp_company_id=fields.Str(data_key='company')
-    msp_active_status=fields.Str(data_key='status_aktif')
+    msp_active_status=fields.Str(data_key='active_status')
