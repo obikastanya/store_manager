@@ -15,6 +15,6 @@ class StatusEmployee(db.Model):
 class StatusEmployeeSchema(Schema):
     """Schema to retrieve data from Model Product as dictionary.
     data_key is an alias for column name"""
-    msse_id =fields.Str(data_key='employee_status_id')
+    msse_id =fields.Int(data_key='employee_status_id')
     msse_desc=fields.Str(data_key='employee_status')
     msse_active_status=fields.Str(data_key='active_status')

@@ -19,113 +19,113 @@ class DataHandlerImpl(DataHandler):
 
 
     def updateData(self, dataFromRequest):
-        company=self.grabOne(dataFromRequest)
-        company.mscp_desc=dataFromRequest.get('mscp_desc')
-        company.mscp_active_status=dataFromRequest.get('mscp_active_status')
+        employeeStatus=self.grabOne(dataFromRequest)
+        employeeStatus.msse_desc=dataFromRequest.get('msee_desc')
+        employeeStatus.msse_active_status=dataFromRequest.get('msse_active_status')
         db.session.commit()
 
     def grabOne(self, paramFromRequest):
-        return self.Model.query.filter_by(mscp_id=paramFromRequest.get('mscp_id')).first()
+        return self.Model.query.filter_by(msse_id=paramFromRequest.get('msse_id')).first()
 
     def grabTotalRecords(self):
-        return db.session.query(func.count(self.Model.mscp_id)).scalar()
+        return db.session.query(func.count(self.Model.msse_id)).scalar()
 
     def grabTotalRecordsFiltered(self, datatableConfig):
         searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
-        return db.session.query(func.count(self.Model.mscp_id)).filter(searchKeyWord ).scalar()
+        return db.session.query(func.count(self.Model.msse_id)).filter(searchKeyWord ).scalar()
 
     def getSearchKeywordStatement(self, datatableConfig):
-        return self.Model.mscp_desc.like("%{}%".format(datatableConfig.get('searchKeyWord')))
+        return self.Model.msse_desc.like("%{}%".format(datatableConfig.get('searchKeyWord')))
     
     def getOrderStatement(self,datatableConfig):
         orderStatement=None
         columnToOrder=datatableConfig.get('orderBy')
         orderDirection=datatableConfig.get('orderDirection')
 
-        if columnToOrder=='mscp_id': 
+        if columnToOrder=='msse_id': 
             orderStatement=self.getOrderDirectionById(orderDirection)
-        elif columnToOrder=='mscp_desc':
+        elif columnToOrder=='msse_desc':
             orderStatement=self.getOrderDirectionByDesc(orderDirection)
-        elif columnToOrder=='mscp_active_status':
+        elif columnToOrder=='msse_active_status':
             orderStatement=self.getOrderDirectionByActiveStatus(orderDirection)
 
         return orderStatement
 
     def getOrderDirectionById(self, orderDirection):
         if orderDirection=='desc':
-            return self.Model.mscp_id.desc()
-        return self.Model.mscp_id.asc()
+            return self.Model.msse_id.desc()
+        return self.Model.msse_id.asc()
 
     def getOrderDirectionByDesc(self,orderDirection):
         if orderDirection=='desc':
-            return self.Model.mscp_desc.desc()
-        return self.Model.mscp_desc.asc()
+            return self.Model.msse_desc.desc()
+        return self.Model.msse_desc.asc()
 
     def getOrderDirectionByActiveStatus(self,orderDirection):
         if orderDirection=='desc':
-            return self.Model.mscp_active_status.desc()
-        return self.Model.mscp_active_status.asc()
+            return self.Model.msse_active_status.desc()
+        return self.Model.msse_active_status.asc()
 
 class ParameterHandlerImpl(ParameterHandler):
     def getParamInsertFromRequests(self):
         dataFromRequest={
-            'mscp_desc':request.json.get('company'),
-            'mscp_active_status':request.json.get('active_status','Y')
+            'msse_desc':request.json.get('employee_status'),
+            'msse_active_status':request.json.get('active_status','Y')
         }
         return dataFromRequest
 
     def getUpdateValuesFromRequests(self):
         dataFromRequest={
-            'mscp_desc':request.json.get('company'),
-            'mscp_active_status':request.json.get('active_status'),
-            'mscp_id':request.json.get('company_id')
+            'msse_desc':request.json.get('employee_status'),
+            'msse_id':request.json.get('employee_status_id'),
+            'msse_active_status':request.json.get('active_status')
         }
         return dataFromRequest
 
     def getIdFromRequest(self):
         parameterFromRequest={
-            'mscp_id':request.json.get('company_id')
+            'msse_id':request.json.get('employee_status_id')
         }
         return parameterFromRequest
 
     def getOrderColumnName(self):
         orderColumnIndex=request.args.get('order[0][column]','')
         orderColumnName=request.args.get('columns[%s][name]'%orderColumnIndex,'')
-        if orderColumnName=='company_id':
-            return 'mscp_id'
-        if orderColumnName=='company':
-            return 'mscp_desc'
+        if orderColumnName=='employee_status_id':
+            return 'msse_id'
+        if orderColumnName=='employee_status':
+            return 'msse_desc'
         if orderColumnName=='active_status':
-            return 'mscp_active_status'
+            return 'msse_active_status'
         return None
 
 class ValidationHandlerImpl(ValidationHandler):
     def isParamSearchValid(self, paramFromRequest):
-            if not paramFromRequest.get('mscp_id'):
-                return False
-            return True
+        if not paramFromRequest.get('msse_id'):
+            return False
+        return True
 
     def isParamUpdateValid(self,dataFromRequest):
-        if not dataFromRequest.get('mscp_id'):
+        if not dataFromRequest.get('msse_id'):
             return False
-        if not dataFromRequest.get('mscp_active_status'):
+        if not dataFromRequest.get('msse_active_status'):
             return False
-        if not  self.isCompanyValid(dataFromRequest):
+        if not  self.isEmployeeStatusValid(dataFromRequest):
             return False
         return True
 
     def isParamInsertValid(self, dataFromRequest):
-        return self.isCompanyValid(dataFromRequest)
+        return self.isEmployeeStatusValid(dataFromRequest)
 
     def isParamDeleteValid(self, paramFromRequest):
         return self.isParamSearchValid(paramFromRequest)
 
-    def isCompanyValid(self,dataFromRequest):
-        if not dataFromRequest.get('mscp_desc'):
+    def isEmployeeStatusValid(self,dataFromRequest):
+        if not dataFromRequest.get('msse_desc'):
             return False
-        if len(dataFromRequest.get('mscp_desc'))<3:
+        if len(dataFromRequest.get('msse_desc'))<3:
             return False
-        if len(dataFromRequest.get('mscp_desc'))>200:
+        if len(dataFromRequest.get('msse_desc'))>200:
             return False
         return True
 
