@@ -154,7 +154,7 @@ class FormValidationImpl extends FormValidation {
         if ( !formData.employee_id ) {
             return this.validateResult( 'Employee id is empty' )
         }
-        if ( Number.isNaN( formData.employee_id ) ) {
+        if ( isNaN( formData.employee_id ) ) {
             return this.validateResult( 'Invalid employee id' )
         }
         return this.validateResult( 'Data is valid', true )
@@ -163,7 +163,7 @@ class FormValidationImpl extends FormValidation {
         if ( !formData.employee_status_id ) {
             return this.validateResult( 'Employee status id is empty' )
         }
-        if ( Number.isNaN( formData.employee_status_id ) ) {
+        if ( isNaN( formData.employee_status_id ) ) {
             return this.validateResult( 'Invalid employee status id' )
         }
         if ( ( formData.employee_status_id ).toString().length > 1 ) {
@@ -193,7 +193,7 @@ class FormValidationImpl extends FormValidation {
         if ( ( formData.phone_number ).toString().length > 30 ) {
             return this.validateResult( 'Phone number is too long' )
         }
-        if ( Number.isNaN( formData.phone_number ) ) {
+        if ( isNaN( formData.phone_number ) ) {
             return this.validateResult( 'Phone number is too long' )
         }
         return this.validateResult( 'Data is valid', true )
@@ -230,7 +230,7 @@ class FormValidationImpl extends FormValidation {
         if ( ( formData.salary ).toString().length > 12 ) {
             return this.validateResult( 'Salary is too long' )
         }
-        if ( Number.isNaN( formData.salary ) ) {
+        if ( isNaN( formData.salary ) ) {
             return this.validateResult( 'Invalid salary' )
         }
         return this.validateResult( 'Data is valid', true )

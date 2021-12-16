@@ -149,7 +149,7 @@ class FormValidationImpl extends FormValidation {
         if ( !formData.discount_type ) {
             return this.validateResult( 'Discount Type is invalid' )
         }
-        if ( Number.isNaN( formData.discount_type ) ) {
+        if ( isNaN( formData.discount_type ) ) {
             return this.validateResult( 'Cant Find Selected Discount Type' )
         }
         return this.validateResult( 'Data is valid', true )
@@ -158,7 +158,7 @@ class FormValidationImpl extends FormValidation {
         if ( !formData.nominal ) {
             return this.validateResult( 'Cant insert data with empty nominal' )
         }
-        if ( Number.isNaN( formData.nominal ) ) {
+        if ( isNaN( formData.nominal ) ) {
             return this.validateResult( 'Nominal must be a number' )
         }
         if ( formData.nominal < 1 ) {
