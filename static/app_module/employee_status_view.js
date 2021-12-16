@@ -1,4 +1,4 @@
-class DatatableCompanyImpl extends BaseDatatable {
+class DatatableEmployeeStatusImpl extends BaseDatatable {
     constructor() {
         super()
         this.tableColumns = [
@@ -6,8 +6,8 @@ class DatatableCompanyImpl extends BaseDatatable {
                 data: null,
                 defaultContent: ''
             },
-            { data: 'company_id' },
-            { data: 'company' },
+            { data: 'employee_status_id' },
+            { data: 'employee_status' },
             {
                 data: 'active_status',
                 render: ( data ) => {
@@ -18,19 +18,19 @@ class DatatableCompanyImpl extends BaseDatatable {
             {
                 data: null,
                 render: ( data ) => {
-                    return this.buttonEdit.replace( "_data_", data.company_id ) + '&nbsp;' + this.buttonDelete.replace( "_data_", data.company_id )
+                    return this.buttonEdit.replace( "_data_", data.employee_status_id ) + '&nbsp;' + this.buttonDelete.replace( "_data_", data.employee_status_id )
                 }
             }
         ]
         this.columnName = [
             { "name": "no", "targets": 0 },
-            { "name": "company_id", "targets": 1 },
-            { "name": "company", "targets": 2 },
+            { "name": "employee_status_id", "targets": 1 },
+            { "name": "employee_status", "targets": 2 },
             { "name": "active_status", "targets": 3 },
             { "name": "action", "targets": 4 }
         ]
-        this.datatableId = '#company_datatable_id'
-        this.apiEndpoint = '/company_api'
+        this.datatableId = '#employee_status_datatable_id'
+        this.apiEndpoint = '/employee_status_api'
     }
     bindEventForActionsButton( datatableInstance ) {
         datatableInstance.on( 'click', this.btnClassEditData, function ( e ) {
@@ -48,27 +48,27 @@ class FormDataImpl extends FormData {
     }
     getAddNewDataFormValues() {
         let formValues = {
-            company: document.querySelector( '#companyFields' ).value
+            employee_status: document.querySelector( '#employeeStatusFields' ).value
         }
         return formValues
     }
     getDeleteFormValues() {
         let formValues = {
-            company_id: document.getElementById( 'delete_confirm_massage_id' ).value
+            employee_status_id: document.getElementById( 'delete_confirm_massage_id' ).value
         }
         return formValues
     }
     getUpdateFormValues() {
         let formValues = {
-            company: document.querySelector( '#companyFieldsUpdate' ).value,
-            company_id: document.querySelector( '#idCompanyFields' ).value,
+            employee_status: document.querySelector( '#employeeStatusFieldsUpdate' ).value,
+            employee_status_id: document.querySelector( '#idEmployeeStatusFields' ).value,
             active_status: this.getActiveStatusValue( '#activeStatusFields' )
         }
         return formValues
     }
     setUpdateFormValues( recordValues ) {
-        document.querySelector( '#idCompanyFields' ).value = recordValues.company_id
-        document.querySelector( '#companyFieldsUpdate' ).value = recordValues.company
+        document.querySelector( '#idEmployeeStatusFields' ).value = recordValues.employee_status_id
+        document.querySelector( '#employeeStatusFieldsUpdate' ).value = recordValues.employee_status
         document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
         document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
     }
@@ -78,39 +78,39 @@ class FormValidationImpl extends FormValidation {
         super()
     }
     validateUpdateParams( updateParams ) {
-        const validIdCompany = this.validateIdCompany( updateParams )
-        const validCompany = this.validateCompany( updateParams )
+        const validEmployeeStatusId = this.validateEmployeeStatusId( updateParams )
+        const validEmployeeStatus = this.validateEmployeeStatus( updateParams )
         const validActiveStatus = this.validateActiveStatus( updateParams )
 
-        if ( !validIdCompany.isValid ) return validIdCompany;
-        if ( !validCompany.isValid ) return validCompany;
+        if ( !validEmployeeStatusId.isValid ) return validEmployeeStatusId;
+        if ( !validEmployeeStatus.isValid ) return validEmployeeStatus;
         if ( !validActiveStatus.isValid ) return validActiveStatus;
         return this.validateResult( 'Data is valid', true )
     }
     validateDeleteParams( deleteParams ) {
-        if ( !deleteParams.company_id || deleteParams.company_id.length < 0 ) {
-            return this.validateResult( 'Company Id doesnt found' )
+        if ( !deleteParams.employee_status_id || deleteParams.employee_status_id.length < 0 ) {
+            return this.validateResult( 'Employee status id doesnt found' )
         }
         return this.validateResult( 'Data is valid', true )
     }
     validateInsertParams( insertParams ) {
-        return this.validateCompany( insertParams )
+        return this.validateEmployeeStatus( insertParams )
     }
-    validateCompany( formData ) {
-        if ( !formData.company ) {
+    validateEmployeeStatus( formData ) {
+        if ( !formData.employee_status ) {
             return this.validateResult( 'Cant insert empty data' )
         }
-        if ( formData.company.length < 3 ) {
-            return this.validateResult( 'Company Name too short' )
+        if ( formData.employee_status.length < 3 ) {
+            return this.validateResult( 'Employee Status too short' )
         }
-        if ( formData.company.length > 200 ) {
-            return this.validateResult( 'Company Name too long' )
+        if ( formData.employee_status.length > 200 ) {
+            return this.validateResult( 'Employee Status too long' )
         }
         return this.validateResult( 'Data is valid', true )
     }
-    validateIdCompany( formData ) {
-        if ( !formData.company_id || formData.company_id.length < 0 ) {
-            return this.validateResult( 'There is no company id to update' )
+    validateEmployeeStatusId( formData ) {
+        if ( !formData.employee_status_id || formData.employee_status_id.length < 0 ) {
+            return this.validateResult( 'There is no employe status id to update' )
         }
         return this.validateResult( 'Data is valid', true )
     }
@@ -130,12 +130,13 @@ class ModalFormImpl extends ModalForm {
         super()
     }
     setDeleteConfirmMessage( formValues ) {
-        const confirmMessage = `Area you sure to delete ${ formValues.company_id } - ${ formValues.company } ?`
+        console.log( formValues )
+        const confirmMessage = `Area you sure to delete ${ formValues.employee_status_id } - ${ formValues.employee_status } ?`
         document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
-        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.company_id
+        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.employee_status_id
     }
     clearAddNewDataForm() {
-        document.querySelector( '#companyFields' ).value = ''
+        document.querySelector( '#employeeStatusFields' ).value = ''
     }
 }
 
@@ -187,7 +188,7 @@ class AjaxImpl extends Ajax {
             if ( response.status ) {
                 new ModalFormImpl().hideModal( 'id_modal_for_add_new_data' )
                 new Alert().successAjax( response.msg )
-                new DatatableCompanyImpl().reloadDatatable()
+                new DatatableEmployeeStatusImpl().reloadDatatable()
                 return
             }
             new Alert().failedAjax( response.msg )
@@ -201,15 +202,13 @@ class AjaxImpl extends Ajax {
                 new ModalForm().enableSaveConfirmBtn()
             }
         }
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/employee_status_api', payload: payload }, ajaxCallback )
     }
     getSingleData( recordId ) {
-        const payload = this.createPayload( 'POST', { 'company_id': recordId } )
+        const payload = this.createPayload( 'POST', { 'employee_status_id': recordId } )
         const onSuccess = ( response ) => {
-            console.log( response )
             if ( !response.data.length ) new Alert().failedAjax( response.msg );
             let recordValues = response.data[ 0 ]
-
             // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
             recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
 
@@ -223,10 +222,10 @@ class AjaxImpl extends Ajax {
             },
             onFinal: () => { }
         }
-        this.sendAjax( { url: '/company_api_search', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/employee_status_api_search', payload: payload }, ajaxCallback )
     }
     getSingleDataForDeleteActions( recordId ) {
-        const payload = this.createPayload( 'POST', { 'company_id': recordId } )
+        const payload = this.createPayload( 'POST', { 'employee_status_id': recordId } )
         const onSuccess = ( response ) => {
             if ( !response.data.length ) new Alert().failedAjax( response.msg );
             let recordValues = response.data[ 0 ]
@@ -242,7 +241,7 @@ class AjaxImpl extends Ajax {
             },
             onFinal: () => { }
         }
-        this.sendAjax( { url: '/company_api_search', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/employee_status_api_search', payload: payload }, ajaxCallback )
 
     }
     updateData( formData ) {
@@ -252,7 +251,7 @@ class AjaxImpl extends Ajax {
                 return new Alert().failedAjax( response.msg )
             }
             new Alert().successAjax( response.msg )
-            new DatatableCompanyImpl().reloadDatatable()
+            new DatatableEmployeeStatusImpl().reloadDatatable()
             new ModalFormImpl().hideModal( 'id_modal_for_edit' )
             return
         }
@@ -265,7 +264,7 @@ class AjaxImpl extends Ajax {
                 new ModalFormImpl().enableFormButton( '#button_save_updated_data_id' )
             }
         }
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/employee_status_api', payload: payload }, ajaxCallback )
 
     }
     deleteData( formData ) {
@@ -275,7 +274,7 @@ class AjaxImpl extends Ajax {
                 return new Alert().failedAjax( response.msg )
             }
             new Alert().successAjax( response.msg )
-            new DatatableCompanyImpl().reloadDatatable()
+            new DatatableEmployeeStatusImpl().reloadDatatable()
             new ModalFormImpl().hideModal( 'id_modal_for_delete' )
             return
         }
@@ -289,14 +288,14 @@ class AjaxImpl extends Ajax {
             }
         }
 
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/employee_status_api', payload: payload }, ajaxCallback )
     }
 }
 
 const runScript = () => {
     $( document ).ready( function () {
         const modalForm = new ModalFormImpl()
-        new DatatableCompanyImpl().initiateDatatable()
+        new DatatableEmployeeStatusImpl().initiateDatatable()
         modalForm.registerOnHideModal()
         modalForm.disabledBtnNewDataOnClick()
         new ButtonEventImpl().bindEventWithAjax()

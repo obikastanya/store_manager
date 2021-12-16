@@ -20,7 +20,7 @@ class DataHandlerImpl(DataHandler):
 
     def updateData(self, dataFromRequest):
         employeeStatus=self.grabOne(dataFromRequest)
-        employeeStatus.msse_desc=dataFromRequest.get('msee_desc')
+        employeeStatus.msse_desc=dataFromRequest.get('msse_desc')
         employeeStatus.msse_active_status=dataFromRequest.get('msse_active_status')
         db.session.commit()
 

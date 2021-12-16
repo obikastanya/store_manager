@@ -1,17 +1,17 @@
 {% extends 'base_template.html'%}
 
-{%block menu_title %}Company{% endblock %}
+{%block menu_title %}Employee Status{% endblock %}
 
 {% block main_content%}
-<!-- datatables company -->
+<!-- datatables employee status -->
 <div class="row">
     <div class="col-sm-12">
-        <table class="table table-bordered table-striped" id='company_datatable_id' width='100%'>
+        <table class="table table-bordered table-striped" id='employee_status_datatable_id' width='100%'>
             <thead>
                 <tr>
                     <th scope="col">No</th>
-                    <th scope="col">Company Code</th>
-                    <th scope="col">Description</th>
+                    <th scope="col">Code</th>
+                    <th scope="col">Employee Status</th>
                     <th scope="col">Active Status</th>
                     <th scope="col">Action</th>
                 </tr>
@@ -28,19 +28,20 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Update Company</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Update Employee Status</h5>
                 <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id='formAddNewData'>
                     <div class="mb-3">
-                        <label for="idCompanyFields" class="form-label">Company Code</label>
-                        <input type="text" class="form-control" id="idCompanyFields" placeholder="Company Code"
-                            disabled>
+                        <label for="idEmployeeStatusFields" class="form-label">Employee Status Code</label>
+                        <input type="text" class="form-control" id="idEmployeeStatusFields"
+                            placeholder="Employee Status Code" disabled>
                     </div>
                     <div class="mb-3">
-                        <label for="companyFieldsUpdate" class="form-label">Description</label>
-                        <input type="text" class="form-control" id="companyFieldsUpdate" placeholder="Company">
+                        <label for="employeeStatusFieldsUpdate" class="form-label">Description</label>
+                        <input type="text" class="form-control" id="employeeStatusFieldsUpdate"
+                            placeholder="Description">
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="" id="activeStatusFields">
@@ -61,7 +62,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Delete Company</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Delete Employee Status</h5>
                 <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -81,14 +82,14 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Add Company</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Add Employee Status</h5>
                 <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id='formAddNewData'>
                     <div class="mb-3">
-                        <label for="companyFields" class="form-label">Company</label>
-                        <input type="text" class="form-control" id="companyFields" placeholder="Company">
+                        <label for="employeeStatusFields" class="form-label">Employee Status</label>
+                        <input type="text" class="form-control" id="employeeStatusFields" placeholder="Employee Status">
                     </div>
                 </form>
             </div>
