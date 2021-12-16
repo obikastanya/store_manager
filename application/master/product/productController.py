@@ -22,7 +22,7 @@ class DataHandlerImpl(DataHandler):
     def updateData(self, dataFromRequest):
         product=self.grabOne(dataFromRequest)
         product.msp_brand=dataFromRequest.get('msp_brand')
-        product.msp_msc_id=dataFromRequest.get('msp_category')
+        product.msp_msc_id=dataFromRequest.get('msp_mscp_id')
         product.msp_price=dataFromRequest.get('msp_price')
         product.msp_mssp_id=dataFromRequest.get('msp_mssp_id')
         product.msp_mscp_id=dataFromRequest.get('msp_mscp_id')
