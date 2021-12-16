@@ -33,19 +33,51 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Update Company</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Update Product</h5>
                 <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id='formAddNewData'>
                     <div class="mb-3">
-                        <label for="idCompanyFields" class="form-label">Company Code</label>
-                        <input type="text" class="form-control" id="idCompanyFields" placeholder="Company Code"
+                        <label for="productIdFields" class="form-label">Product Code</label>
+                        <input type="text" class="form-control" id="productIdFields" placeholder="Product Code"
                             disabled>
                     </div>
                     <div class="mb-3">
-                        <label for="companyFieldsUpdate" class="form-label">Description</label>
-                        <input type="text" class="form-control" id="companyFieldsUpdate" placeholder="Company">
+                        <label for="productDescFields" class="form-label">Product</label>
+                        <input type="text" class="form-control" id="productDescFields" placeholder="Product">
+                    </div>
+                    <div class="mb-3">
+                        <label for="brandFields" class="form-label">Brand</label>
+                        <input type="text" class="form-control" id="brandFields" placeholder="Brand">
+                    </div>
+                    <div class="mb-3">
+                        <label for="priceFields" class="form-label">Price</label>
+                        <input type="text" class="form-control" id="priceFields" placeholder="Price">
+                    </div>
+                    <div class="mb-3">
+                        <label for="categoryFields" class="form-label">Category</label>
+                        <select class="form-control" id="categoryFields" placeholder="Category">
+                            <option value=1>1. Cosmetic</option>
+                            <option value=2>2. Food</option>
+                            <option value=3>3. Drink</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="supplierFields" class="form-label">Supplier</label>
+                        <select class="form-control" id="supplierFields" placeholder="Supplier">
+                            <option value=1>1. Alfamart Agent</option>
+                            <option value=2>2. Unilever Agent</option>
+                            <option value=3>3. Tokped Agent</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="companyFields" class="form-label">Product Company</label>
+                        <select class="form-control" id="companyFields" placeholder="Product Company">
+                            <option value=1>1. Unilever</option>
+                            <option value=2>2. Indofood</option>
+                            <option value=3>3. Java</option>
+                        </select>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="" id="activeStatusFields">
@@ -92,8 +124,8 @@
             <div class="modal-body">
                 <form id='formAddNewData'>
                     <div class="mb-3">
-                        <label for="productDescFields" class="form-label">Product Desc</label>
-                        <input type="text" class="form-control" id="productDescFields" placeholder="Product Desc">
+                        <label for="productDescFields" class="form-label">Product</label>
+                        <input type="text" class="form-control" id="productDescFields" placeholder="Product">
                     </div>
                     <div class="mb-3">
                         <label for="brandFields" class="form-label">Brand</label>

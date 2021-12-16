@@ -72,23 +72,39 @@ class FormDataImpl extends FormData {
     }
     getDeleteFormValues() {
         let formValues = {
-            company_id: document.getElementById( 'delete_confirm_massage_id' ).value
+            product_id: document.getElementById( 'delete_confirm_massage_id' ).value
         }
         return formValues
     }
     getUpdateFormValues() {
+        const get = ( id ) => {
+            return document.querySelector( id ).value
+        }
         let formValues = {
-            company: document.querySelector( '#companyFieldsUpdate' ).value,
-            company_id: document.querySelector( '#idCompanyFields' ).value,
+            product_id: get( '#productIdFields' ),
+            product_desc: get( '#productDescFields' ),
+            brand: get( '#brandFields' ),
+            price: get( '#priceFields' ),
+            category: get( '#categoryFields' ),
+            supplier: get( '#supplierFields' ),
+            company: get( '#companyFields' ),
             active_status: this.getActiveStatusValue( '#activeStatusFields' )
         }
         return formValues
     }
     setUpdateFormValues( recordValues ) {
-        document.querySelector( '#idCompanyFields' ).value = recordValues.company_id
-        document.querySelector( '#companyFieldsUpdate' ).value = recordValues.company
-        document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
-        document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
+        const get = ( id ) => {
+            return document.querySelector( id )
+        }
+        get( '#productIdFields' ).value = recordValues.product_id
+        get( '#productDescFields' ).value = recordValues.product_desc
+        get( '#brandFields' ).value = recordValues.brand
+        get( '#priceFields' ).value = recordValues.price
+        get( '#categoryFields' ).value = recordValues.category
+        get( '#supplierFields' ).value = recordValues.supplier
+        get( '#companyFields' ).value = recordValues.company
+        get( '#activeStatusFields' ).value = recordValues.active_status
+        get( '#activeStatusFields' ).checked = recordValues.active_status
     }
 }
 class FormValidationImpl extends FormValidation {
@@ -96,18 +112,15 @@ class FormValidationImpl extends FormValidation {
         super()
     }
     validateUpdateParams( updateParams ) {
-        const validIdCompany = this.validateIdCompany( updateParams )
-        const validCompany = this.validateCompany( updateParams )
-        const validActiveStatus = this.validateActiveStatus( updateParams )
-
-        if ( !validIdCompany.isValid ) return validIdCompany;
-        if ( !validCompany.isValid ) return validCompany;
-        if ( !validActiveStatus.isValid ) return validActiveStatus;
+        const validProductId = this.validateProductId( updateParams )
+        const sameValidationWithInsert = this.validateInsertParams( updateParams )
+        if ( !validProductId.isValid ) return validProductId;
+        if ( !sameValidationWithInsert.isValid ) return sameValidationWithInsert;
         return this.validateResult( 'Data is valid', true )
     }
     validateDeleteParams( deleteParams ) {
-        if ( !deleteParams.company_id || deleteParams.company_id.length < 0 ) {
-            return this.validateResult( 'Company Id doesnt found' )
+        if ( !deleteParams.product_id || deleteParams.product_id.length < 0 ) {
+            return this.validateResult( 'Product Id doesnt found' )
         }
         return this.validateResult( 'Data is valid', true )
     }
@@ -184,6 +197,15 @@ class FormValidationImpl extends FormValidation {
         }
         return this.validateResult( 'Data is valid', true )
     }
+    validateProductId( formData ) {
+        if ( !formData.product_id ) {
+            return this.validateResult( 'Product id is empty' )
+        }
+        if ( isNaN( formData.product_id ) ) {
+            return this.validateResult( 'Product id is not valid' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
     validateCompany( formData ) {
         if ( !formData.company ) {
             return this.validateResult( 'Company  is not selected' )
@@ -209,12 +231,20 @@ class ModalFormImpl extends ModalForm {
         super()
     }
     setDeleteConfirmMessage( formValues ) {
-        const confirmMessage = `Area you sure to delete ${ formValues.company_id } - ${ formValues.company } ?`
+        const confirmMessage = `Area you sure to delete ${ formValues.product_id } - ${ formValues.product_desc } ?`
         document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
-        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.company_id
+        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.product_id
     }
     clearAddNewDataForm() {
-        document.querySelector( '#companyFields' ).value = ''
+        const get = ( id ) => {
+            return document.querySelector( id )
+        }
+        get( '#productDescFields' ).value = ''
+        get( '#brandFields' ).value = ''
+        get( '#priceFields' ).value = ''
+        get( '#categoryFields' ).value = ''
+        get( '#supplierFields' ).value = ''
+        get( '#companyFields' ).value = ''
     }
 }
 
@@ -224,7 +254,6 @@ class ButtonEventImpl extends ButtonEvent {
     }
     saveNewData() {
         const insertParams = new FormDataImpl().getAddNewDataFormValues()
-        console.log( insertParams )
         const validationResult = new FormValidationImpl().validateInsertParams( insertParams )
         if ( !validationResult.isValid ) {
             new Alert().showWarning( validationResult.message )
@@ -284,14 +313,12 @@ class AjaxImpl extends Ajax {
         this.sendAjax( { url: '/product_api', payload: payload }, ajaxCallback )
     }
     getSingleData( recordId ) {
-        const payload = this.createPayload( 'POST', { 'company_id': recordId } )
+        const payload = this.createPayload( 'POST', { 'product_id': recordId } )
         const onSuccess = ( response ) => {
             if ( !response.data.length ) new Alert().failedAjax( response.msg );
             let recordValues = response.data[ 0 ]
-
             // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
             recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
-
             new FormDataImpl().setUpdateFormValues( recordValues )
             return
         }
@@ -302,10 +329,10 @@ class AjaxImpl extends Ajax {
             },
             onFinal: () => { }
         }
-        this.sendAjax( { url: '/company_api_search', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/product_api_search', payload: payload }, ajaxCallback )
     }
     getSingleDataForDeleteActions( recordId ) {
-        const payload = this.createPayload( 'POST', { 'company_id': recordId } )
+        const payload = this.createPayload( 'POST', { 'product_id': recordId } )
         const onSuccess = ( response ) => {
             if ( !response.data.length ) new Alert().failedAjax( response.msg );
             let recordValues = response.data[ 0 ]
@@ -321,7 +348,7 @@ class AjaxImpl extends Ajax {
             },
             onFinal: () => { }
         }
-        this.sendAjax( { url: '/company_api_search', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/product_api_search', payload: payload }, ajaxCallback )
 
     }
     updateData( formData ) {
@@ -344,7 +371,7 @@ class AjaxImpl extends Ajax {
                 new ModalFormImpl().enableFormButton( '#button_save_updated_data_id' )
             }
         }
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/product_api', payload: payload }, ajaxCallback )
 
     }
     deleteData( formData ) {
@@ -368,7 +395,7 @@ class AjaxImpl extends Ajax {
             }
         }
 
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/product_api', payload: payload }, ajaxCallback )
     }
 }
 
