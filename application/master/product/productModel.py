@@ -23,9 +23,9 @@ class ProductSchema(Schema):
     data_key is an alias for column name"""
     msp_id =fields.Int(data_key='product_id')
     msp_brand=fields.Str(data_key='brand')
-    msp_msc_id=fields.Str(data_ket='category')
+    msp_msc_id=fields.Int(data_key='category')
     msp_price =fields.Int(data_key='price')
-    msp_desc=fields.Str(data_key='desc')
-    msp_mssp_id=fields.Str(data_key='supplier')
-    msp_mscp_id=fields.Str(data_key='company')
+    msp_desc=fields.Str(data_key='product_desc')
+    msp_mssp_id=fields.Int(data_key='supplier')
+    msp_mscp_id=fields.Int(data_key='company')
     msp_active_status=fields.Str(data_key='active_status')

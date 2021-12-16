@@ -1,5 +1,5 @@
-class ButtonSelector{
-    constructor(){
+class ButtonSelector {
+    constructor() {
         this.saveNewRecord = '#new_data_save_button_id'
         this.btnSaveUpdatedRecord = '#button_save_updated_data_id'
         this.btnDeleteId = '#button_delete_data_id'
@@ -10,15 +10,15 @@ class ButtonSelector{
         this.modalAddNewRecordId = 'id_modal_for_add_new_data'
     }
 }
-class DatatableTools extends ButtonSelector {    
+class DatatableTools extends ButtonSelector {
     buttonEdit = `<button type="button" class="btn btn-warning btn-edit-data" 
-                    onclick="new ModalForm().showModal('${this.modalEditId}')"
+                    onclick="new ModalForm().showModal('${ this.modalEditId }')"
                     value="_data_">Edit</button>`
     buttonDelete = `<button type="button" class="btn btn-danger btn-delete-data" 
-                    onclick="new ModalForm().showModal('${this.modalDeleteId}')" value="_data_"
+                    onclick="new ModalForm().showModal('${ this.modalDeleteId }')" value="_data_"
                     >Delete</button>`
     buttonCreateNewData = `<button type="button" class="btn btn-success" 
-                            onclick="new ModalForm().showModal('${this.modalAddNewRecordId}')"
+                            onclick="new ModalForm().showModal('${ this.modalAddNewRecordId }')"
                             data="_data_"
                             >Add New Data</button>`
     toolbarDomConfig = {
@@ -42,7 +42,7 @@ class BaseDatatable extends DatatableTools {
         this.datatableId = ''
         this.apiEndpoint = '/'
     }
-    getTableSetup(){
+    getTableSetup() {
         const tableSetup = {
             ajax: {
                 url: this.apiEndpoint,
@@ -61,10 +61,10 @@ class BaseDatatable extends DatatableTools {
         }
         return tableSetup
     }
-    
+
     initiateDatatable() {
         let datatableInstance = $( this.datatableId ).DataTable( this.getTableSetup() )
-        this.bindEventForActionsButton(datatableInstance)
+        this.bindEventForActionsButton( datatableInstance )
         this.addRowNumberToDatatable( datatableInstance )
     }
     reloadDatatable() {
@@ -77,36 +77,36 @@ class BaseDatatable extends DatatableTools {
             } );
         } ).draw();
     }
-    bindEventForActionsButton( datatableInstance ) {}
+    bindEventForActionsButton( datatableInstance ) { }
 }
 
 
 /**Class to manage event in button inside modal pop up, its about final action such as save data, remove, etc */
-class ButtonEvent extends ButtonSelector{
+class ButtonEvent extends ButtonSelector {
     bindEventWithAjax() {
-        const buttonSaveNewData = document.querySelector(this.saveNewRecord  )
-        const buttonSaveChanges = document.querySelector(  this.btnSaveUpdatedRecord)
-        const buttonDelete = document.querySelector(  this.btnDeleteId)
+        const buttonSaveNewData = document.querySelector( this.saveNewRecord )
+        const buttonSaveChanges = document.querySelector( this.btnSaveUpdatedRecord )
+        const buttonDelete = document.querySelector( this.btnDeleteId )
         buttonSaveNewData.addEventListener( 'click', this.saveNewData )
         buttonSaveChanges.addEventListener( 'click', this.saveUpdatedData )
         buttonDelete.addEventListener( 'click', this.deleteData )
     }
-    saveNewData() {}
-    saveUpdatedData() {}
-    deleteData() {}
-    
+    saveNewData() { }
+    saveUpdatedData() { }
+    deleteData() { }
+
 }
 
 /**Class to manage event in modals likes showing modal, firing event when modal is hiding etc. */
-class ModalForm extends ButtonSelector{
+class ModalForm extends ButtonSelector {
     showModal( idModal ) {
         $( '#' + idModal ).modal( 'show' )
     }
     hideModal( idModal ) {
         $( '#' + idModal ).modal( 'hide' );
     }
-    registerOnHideModal(){
-        for ( let idModal of [this.modalEditId, this.modalDeleteId,this.modalAddNewRecordId] ) {
+    registerOnHideModal() {
+        for ( let idModal of [ this.modalEditId, this.modalDeleteId, this.modalAddNewRecordId ] ) {
             $( document ).on( 'hidden.bs.modal', '#' + idModal, () => {
                 // bind event into dom and spesific modal element, its only  work using jquery. 
                 this.enableSaveConfirmBtn()
@@ -118,7 +118,7 @@ class ModalForm extends ButtonSelector{
             }
         }
     }
-    disabledBtnNewDataOnClick(){
+    disabledBtnNewDataOnClick() {
         let eventCallbackSaveNewData = () => {
             this.disableFormButton( this.saveNewRecord )
         }
@@ -132,11 +132,11 @@ class ModalForm extends ButtonSelector{
         document.querySelector( buttonSelector ).setAttribute( 'disabled', '' )
     }
     enableFormButton( buttonSelector ) {
-        console.log(buttonSelector)
+        console.log( buttonSelector )
         document.querySelector( buttonSelector ).removeAttribute( 'disabled' )
     }
-    setDeleteConfirmMessage( formValues ) {}
-    clearAddNewDataForm() {}
+    setDeleteConfirmMessage( formValues ) { }
+    clearAddNewDataForm() { }
 }
 /**Class to set or collecting data from a form . */
 class FormData {
@@ -145,10 +145,10 @@ class FormData {
         if ( isChecked ) return "Y";
         return "N"
     }
-    getAddNewDataFormValues() {}
-    getDeleteFormValues() {}
-    getUpdateFormValues() {}
-    setUpdateFormValues( recordValues ) {}
+    getAddNewDataFormValues() { }
+    getDeleteFormValues() { }
+    getUpdateFormValues() { }
+    setUpdateFormValues( recordValues ) { }
 }
 
 class Ajax {
@@ -162,7 +162,7 @@ class Ajax {
         }
         return payload
     }
-    sendAjax(request,callback){
+    sendAjax( request, callback ) {
         fetch( request.url, request.payload )
             .then( response => response.json() )
             .then( callback.onSuccess )
@@ -173,16 +173,16 @@ class Ajax {
         new Alert().error()
     }
     defaultOnFinal() { }
-    saveNewRecord( formData ) {}
-    getSingleData( recordId ) {}
-    getSingleDataForDeleteActions( recordId ) {}
-    updateData( formData ) {}
-    deleteData( formData ) {}
+    saveNewRecord( formData ) { }
+    getSingleData( recordId ) { }
+    getSingleDataForDeleteActions( recordId ) { }
+    updateData( formData ) { }
+    deleteData( formData ) { }
 }
 
 /** Do validation to form values before sending request to back end */
 class FormValidation {
-    validateUpdateParams( updateParams ) {}
-    validateDeleteParams( deleteParams ) {}
-    validateInsertParams(insertParams) {}
+    validateUpdateParams( updateParams ) { }
+    validateDeleteParams( deleteParams ) { }
+    validateInsertParams( insertParams ) { }
 }
