@@ -57,8 +57,16 @@ class FormDataImpl extends FormData {
         super()
     }
     getAddNewDataFormValues() {
+        const get = ( id ) => {
+            return document.querySelector( id ).value
+        }
         let formValues = {
-            company: document.querySelector( '#companyFields' ).value
+            product_desc: get( '#productDescFields' ),
+            brand: get( '#brandFields' ),
+            price: get( '#priceFields' ),
+            category: get( '#categoryFields' ),
+            supplier: get( '#supplierFields' ),
+            company: get( '#companyFields' )
         }
         return formValues
     }
@@ -104,23 +112,84 @@ class FormValidationImpl extends FormValidation {
         return this.validateResult( 'Data is valid', true )
     }
     validateInsertParams( insertParams ) {
-        return this.validateCompany( insertParams )
+        const validProductDesc = this.validateProductDesc( insertParams )
+        const validBrand = this.validateBrand( insertParams )
+        const validPrice = this.validatePrice( insertParams )
+        const validCategory = this.validateCategory( insertParams )
+        const validSupplier = this.validateSupplier( insertParams )
+        const validCompany = this.validateCompany( insertParams )
+
+        if ( !validProductDesc.isValid ) return validProductDesc;
+        if ( !validBrand.isValid ) return validBrand;
+        if ( !validPrice.isValid ) return validPrice;
+        if ( !validCategory.isValid ) return validCategory;
+        if ( !validSupplier.isValid ) return validSupplier;
+        if ( !validCompany.isValid ) return validCompany;
+        return this.validateResult( 'Data is valid', true )
     }
-    validateCompany( formData ) {
-        if ( !formData.company ) {
-            return this.validateResult( 'Cant insert empty data' )
+    validateProductDesc( formData ) {
+        if ( !formData.product_desc ) {
+            return this.validateResult( 'Product Description is empty' )
         }
-        if ( formData.company.length < 3 ) {
-            return this.validateResult( 'Company Name too short' )
+        if ( formData.product_desc.length < 3 ) {
+            return this.validateResult( 'Product Description too short' )
         }
-        if ( formData.company.length > 200 ) {
-            return this.validateResult( 'Company Name too long' )
+        if ( formData.product_desc.length > 500 ) {
+            return this.validateResult( 'Product Description too long' )
         }
         return this.validateResult( 'Data is valid', true )
     }
-    validateIdCompany( formData ) {
-        if ( !formData.company_id || formData.company_id.length < 0 ) {
-            return this.validateResult( 'There is no company id to update' )
+    validateBrand( formData ) {
+        if ( !formData.brand ) {
+            return this.validateResult( 'Brand is empty' )
+        }
+        if ( formData.brand.length < 3 ) {
+            return this.validateResult( 'Brand is too short' )
+        }
+        if ( formData.brand.length > 100 ) {
+            return this.validateResult( 'Brand is too long' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validatePrice( formData ) {
+        if ( !formData.price ) {
+            return this.validateResult( 'Price is empty' )
+        }
+        if ( isNaN( formData.price ) ) {
+            return this.validateResult( 'Price must be a number' )
+        }
+        if ( formData.price < 1 ) {
+            return this.validateResult( 'Price must be greater than 0' )
+        }
+        if ( formData.price.toString().length > 12 ) {
+            return this.validateResult( 'Price is too long' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateCategory( formData ) {
+        if ( !formData.category ) {
+            return this.validateResult( 'Category product is not selected' )
+        }
+        if ( isNaN( formData.category ) ) {
+            return this.validateResult( 'Category product is not valid' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateSupplier( formData ) {
+        if ( !formData.category ) {
+            return this.validateResult( 'Supplier  is not selected' )
+        }
+        if ( isNaN( formData.category ) ) {
+            return this.validateResult( 'Supplier is not valid' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateCompany( formData ) {
+        if ( !formData.company ) {
+            return this.validateResult( 'Company  is not selected' )
+        }
+        if ( isNaN( formData.company ) ) {
+            return this.validateResult( 'Company is not valid' )
         }
         return this.validateResult( 'Data is valid', true )
     }
@@ -155,6 +224,7 @@ class ButtonEventImpl extends ButtonEvent {
     }
     saveNewData() {
         const insertParams = new FormDataImpl().getAddNewDataFormValues()
+        console.log( insertParams )
         const validationResult = new FormValidationImpl().validateInsertParams( insertParams )
         if ( !validationResult.isValid ) {
             new Alert().showWarning( validationResult.message )
@@ -211,7 +281,7 @@ class AjaxImpl extends Ajax {
                 new ModalForm().enableSaveConfirmBtn()
             }
         }
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/product_api', payload: payload }, ajaxCallback )
     }
     getSingleData( recordId ) {
         const payload = this.createPayload( 'POST', { 'company_id': recordId } )
