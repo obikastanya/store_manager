@@ -77,9 +77,9 @@ class FormDataImpl extends FormData {
         }
         let formValues = {
             stock_id: get( '#idStockHiddenFields' ),
-            warehouse_stock: get( '#warehouseStockFields' ),
-            store_stock: get( '#storeStockFields' ),
-            product_id: get( '#idProductFields' )
+            warehouse_stock: get( '#warehouseStockUpdateFields' ),
+            store_stock: get( '#storeStockUpdateFields' ),
+            product_id: get( '#idProductUpdateFields' )
         }
         return formValues
     }
@@ -94,10 +94,19 @@ class FormDataImpl extends FormData {
         const set = ( idElement ) => {
             return document.querySelector( idElement )
         }
+        const setIfExistProductId = ( value ) => {
+            if ( !value ) return '';
+            return value.product_id
+        }
+        const setIfExistProductDesc = ( value ) => {
+            if ( !value ) return '';
+            return value.product_desc
+        }
         set( '#idStockHiddenFields' ).value = recordValues.stock_id
         set( '#warehouseStockUpdateFields' ).value = recordValues.warehouse_stock
         set( '#storeStockUpdateFields' ).value = recordValues.store_stock
-        set( '#idProductUpdateFields' ).value = recordValues.product_id
+        set( '#idProductUpdateFields' ).value = setIfExistProductId( recordValues.product )
+        set( '#productDescUpdateFields' ).value = setIfExistProductDesc( recordValues.product )
     }
     setOptionForProductMaster( recordValues ) {
         // some dom manipulation
@@ -111,46 +120,72 @@ class FormValidationImpl extends FormValidation {
         super()
     }
     validateUpdateParams( updateParams ) {
-        const validIdCompany = this.validateIdCompany( updateParams )
-        const validCompany = this.validateCompany( updateParams )
-        const validActiveStatus = this.validateActiveStatus( updateParams )
+        const validIdProduct = this.validateIdProduct( updateParams )
+        const validWarehouseStock = this.validateWarehouseStock( updateParams )
+        const validStoreStock = this.validateStoreStock( updateParams )
+        const validIdStock = this.validateIdStock( updateParams )
 
-        if ( !validIdCompany.isValid ) return validIdCompany;
-        if ( !validCompany.isValid ) return validCompany;
-        if ( !validActiveStatus.isValid ) return validActiveStatus;
+        if ( !validIdProduct.isValid ) return validIdProduct;
+        if ( !validWarehouseStock.isValid ) return validWarehouseStock;
+        if ( !validStoreStock.isValid ) return validStoreStock;
+        if ( !validIdStock.isValid ) return validIdStock;
         return this.validateResult( 'Data is valid', true )
     }
     validateDeleteParams( deleteParams ) {
-        if ( !deleteParams.company_id || deleteParams.company_id.length < 0 ) {
-            return this.validateResult( 'Company Id doesnt found' )
+        if ( !deleteParams.stock_id || deleteParams.stock_id.length < 0 ) {
+            return this.validateResult( 'Stock Product doesnt found' )
         }
         return this.validateResult( 'Data is valid', true )
     }
     validateInsertParams( insertParams ) {
-        return this.validateCompany( insertParams )
+        const validIdProduct = this.validateIdProduct( insertParams )
+        const validWarehouseStock = this.validateWarehouseStock( insertParams )
+        const validStoreStock = this.validateStoreStock( insertParams )
+
+        if ( !validIdProduct.isValid ) return validIdProduct;
+        if ( !validWarehouseStock.isValid ) return validWarehouseStock;
+        if ( !validStoreStock.isValid ) return validStoreStock;
+        return this.validateResult( 'Data is valid', true )
     }
-    validateCompany( formData ) {
-        if ( !formData.company ) {
-            return this.validateResult( 'Cant insert empty data' )
+    validateIdProduct( formData ) {
+        if ( !formData.product_id ) {
+            return this.validateResult( 'Product selected is not valid' )
         }
-        if ( formData.company.length < 3 ) {
-            return this.validateResult( 'Company Name too short' )
-        }
-        if ( formData.company.length > 200 ) {
-            return this.validateResult( 'Company Name too long' )
+        if ( isNaN( formData.product_id ) ) {
+            return this.validateResult( 'Product Id is not valid' )
         }
         return this.validateResult( 'Data is valid', true )
     }
-    validateIdCompany( formData ) {
-        if ( !formData.company_id || formData.company_id.length < 0 ) {
-            return this.validateResult( 'There is no company id to update' )
+    validateWarehouseStock( formData ) {
+        if ( !formData.warehouse_stock ) {
+            return this.validateResult( 'Warehouse stock is empty' )
+        }
+        if ( isNaN( formData.warehouse_stock ) ) {
+            return this.validateResult( 'Warehouse stock must be a number' )
+        }
+        if ( formData.warehouse_stock < 0 ) {
+            return this.validateResult( 'Warehouse stock must be zero or greater' )
         }
         return this.validateResult( 'Data is valid', true )
     }
-    validateActiveStatus( formData ) {
-        const isValidStatus = [ 'Y', 'N' ].includes( formData.active_status )
-        if ( !isValidStatus ) {
-            return this.validateResult( 'Active status value is invalid' )
+    validateStoreStock( formData ) {
+        if ( !formData.store_stock ) {
+            return this.validateResult( 'Store stock is empty' )
+        }
+        if ( isNaN( formData.store_stock ) ) {
+            return this.validateResult( 'Store stock must be a number' )
+        }
+        if ( formData.store_stock < 0 ) {
+            return this.validateResult( 'Store stock must be zero or greater' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateIdStock( formData ) {
+        if ( !formData.stock_id ) {
+            return this.validateResult( 'Stock is not valid' )
+        }
+        if ( isNaN( formData.stock_id ) ) {
+            return this.validateResult( 'Stock is not valid' )
         }
         return this.validateResult( 'Data is valid', true )
     }
@@ -163,9 +198,9 @@ class ModalFormImpl extends ModalForm {
         super()
     }
     setDeleteConfirmMessage( formValues ) {
-        const confirmMessage = `Area you sure to delete ${ formValues.company_id } - ${ formValues.company } ?`
+        const confirmMessage = `Area you sure to delete ${ formValues.product.product_id } - ${ formValues.product.product_desc } ?`
         document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
-        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.company_id
+        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.stock_id
     }
     clearAddNewDataForm() {
         const get = ( idElement ) => {
@@ -194,6 +229,7 @@ class ButtonEventImpl extends ButtonEvent {
     }
     saveUpdatedData() {
         const updateParams = new FormDataImpl().getUpdateFormValues()
+        console.log( updateParams )
         const validationResult = new FormValidationImpl().validateUpdateParams( updateParams )
         if ( !validationResult.isValid ) {
             new Alert().showWarning( validationResult.message )
@@ -242,7 +278,7 @@ class AjaxImpl extends Ajax {
         this.sendAjax( { url: '/stock_api', payload: payload }, ajaxCallback )
     }
     getSingleData( recordId ) {
-        const payload = this.createPayload( 'POST', { 'company_id': recordId } )
+        const payload = this.createPayload( 'POST', { 'stock_id': recordId } )
         const onSuccess = ( response ) => {
             console.log( response )
             if ( !response.data.length ) new Alert().failedAjax( response.msg );
@@ -264,7 +300,7 @@ class AjaxImpl extends Ajax {
         this.sendAjax( { url: '/stock_api_search', payload: payload }, ajaxCallback )
     }
     getSingleDataForDeleteActions( recordId ) {
-        const payload = this.createPayload( 'POST', { 'company_id': recordId } )
+        const payload = this.createPayload( 'POST', { 'stock_id': recordId } )
         const onSuccess = ( response ) => {
             if ( !response.data.length ) new Alert().failedAjax( response.msg );
             let recordValues = response.data[ 0 ]
