@@ -82,12 +82,12 @@ class FormDataImpl extends FormData {
         }
         let formValues = {
             product_id: get( '#productIdFields' ),
-            product_desc: get( '#productDescFields' ),
-            brand: get( '#brandFields' ),
-            price: get( '#priceFields' ),
-            category: get( '#categoryFields' ),
-            supplier: get( '#supplierFields' ),
-            company: get( '#companyFields' ),
+            product_desc: get( '#productDescUpdateFields' ),
+            brand: get( '#brandUpdateFields' ),
+            price: get( '#priceUpdateFields' ),
+            category: get( '#categoryUpdateFields' ),
+            supplier: get( '#supplierUpdateFields' ),
+            company: get( '#companyUpdateFields' ),
             active_status: this.getActiveStatusValue( '#activeStatusFields' )
         }
         return formValues
@@ -131,6 +131,7 @@ class FormValidationImpl extends FormValidation {
         const validCategory = this.validateCategory( insertParams )
         const validSupplier = this.validateSupplier( insertParams )
         const validCompany = this.validateCompany( insertParams )
+        console.log( insertParams )
 
         if ( !validProductDesc.isValid ) return validProductDesc;
         if ( !validBrand.isValid ) return validBrand;
