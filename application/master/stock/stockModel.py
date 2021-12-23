@@ -1,3 +1,4 @@
+from enum import unique
 from marshmallow import fields, Schema
 from sqlalchemy.dialects import postgresql
 from app import db
@@ -6,7 +7,7 @@ class Stock(db.Model):
     """Object for table ms_stock"""
     __tablename__='ms_stock'
     mss_id=db.Column(db.Integer(), primary_key=True)
-    mss_msp_id=db.Column(db.Integer(), db.ForeignKey('ms_product.msp_id'))
+    mss_msp_id=db.Column(db.Integer(), db.ForeignKey('ms_product.msp_id'), unique=True)
     mss_warehouse_stock=db.Column(postgresql.NUMERIC(8))
     mss_store_stock=db.Column(postgresql.NUMERIC(8))
     mss_create_user=db.Column(db.String(30))
