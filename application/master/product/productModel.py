@@ -1,5 +1,6 @@
 from marshmallow import fields, Schema
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.orm import backref
 from app import db
 
 class Product(db.Model):
@@ -17,6 +18,8 @@ class Product(db.Model):
     msp_create_date=db.Column(db.Date())
     msp_update_user=db.Column(db.String(30))
     msp_update_date=db.Column(db.Date())
+    # relationship
+    product=db.relationship('Stock', backref=backref('product', uselist=False))
 
 class ProductSchema(Schema):
     """Schema to retrieve data from Model Product as dictionary.

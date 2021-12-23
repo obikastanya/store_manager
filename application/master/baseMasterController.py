@@ -119,11 +119,13 @@ class DataHandler:
     def grabDataWithKeyword(self,datatableConfig):
         searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
         groupOfObjectResult=self.Model.query.filter(searchKeyWord).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        
         return self.Schema(many=True).dump(groupOfObjectResult)
     
     def grabDataWithOrderby(self, datatableConfig):
         orderStatement=self.getOrderStatement(datatableConfig)
         groupOfObjectResult=self.Model.query.order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        
         return self.Schema(many=True).dump(groupOfObjectResult)
 
     def isDataExist(self, queryResult):

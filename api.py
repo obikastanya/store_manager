@@ -81,3 +81,11 @@ def employeeStatusApi():
 def employeeStatusApiSearch():
     return EmployeeStatusController().searchSingleData()
 
+@app.route('/stock_api',methods=['GET','POST','PUT', 'DELETE'])
+def stockApi():
+    return splitRouteByMethods(StockController)
+    
+@app.post('/stock_api_search')
+def stockApiSearch():
+    return StockController().searchSingleData()
+

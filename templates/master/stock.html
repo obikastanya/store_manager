@@ -1,0 +1,127 @@
+{% extends 'base_template.html'%}
+
+{%block menu_title %}Stock{% endblock %}
+
+{% block main_content%}
+<!-- datatables stock -->
+<div class="row">
+    <div class="col-sm-12">
+        <table class="table table-bordered table-striped" id='stock_datatable_id' width='100%'>
+            <thead>
+                <tr>
+                    <th scope="col">No</th>
+                    <th scope="col">Product Code</th>
+                    <th scope="col">Product</th>
+                    <th scope="col">Warehouse Stock</th>
+                    <th scope="col">Store Stock</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{%block popup_and_modal %}
+<!-- Modal pop up for edit button inside datatable -->
+<div class="modal fade" id="id_modal_for_edit" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Update Stock</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id='formUpdateData'>
+                    <input type="hidden" class="form-control" id="idStockHiddenFields" disabled>
+                    <div class="mb-3">
+                        <label for="idProductUpdateFields" class="form-label">Product Code</label>
+                        <input type="text" class="form-control" id="idProductUpdateFields" placeholder="Product Code"
+                            disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="productDescUpdateFields" class="form-label">Product Description</label>
+                        <input type="text" class="form-control" id="productDescUpdateFields"
+                            placeholder="Product Description">
+                    </div>
+                    <div class="mb-3">
+                        <label for="warehouseStockUpdateFields" class="form-label">Warehouse Stock</label>
+                        <input type="number" class="form-control" id="warehouseStockUpdateFields"
+                            placeholder="Warehouse Stock">
+                    </div>
+                    <div class="mb-3">
+                        <label for="storeStockUpdateFields" class="form-label">Store Stock</label>
+                        <input type="number" class="form-control" id="storeStockUpdateFields" placeholder="Store Stock">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="button_save_updated_data_id">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modul pop up for delete inside datatable -->
+<div class="modal fade" id="id_modal_for_delete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Delete Product Stock</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6 id="delete_confirm_massage_id">Are you sure to this delete data ?</h6>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="button_delete_data_id">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for button add new data  -->
+<div class="modal fade" id="id_modal_for_add_new_data" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Stock</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id='formAddNewData'>
+                    <div class="mb-3">
+                        <label for="idProductFields" class="form-label">Product</label>
+                        <select class="form-select" id='idProductFields'>
+                            <option value="">No item to select</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="warehouseStockFields" class="form-label">Warehouse Stock</label>
+                        <input type="number" class="form-control" id="warehouseStockFields"
+                            placeholder="Warehouse Stock">
+                    </div>
+                    <div class="mb-3">
+                        <label for="storeStockFields" class="form-label">Store Stock</label>
+                        <input type="number" class="form-control" id="storeStockFields" placeholder="Store Stock">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="new_data_save_button_id">Save Data</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block custom_script %}
+<script src="/static/app_module/base_view.js"></script>
+<script src="/static/app_module/stock_view.js"></script>
+
+{% endblock %}

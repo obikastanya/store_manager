@@ -52,4 +52,8 @@ def productPage():
 @app.get('/employee-status')
 def employeeStatusPage():
     return render_template('master/employee_status.html')
+
+@app.get('/stock')
+def stockPage():
+    return render_template('master/stock.html')
     
