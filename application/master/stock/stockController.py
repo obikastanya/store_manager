@@ -1,8 +1,11 @@
 from flask import request
+from marshmallow.fields import Constant
 from sqlalchemy import func
 from sqlalchemy.sql.expression import select
+from application.master.product.productModel import Product
 from ..baseMasterController import MasterController, DataHandler, ParameterHandler, ValidationHandler
 from ..stock.stockModel import db, Stock, StockSchema
+from ..product.productModel import Product
 
 
 class StockController(MasterController):
@@ -26,6 +29,23 @@ class DataHandlerImpl(DataHandler):
         stock.mss_store_stock=dataFromRequest.get('mss_store_stock')
         db.session.commit()
 
+    def grabDataWithKeywordAndOrder(self,datatableConfig):
+        orderStatement=self.getOrderStatement(datatableConfig)
+        searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
+        groupOfObjectResult=db.session.query(self.Model).join(Product).filter(searchKeyWord).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        return self.Schema(many=True).dump(groupOfObjectResult)
+
+    
+    def grabDataWithKeyword(self,datatableConfig):
+        searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
+        groupOfObjectResult=db.session.query(self.Model).join(Product).filter(searchKeyWord).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        return self.Schema(many=True).dump(groupOfObjectResult)
+    
+    def grabDataWithOrderby(self, datatableConfig):
+        orderStatement=self.getOrderStatement(datatableConfig)
+        groupOfObjectResult=db.session.query(self.Model).join(Product).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        return self.Schema(many=True).dump(groupOfObjectResult)
+
     def grabOne(self, paramFromRequest):
         return self.Model.query.filter_by(mss_id=paramFromRequest.get('mss_id')).first()
 
@@ -34,10 +54,10 @@ class DataHandlerImpl(DataHandler):
 
     def grabTotalRecordsFiltered(self, datatableConfig):
         searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
-        return db.session.query(func.count(self.Model.mss_id)).filter(searchKeyWord ).scalar()
+        return db.session.query(func.count(self.Model.mss_id)).join(Product).filter(searchKeyWord ).scalar()
 
     def getSearchKeywordStatement(self, datatableConfig):
-        return self.Model.product.msp_desc.like("%{}%".format(datatableConfig.get('searchKeyWord')))
+        return Product.msp_desc.like("%{}%".format(datatableConfig.get('searchKeyWord')))
     
     def getOrderStatement(self,datatableConfig):
         orderStatement=None
@@ -47,6 +67,8 @@ class DataHandlerImpl(DataHandler):
             orderStatement=self.getOrderDirectionById(orderDirection)
         if columnToOrder=='msp_desc':
             orderStatement=self.getOrderDirectionProductDesc( orderDirection)
+        if columnToOrder=='msp_id':
+            orderStatement=self.getOrderDirectionProductId( orderDirection)
         elif columnToOrder=='mss_warehouse_stock':
             orderStatement=self.getOrderByWarehouseStock(orderDirection)
         elif columnToOrder=='mss_store_stock':
@@ -60,8 +82,13 @@ class DataHandlerImpl(DataHandler):
 
     def getOrderDirectionProductDesc(self, orderDirection):
         if orderDirection=='desc':
-            return self.Model.product.msp_desc.desc()
-        return self.Model.product.msp_desc.asc()
+            return Product.msp_desc.desc()
+        return Product.msp_desc.asc()
+
+    def getOrderDirectionProductId(self, orderDirection):
+        if orderDirection=='desc':
+            return Product.msp_id.desc()
+        return Product.msp_id.asc()
 
     def getOrderByWarehouseStock(self,orderDirection):
         if orderDirection=='desc':
@@ -104,6 +131,8 @@ class ParameterHandlerImpl(ParameterHandler):
             return 'mss_id'
         if orderColumnName=='product_desc':
             return 'msp_desc'
+        if orderColumnName=='product_id':
+            return 'msp_id'
         if orderColumnName=='warehouse_stock':
             return 'mss_warehouse_stock'
         if orderColumnName=='store_stock':

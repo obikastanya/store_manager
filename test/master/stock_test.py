@@ -23,6 +23,20 @@ def testSelectStockWithKeywordAndOrder():
     jsonResponse=response.json()
     assert jsonResponse.get('status')==True
 
+@pytest.mark.stock
+@pytest.mark.datatableSelect
+def testSelectStockWithKeyword():
+    payload={
+            'search[value]':'c',
+            'order[0][dir]':'asc',
+            'order[0][column]':'1',
+            'columns[1]][name]':'stock_id',
+            'start':0,
+            'length':10
+        }
+    response=requests.get(host+'/stock_api', params=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==True
 
 
 @pytest.mark.stock

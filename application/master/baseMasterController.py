@@ -20,7 +20,6 @@ class MasterController:
         #     return Response.make(status=False,msg='Eror while trying to retrieve data' )
 
     def insertNewData(self):
-        print('post request')
         # try:
         dataFromRequest=self.parameterHandler.getParamInsertFromRequests()
         if not self.validationHandler.isParamInsertValid(dataFromRequest):
@@ -119,7 +118,6 @@ class DataHandler:
     def grabDataWithKeyword(self,datatableConfig):
         searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
         groupOfObjectResult=self.Model.query.filter(searchKeyWord).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
-        
         return self.Schema(many=True).dump(groupOfObjectResult)
     
     def grabDataWithOrderby(self, datatableConfig):

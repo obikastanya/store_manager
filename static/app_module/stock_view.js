@@ -31,7 +31,7 @@ class DatatableStockImpl extends BaseDatatable {
         ]
         this.columnName = [
             { "name": "no", "targets": 0 },
-            { "name": "product_code", "targets": 1 },
+            { "name": "product_id", "targets": 1 },
             { "name": "product_desc", "targets": 2 },
             { "name": "warehouse_stock", "targets": 3 },
             { "name": "store_stock", "targets": 4 },
