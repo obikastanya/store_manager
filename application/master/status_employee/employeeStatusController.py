@@ -2,6 +2,7 @@ from flask import request
 from sqlalchemy import func
 from .employeeStatusModel import db,StatusEmployee, StatusEmployeeSchema
 from ..baseMasterController import MasterController, DataHandler, ParameterHandler, ValidationHandler
+from application.utilities.response import Response
 
 class EmployeeStatusController(MasterController):
     def __init__(self):
@@ -9,6 +10,13 @@ class EmployeeStatusController(MasterController):
         self.dataHandler=DataHandlerImpl()
         self.validationHandler=ValidationHandlerImpl()
         self.parameterHandler=ParameterHandlerImpl()
+
+    def getLovData(self):
+        # try:
+        data=self.dataHandler.grabLovData()
+        return Response.make(msg='Data found',data=data)
+        # except:
+        #     return Response.make(status=False,msg='Eror while trying to retrieve data' )
 
 class DataHandlerImpl(DataHandler):
     def __init__(self):
@@ -26,6 +34,9 @@ class DataHandlerImpl(DataHandler):
 
     def grabOne(self, paramFromRequest):
         return self.Model.query.filter_by(msse_id=paramFromRequest.get('msse_id')).first()
+    def grabLovData(self):
+        groupOfObjectResult=self.Model.query.filter(self.Model.msse_active_status=='Y').all()
+        return self.Schema(many=True).dump(groupOfObjectResult)
 
     def grabTotalRecords(self):
         return db.session.query(func.count(self.Model.msse_id)).scalar()

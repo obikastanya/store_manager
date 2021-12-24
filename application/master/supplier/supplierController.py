@@ -1,7 +1,9 @@
+from datetime import date
 from flask import request
 from sqlalchemy import func
 from ..baseMasterController import MasterController, DataHandler, ParameterHandler, ValidationHandler
 from .supplierModel import db,Supplier, SupplierSchema
+from application.utilities.response import Response
 
 class SupplierController(MasterController):
     def __init__(self):
@@ -9,6 +11,13 @@ class SupplierController(MasterController):
         self.dataHandler=DataHandlerImpl()
         self.validationHandler=ValidationHandlerImpl()
         self.parameterHandler=ParameterHandlerImpl()
+
+    def getLovData(self):
+        # try:
+        data=self.dataHandler.grabLovData()
+        return Response.make(msg='Data found',data=data)
+        # except:
+        #     return Response.make(status=False,msg='Eror while trying to retrieve data' )
 
 class DataHandlerImpl(DataHandler):
     def __init__(self):
@@ -26,6 +35,10 @@ class DataHandlerImpl(DataHandler):
         supplier.mssp_active_status=dataFromRequest.get('mssp_active_status')
         db.session.commit()
 
+    def grabLovData(self):
+        groupOfObjectResult=self.Model.query.filter(self.Model.mssp_active_status=='Y').all()
+        return self.Schema(many=True).dump(groupOfObjectResult)
+        
     def grabOne(self, paramFromRequest):
         return self.Model.query.filter_by(mssp_id=paramFromRequest.get('mssp_id')).first()
 

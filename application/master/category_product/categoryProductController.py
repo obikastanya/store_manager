@@ -2,6 +2,7 @@ from flask import request
 from sqlalchemy import func
 from .categoryProductModel import db,CategoryProductSchema, CategoryProduct
 from ..baseMasterController import MasterController, DataHandler, ParameterHandler, ValidationHandler
+from application.utilities.response import Response
 
 class CategoryProductController(MasterController):
     def __init__(self):
@@ -9,6 +10,13 @@ class CategoryProductController(MasterController):
         self.dataHandler=DataHandlerImpl()
         self.validationHandler=ValidationHandlerImpl()
         self.parameterHandler=ParameterHandlerImpl()
+
+    def getLovData(self):
+        # try:
+        data=self.dataHandler.grabLovData()
+        return Response.make(msg='Data found',data=data)
+        # except:
+        #     return Response.make(status=False,msg='Eror while trying to retrieve data' )
 
 class DataHandlerImpl(DataHandler):
     def __init__(self):
@@ -22,6 +30,10 @@ class DataHandlerImpl(DataHandler):
         categoryProduct.msc_desc=dataFromRequest.get('msc_desc')
         categoryProduct.msc_active_status=dataFromRequest.get('msc_active_status')
         db.session.commit()
+        
+    def grabLovData(self):
+        groupOfObjectResult=self.Model.query.filter(self.Model.msc_active_status=='Y').all()
+        return self.Schema(many=True).dump(groupOfObjectResult)
 
     def grabTotalRecords(self):
         return db.session.query(func.count(self.Model.msc_id)).scalar()

@@ -2,6 +2,7 @@ from flask import request
 from sqlalchemy import func
 from .companyModel import db,Company, CompanySchema
 from ..baseMasterController import MasterController, DataHandler, ParameterHandler, ValidationHandler
+from application.utilities.response import Response
 
 class CompanyController(MasterController):
     def __init__(self):
@@ -9,6 +10,13 @@ class CompanyController(MasterController):
         self.dataHandler=DataHandlerImpl()
         self.validationHandler=ValidationHandlerImpl()
         self.parameterHandler=ParameterHandlerImpl()
+
+    def getLovData(self):
+        # try:
+        data=self.dataHandler.grabLovData()
+        return Response.make(msg='Data found',data=data)
+        # except:
+        #     return Response.make(status=False,msg='Eror while trying to retrieve data' )
 
 class DataHandlerImpl(DataHandler):
     def __init__(self):
@@ -24,6 +32,10 @@ class DataHandlerImpl(DataHandler):
         company.mscp_active_status=dataFromRequest.get('mscp_active_status')
         db.session.commit()
 
+    def grabLovData(self):
+        groupOfObjectResult=self.Model.query.filter(self.Model.mscp_active_status=='Y').all()
+        return self.Schema(many=True).dump(groupOfObjectResult)
+        
     def grabOne(self, paramFromRequest):
         return self.Model.query.filter_by(mscp_id=paramFromRequest.get('mscp_id')).first()
 
