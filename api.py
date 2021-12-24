@@ -89,3 +89,11 @@ def stockApi():
 def stockApiSearch():
     return StockController().searchSingleData()
 
+@app.route('/supplier_api',methods=['GET','POST','PUT', 'DELETE'])
+def supplierApi():
+    return splitRouteByMethods(SupplierController)
+    
+@app.post('/supplier_api_search')
+def supplierApiSearch():
+    return SupplierController().searchSingleData()
+

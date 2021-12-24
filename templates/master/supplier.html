@@ -1,0 +1,108 @@
+{% extends 'base_template.html'%}
+
+{%block menu_title %}Company{% endblock %}
+
+{% block main_content%}
+<!-- datatables company -->
+<div class="row">
+    <div class="col-sm-12">
+        <table class="table table-bordered table-striped" id='company_datatable_id' width='100%'>
+            <thead>
+                <tr>
+                    <th scope="col">No</th>
+                    <th scope="col">Company Code</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Active Status</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{%block popup_and_modal %}
+<!-- Modal pop up for edit button inside datatable -->
+<div class="modal fade" id="id_modal_for_edit" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Update Company</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id='formAddNewData'>
+                    <div class="mb-3">
+                        <label for="idCompanyFields" class="form-label">Company Code</label>
+                        <input type="text" class="form-control" id="idCompanyFields" placeholder="Company Code"
+                            disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="companyFieldsUpdate" class="form-label">Description</label>
+                        <input type="text" class="form-control" id="companyFieldsUpdate" placeholder="Company">
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="activeStatusFields">
+                        <label class="form-check-label" for="activeStatusFields">Active Status</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="button_save_updated_data_id">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modul pop up for delete inside datatable -->
+<div class="modal fade" id="id_modal_for_delete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Delete Company</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6 id="delete_confirm_massage_id">Are you sure to this delete data ?</h6>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="button_delete_data_id">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for button add new data  -->
+<div class="modal fade" id="id_modal_for_add_new_data" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Company</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id='formAddNewData'>
+                    <div class="mb-3">
+                        <label for="companyFields" class="form-label">Company</label>
+                        <input type="text" class="form-control" id="companyFields" placeholder="Company">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="new_data_save_button_id">Save Data</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block custom_script %}
+<script src="/static/app_module/base_view.js"></script>
+<script src="/static/app_module/supplier_view.js"></script>
+
+{% endblock %}
