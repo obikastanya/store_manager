@@ -165,15 +165,15 @@ class ValidationHandlerImpl(ValidationHandler):
     def isValidPhoneNumber(self,phoneNumber):
         if not phoneNumber:
             return False
-        if len(phoneNumber)<3:
+        if len(str(phoneNumber))<3:
             return False
-        if len(phoneNumber)>15:
+        if len(str(phoneNumber))>15:
             return False
         return True
     def isValidAddress(self,address):
         if not address:
             return False
-        if len(address)<3:
+        if len(address)<5:
             return False
         if len(address)>300:
             return False

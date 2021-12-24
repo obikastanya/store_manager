@@ -52,27 +52,34 @@ class FormDataImpl extends FormData {
     }
     getAddNewDataFormValues() {
         let formValues = {
-            company: document.querySelector( '#companyFields' ).value
+            supplier: document.querySelector( '#supplierFields' ).value,
+            phone_number: document.querySelector( '#phoneNumberFields' ).value,
+            address: document.querySelector( '#addressFields' ).value
+
         }
         return formValues
     }
     getDeleteFormValues() {
         let formValues = {
-            company_id: document.getElementById( 'delete_confirm_massage_id' ).value
+            supplier_id: document.getElementById( 'delete_confirm_massage_id' ).value
         }
         return formValues
     }
     getUpdateFormValues() {
         let formValues = {
-            company: document.querySelector( '#companyFieldsUpdate' ).value,
-            company_id: document.querySelector( '#idCompanyFields' ).value,
+            supplier_id: document.querySelector( '#idSupplierFields' ).value,
+            supplier: document.querySelector( '#supplierUpdateFields' ).value,
+            phone_number: document.querySelector( '#phoneNumberUpdateFields' ).value,
+            address: document.querySelector( '#addressUpdateFields' ).value,
             active_status: this.getActiveStatusValue( '#activeStatusFields' )
         }
         return formValues
     }
     setUpdateFormValues( recordValues ) {
-        document.querySelector( '#idCompanyFields' ).value = recordValues.company_id
-        document.querySelector( '#companyFieldsUpdate' ).value = recordValues.company
+        document.querySelector( '#idSupplierFields' ).value = recordValues.supplier_id
+        document.querySelector( '#supplierUpdateFields' ).value = recordValues.supplier
+        document.querySelector( '#phoneNumberUpdateFields' ).value = recordValues.phone_number
+        document.querySelector( '#addressUpdateFields' ).value = recordValues.address
         document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
         document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
     }
@@ -82,39 +89,72 @@ class FormValidationImpl extends FormValidation {
         super()
     }
     validateUpdateParams( updateParams ) {
-        const validIdCompany = this.validateIdCompany( updateParams )
-        const validCompany = this.validateCompany( updateParams )
+        const validIdSupplier = this.validateIdSupplier( updateParams )
+        const sameValidationWithInsert = this.validateInsertParams( updateParams )
         const validActiveStatus = this.validateActiveStatus( updateParams )
 
-        if ( !validIdCompany.isValid ) return validIdCompany;
-        if ( !validCompany.isValid ) return validCompany;
+        if ( !validIdSupplier.isValid ) return validIdSupplier;
+        if ( !sameValidationWithInsert.isValid ) return sameValidationWithInsert;
         if ( !validActiveStatus.isValid ) return validActiveStatus;
         return this.validateResult( 'Data is valid', true )
     }
     validateDeleteParams( deleteParams ) {
-        if ( !deleteParams.company_id || deleteParams.company_id.length < 0 ) {
-            return this.validateResult( 'Company Id doesnt found' )
+        if ( !deleteParams.supplier_id || deleteParams.supplier_id.length < 0 ) {
+            return this.validateResult( 'Supplier Code doesnt found' )
         }
         return this.validateResult( 'Data is valid', true )
     }
     validateInsertParams( insertParams ) {
-        return this.validateCompany( insertParams )
+        const validSupplier = this.validateSupplier( insertParams )
+        const validPhoneNumber = this.validatePhoneNumber( insertParams )
+        const validAddress = this.validateAddress( insertParams )
+
+
+        if ( !validSupplier.isValid ) return validSupplier;
+        if ( !validPhoneNumber.isValid ) return validPhoneNumber;
+        if ( !validAddress.isValid ) return validAddress;
+
+        return this.validateResult( 'Data is valid', true )
     }
-    validateCompany( formData ) {
-        if ( !formData.company ) {
-            return this.validateResult( 'Cant insert empty data' )
-        }
-        if ( formData.company.length < 3 ) {
-            return this.validateResult( 'Company Name too short' )
-        }
-        if ( formData.company.length > 200 ) {
-            return this.validateResult( 'Company Name too long' )
+    validateIdSupplier( formData ) {
+        if ( !formData.supplier_id || formData.supplier_id.length < 0 ) {
+            return this.validateResult( 'There is no supplier to update' )
         }
         return this.validateResult( 'Data is valid', true )
     }
-    validateIdCompany( formData ) {
-        if ( !formData.company_id || formData.company_id.length < 0 ) {
-            return this.validateResult( 'There is no company id to update' )
+    validateSupplier( formData ) {
+        if ( !formData.supplier ) {
+            return this.validateResult( 'Supplier name is empty' )
+        }
+        if ( formData.supplier.length < 3 ) {
+            return this.validateResult( 'Supplier name too short' )
+        }
+        if ( formData.supplier.length > 200 ) {
+            return this.validateResult( 'Supplier name too long' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validatePhoneNumber( formData ) {
+        if ( !formData.phone_number ) {
+            return this.validateResult( 'Phone number is empty' )
+        }
+        if ( formData.phone_number.toString().length < 3 ) {
+            return this.validateResult( 'Phone number is too short' )
+        }
+        if ( formData.phone_number.toString().length > 15 ) {
+            return this.validateResult( 'Phone number is too long' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateAddress( formData ) {
+        if ( !formData.address ) {
+            return this.validateResult( 'Address is empty' )
+        }
+        if ( formData.address.length < 5 ) {
+            return this.validateResult( 'Address is too short' )
+        }
+        if ( formData.address.length > 300 ) {
+            return this.validateResult( 'Address is too long' )
         }
         return this.validateResult( 'Data is valid', true )
     }
@@ -134,12 +174,14 @@ class ModalFormImpl extends ModalForm {
         super()
     }
     setDeleteConfirmMessage( formValues ) {
-        const confirmMessage = `Area you sure to delete ${ formValues.company_id } - ${ formValues.company } ?`
+        const confirmMessage = `Area you sure to delete ${ formValues.supplier_id } - ${ formValues.supplier } ?`
         document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
-        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.company_id
+        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.supplier_id
     }
     clearAddNewDataForm() {
-        document.querySelector( '#companyFields' ).value = ''
+        document.querySelector( '#supplierFields' ).value = ''
+        document.querySelector( '#phoneNumberFields' ).value = ''
+        document.querySelector( '#addressFields' ).value = ''
     }
 }
 
@@ -205,12 +247,11 @@ class AjaxImpl extends Ajax {
                 new ModalForm().enableSaveConfirmBtn()
             }
         }
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/supplier_api', payload: payload }, ajaxCallback )
     }
     getSingleData( recordId ) {
-        const payload = this.createPayload( 'POST', { 'company_id': recordId } )
+        const payload = this.createPayload( 'POST', { 'supplier_id': recordId } )
         const onSuccess = ( response ) => {
-            console.log( response )
             if ( !response.data.length ) new Alert().failedAjax( response.msg );
             let recordValues = response.data[ 0 ]
 
@@ -227,10 +268,10 @@ class AjaxImpl extends Ajax {
             },
             onFinal: () => { }
         }
-        this.sendAjax( { url: '/company_api_search', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/supplier_api_search', payload: payload }, ajaxCallback )
     }
     getSingleDataForDeleteActions( recordId ) {
-        const payload = this.createPayload( 'POST', { 'company_id': recordId } )
+        const payload = this.createPayload( 'POST', { 'supplier_id': recordId } )
         const onSuccess = ( response ) => {
             if ( !response.data.length ) new Alert().failedAjax( response.msg );
             let recordValues = response.data[ 0 ]
@@ -246,7 +287,7 @@ class AjaxImpl extends Ajax {
             },
             onFinal: () => { }
         }
-        this.sendAjax( { url: '/company_api_search', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/supplier_api_search', payload: payload }, ajaxCallback )
 
     }
     updateData( formData ) {
@@ -269,7 +310,7 @@ class AjaxImpl extends Ajax {
                 new ModalFormImpl().enableFormButton( '#button_save_updated_data_id' )
             }
         }
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/supplier_api', payload: payload }, ajaxCallback )
 
     }
     deleteData( formData ) {
@@ -293,7 +334,7 @@ class AjaxImpl extends Ajax {
             }
         }
 
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/supplier_api', payload: payload }, ajaxCallback )
     }
 }
 
