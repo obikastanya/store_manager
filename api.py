@@ -97,3 +97,19 @@ def supplierApi():
 def supplierApiSearch():
     return SupplierController().searchSingleData()
 
+# Lov Api End Point
+@app.post('/supplier_lov_api')
+def supplierLovApi():
+    return SupplierController().getLovData()
+
+@app.post('/discount_type_lov_api')
+def discountTypeLovApi():
+    return DiscountTypeController().getLovData()
+
+@app.post('/category_product_lov_api')
+def categoryProductLovApi():
+    return CategoryProductController().getLovData()
+
+@app.post('/company_lov_api')
+def companyLovApi():
+    return CompanyController().getLovData()
