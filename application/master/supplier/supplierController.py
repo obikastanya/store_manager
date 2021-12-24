@@ -162,7 +162,7 @@ class ValidationHandlerImpl(ValidationHandler):
         if len(supplierDesc)>200:
             return False
         return True
-    def isValidPhoneNumber(phoneNumber):
+    def isValidPhoneNumber(self,phoneNumber):
         if not phoneNumber:
             return False
         if len(phoneNumber)<3:
@@ -170,7 +170,7 @@ class ValidationHandlerImpl(ValidationHandler):
         if len(phoneNumber)>15:
             return False
         return True
-    def isValidAddress(address):
+    def isValidAddress(self,address):
         if not address:
             return False
         if len(address)<3:
@@ -178,13 +178,13 @@ class ValidationHandlerImpl(ValidationHandler):
         if len(address)>300:
             return False
         return True
-    def isValidActiveStatus(activeStatus):
+    def isValidActiveStatus(self,activeStatus):
         if not activeStatus:
             return False
         if activeStatus not in ['Y','N']:
             return False
         return True
-        
+
     def isNumber(self,value):
         try:
             int(value)
