@@ -106,6 +106,21 @@ class FormDataImpl extends FormData {
         get( '#activeStatusFields' ).value = recordValues.active_status
         get( '#activeStatusFields' ).checked = recordValues.active_status
     }
+    generateOption( recordValues ) {
+        let options = ''
+        for ( const values of recordValues ) {
+            options += ` <option value=${ values.id }>${ values.description }</option> `
+        }
+        return options
+    }
+    setOptionForSelectFields( elementsToSet, recordValues ) {
+        // some dom manipulation
+        for ( const id of elementsToSet ) {
+            const options = this.generateOption( recordValues )
+            document.querySelector( id ).innerHTML = ''
+            document.querySelector( id ).innerHTML = options
+        }
+    }
 }
 class FormValidationImpl extends FormValidation {
     constructor() {
@@ -131,7 +146,6 @@ class FormValidationImpl extends FormValidation {
         const validCategory = this.validateCategory( insertParams )
         const validSupplier = this.validateSupplier( insertParams )
         const validCompany = this.validateCompany( insertParams )
-        console.log( insertParams )
 
         if ( !validProductDesc.isValid ) return validProductDesc;
         if ( !validBrand.isValid ) return validBrand;
@@ -398,12 +412,73 @@ class AjaxImpl extends Ajax {
 
         this.sendAjax( { url: '/product_api', payload: payload }, ajaxCallback )
     }
+    getOption( endPoint, onSuccess = () => { } ) {
+        fetch( endPoint )
+            .then( response => response.json() )
+            .then( onSuccess )
+            .catch( ( err ) => { console.log( err ) } )
+    }
+    getLovForSupplierFields() {
+        const extractIdDescriptionFunc = ( recordValues ) => {
+            let newRecordValues = []
+            for ( const record of recordValues ) {
+                newRecordValues.push( { id: record.supplier_id, description: record.supplier } )
+            }
+            return newRecordValues
+        }
+        const onSuccess = ( response ) => {
+            let newRecordValues = extractIdDescriptionFunc( response.data )
+            const selectFieldIds = [ '#supplierUpdateFields', '#supplierFields' ]
+            new FormDataImpl().setOptionForSelectFields( selectFieldIds, newRecordValues )
+        }
+        this.getOption( 'supplier_lov_api', onSuccess )
+
+    }
+    getLovForCategoryFields() {
+        const extractIdDescriptionFunc = ( recordValues ) => {
+            // parse supplier_id and supplier name to id and description, 
+            // we want generateOption function to be polimorfism and flexible.
+            let newRecordValues = []
+            for ( const record of recordValues ) {
+                newRecordValues.push( { id: record.category_id, description: record.category } )
+            }
+            return newRecordValues
+        }
+        const onSuccess = ( response ) => {
+            let newRecordValues = extractIdDescriptionFunc( response.data )
+            const selectFieldIds = [ '#categoryUpdateFields', '#categoryFields' ]
+            new FormDataImpl().setOptionForSelectFields( selectFieldIds, newRecordValues )
+        }
+        this.getOption( 'category_product_lov_api', onSuccess )
+
+    }
+    getLovForCompanyProductFields() {
+        const extractIdDescriptionFunc = ( recordValues ) => {
+            let newRecordValues = []
+            for ( const record of recordValues ) {
+                newRecordValues.push( { id: record.company_id, description: record.company } )
+            }
+            return newRecordValues
+        }
+        const onSuccess = ( response ) => {
+            let newRecordValues = extractIdDescriptionFunc( response.data )
+            const selectFieldIds = [ '#companyUpdateFields', '#companyFields' ]
+            new FormDataImpl().setOptionForSelectFields( selectFieldIds, newRecordValues )
+        }
+        this.getOption( 'company_lov_api', onSuccess )
+    }
+    getLovForSelectField() {
+        this.getLovForCategoryFields()
+        this.getLovForSupplierFields()
+        this.getLovForCompanyProductFields()
+    }
 }
 
 const runScript = () => {
     $( document ).ready( function () {
         const modalForm = new ModalFormImpl()
         new DatatableProductImpl().initiateDatatable()
+        new AjaxImpl().getLovForSelectField()
         modalForm.registerOnHideModal()
         modalForm.disabledBtnNewDataOnClick()
         new ButtonEventImpl().bindEventWithAjax()

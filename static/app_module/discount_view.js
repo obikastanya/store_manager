@@ -101,7 +101,6 @@ class FormDataImpl extends FormData {
             document.querySelector( id ).innerHTML = ''
             document.querySelector( id ).innerHTML = options
         }
-
     }
 }
 class FormValidationImpl extends FormValidation {
