@@ -109,6 +109,22 @@ class FormDataImpl extends FormData {
         get( '#startWorkingUpdateFields' ).value = recordValues.start_working
         get( '#endWorkingFields' ).value = recordValues.end_working
     }
+    generateOption( recordValues ) {
+        let options = ''
+        for ( const values of recordValues ) {
+            options += ` <option value=${ values.employee_status_id }>${ values.employee_status }</option> `
+        }
+        return options
+    }
+    setOptionForEmployeeStatusMaster( recordValues ) {
+        // some dom manipulation
+        // setOptionForEmployeeStatusMaster
+        for ( const id of [ '#employeStatusUpdateFields', '#employeStatusFields' ] ) {
+            const options = this.generateOption( recordValues )
+            document.querySelector( id ).innerHTML = ''
+            document.querySelector( id ).innerHTML = options
+        }
+    }
 }
 class FormValidationImpl extends FormValidation {
     constructor() {
@@ -438,12 +454,27 @@ class AjaxImpl extends Ajax {
 
         this.sendAjax( { url: '/employee_api', payload: payload }, ajaxCallback )
     }
+    getOptionForEmployeeStatusMaster() {
+        const onSuccess = ( response ) => {
+            new FormDataImpl().setOptionForEmployeeStatusMaster( response.data )
+        }
+        const ajaxCallback = {
+            onSuccess: onSuccess,
+            onFail: ( err ) => { console.log( err ) }
+        }
+        fetch( '/employee_status_lov_api' )
+            .then( response => response.json() )
+            .then( onSuccess )
+            .catch( ajaxCallback.onFail )
+
+    }
 }
 
 const runScript = () => {
     $( document ).ready( function () {
         const modalForm = new ModalFormImpl()
         new DatatableEmployeeImpl().initiateDatatable()
+        new AjaxImpl().getOptionForEmployeeStatusMaster()
         modalForm.registerOnHideModal()
         modalForm.disabledBtnNewDataOnClick()
         new ButtonEventImpl().bindEventWithAjax()
