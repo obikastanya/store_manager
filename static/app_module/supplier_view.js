@@ -1,4 +1,4 @@
-class DatatableCompanyImpl extends BaseDatatable {
+class DatatableSupplierImpl extends BaseDatatable {
     constructor() {
         super()
         this.tableColumns = [
@@ -6,8 +6,10 @@ class DatatableCompanyImpl extends BaseDatatable {
                 data: null,
                 defaultContent: ''
             },
-            { data: 'company_id' },
-            { data: 'company' },
+            { data: 'supplier_id' },
+            { data: 'supplier' },
+            { data: 'phone_number' },
+            { data: 'address' },
             {
                 data: 'active_status',
                 render: ( data ) => {
@@ -18,19 +20,21 @@ class DatatableCompanyImpl extends BaseDatatable {
             {
                 data: null,
                 render: ( data ) => {
-                    return this.buttonEdit.replace( "_data_", data.company_id ) + '&nbsp;' + this.buttonDelete.replace( "_data_", data.company_id )
+                    return this.buttonEdit.replace( "_data_", data.supplier_id ) + '&nbsp;' + this.buttonDelete.replace( "_data_", data.supplier_id )
                 }
             }
         ]
         this.columnName = [
             { "name": "no", "targets": 0 },
-            { "name": "company_id", "targets": 1 },
-            { "name": "company", "targets": 2 },
-            { "name": "active_status", "targets": 3 },
-            { "name": "action", "targets": 4 }
+            { "name": "supplier_id", "targets": 1 },
+            { "name": "supplier", "targets": 2 },
+            { "name": "phone_number", "targets": 3 },
+            { "name": "address", "targets": 4 },
+            { "name": "active_status", "targets": 5 },
+            { "name": "action", "targets": 6 }
         ]
-        this.datatableId = '#company_datatable_id'
-        this.apiEndpoint = '/company_api'
+        this.datatableId = '#supplier_datatable_id'
+        this.apiEndpoint = '/supplier_api'
     }
     bindEventForActionsButton( datatableInstance ) {
         datatableInstance.on( 'click', this.btnClassEditData, function ( e ) {
@@ -187,7 +191,7 @@ class AjaxImpl extends Ajax {
             if ( response.status ) {
                 new ModalFormImpl().hideModal( 'id_modal_for_add_new_data' )
                 new Alert().successAjax( response.msg )
-                new DatatableCompanyImpl().reloadDatatable()
+                new DatatableSupplierImpl().reloadDatatable()
                 return
             }
             new Alert().failedAjax( response.msg )
@@ -252,7 +256,7 @@ class AjaxImpl extends Ajax {
                 return new Alert().failedAjax( response.msg )
             }
             new Alert().successAjax( response.msg )
-            new DatatableCompanyImpl().reloadDatatable()
+            new DatatableSupplierImpl().reloadDatatable()
             new ModalFormImpl().hideModal( 'id_modal_for_edit' )
             return
         }
@@ -275,7 +279,7 @@ class AjaxImpl extends Ajax {
                 return new Alert().failedAjax( response.msg )
             }
             new Alert().successAjax( response.msg )
-            new DatatableCompanyImpl().reloadDatatable()
+            new DatatableSupplierImpl().reloadDatatable()
             new ModalFormImpl().hideModal( 'id_modal_for_delete' )
             return
         }
@@ -296,7 +300,7 @@ class AjaxImpl extends Ajax {
 const runScript = () => {
     $( document ).ready( function () {
         const modalForm = new ModalFormImpl()
-        new DatatableCompanyImpl().initiateDatatable()
+        new DatatableSupplierImpl().initiateDatatable()
         modalForm.registerOnHideModal()
         modalForm.disabledBtnNewDataOnClick()
         new ButtonEventImpl().bindEventWithAjax()
