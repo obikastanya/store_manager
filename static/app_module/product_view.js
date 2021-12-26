@@ -9,10 +9,22 @@ class DatatableProductImpl extends BaseDatatable {
             { data: 'product_id' },
             { data: 'product_desc' },
             { data: 'brand' },
-            { data: 'category' },
+            {
+                data: 'category_product', render: ( data ) => {
+                    return data.category
+                }
+            },
             { data: 'price' },
-            { data: 'supplier' },
-            { data: 'company' },
+            {
+                data: 'supplier', render: ( data ) => {
+                    return data.supplier
+                }
+            },
+            {
+                data: 'company', render: ( data ) => {
+                    return data.company
+                }
+            },
             {
                 data: 'active_status',
                 render: ( data ) => {

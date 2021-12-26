@@ -12,6 +12,8 @@ class Company(db.Model):
     mscp_create_date=db.Column(db.Date())
     mscp_update_user=db.Column(db.String(30))
     mscp_update_date=db.Column(db.Date())
+    # relationship
+    company=db.relationship('Product', backref='company')
 
 class CompanySchema(Schema):
     """Schema to retrieve data from Model Company as dictionary.

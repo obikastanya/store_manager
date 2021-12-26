@@ -1,5 +1,6 @@
 from marshmallow import fields, Schema
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.orm import backref
 from app import db
 
 class Supplier(db.Model):
@@ -14,6 +15,8 @@ class Supplier(db.Model):
     mssp_create_date=db.Column(db.Date())
     mssp_update_user=db.Column(db.String(30))
     mssp_update_date=db.Column(db.Date())
+    # relationship
+    supplier=db.relationship('Product', backref='supplier')
 
 class SupplierSchema(Schema):
     """Schema to retrieve data from Model Supplier as dictionary.
