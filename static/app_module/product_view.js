@@ -102,19 +102,21 @@ class FormDataImpl extends FormData {
             company: get( '#companyUpdateFields' ),
             active_status: this.getActiveStatusValue( '#activeStatusFields' )
         }
+        console.log( 'upd params', formValues )
         return formValues
     }
     setUpdateFormValues( recordValues ) {
+        console.log( recordValues )
         const get = ( id ) => {
             return document.querySelector( id )
         }
         get( '#productIdFields' ).value = recordValues.product_id
-        get( '#productDescFields' ).value = recordValues.product_desc
-        get( '#brandFields' ).value = recordValues.brand
-        get( '#priceFields' ).value = recordValues.price
-        get( '#categoryFields' ).value = recordValues.category
-        get( '#supplierFields' ).value = recordValues.supplier
-        get( '#companyFields' ).value = recordValues.company
+        get( '#productDescUpdateFields' ).value = recordValues.product_desc
+        get( '#brandUpdateFields' ).value = recordValues.brand
+        get( '#priceUpdateFields' ).value = recordValues.price
+        get( '#categoryUpdateFields' ).value = recordValues.category_product.category_id
+        get( '#supplierUpdateFields' ).value = recordValues.supplier.supplier_id
+        get( '#companyUpdateFields' ).value = recordValues.company.company_id
         get( '#activeStatusFields' ).value = recordValues.active_status
         get( '#activeStatusFields' ).checked = recordValues.active_status
     }
