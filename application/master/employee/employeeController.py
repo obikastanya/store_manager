@@ -142,9 +142,15 @@ class ParameterHandlerImpl(ParameterHandler):
             'mse_salary':request.json.get('salary'),
             'mse_position':request.json.get('position'),
             'mse_start_working':request.json.get('start_working'),
-            'mse_end_working':request.json.get('end_working')
+            'mse_end_working':self.getEndWorkingOrNone()
         }
         return dataFromRequest
+        
+    def getEndWorkingOrNone(self):
+        if not request.json.get('end_working'):
+            return None
+        return request.json.get('end_working')
+
 
     def getIdFromRequest(self):
         parameterFromRequest={
