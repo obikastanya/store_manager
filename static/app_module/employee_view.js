@@ -103,7 +103,7 @@ class FormDataImpl extends FormData {
             return document.querySelector( id )
         }
         get( '#employeeIdFields' ).value = recordValues.employee_id
-        get( '#employeStatusUpdateFields' ).value = recordValues.employee_status
+        get( '#employeStatusUpdateFields' ).value = recordValues.employee_status.employee_status_id
         get( '#nameUpdateFields' ).value = recordValues.name
         get( '#phoneNumberUpdateFields' ).value = recordValues.phone_number
         get( '#emailUpdateFields' ).value = recordValues.email
@@ -120,6 +120,7 @@ class FormDataImpl extends FormData {
         }
         return options
     }
+
     setOptionForEmployeeStatusMaster( recordValues ) {
         // some dom manipulation
         // setOptionForEmployeeStatusMaster
