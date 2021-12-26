@@ -96,7 +96,7 @@ class FormDataImpl extends FormData {
     }
     setOptionForDiscountTypeMaster( recordValues ) {
         // some dom manipulation
-        for ( const id of [ '#discountNominalUpdateFields', '#discountTypeFields' ] ) {
+        for ( const id of [ '#discountTypeUpdateFields', '#discountTypeFields' ] ) {
             const options = this.generateOption( recordValues )
             document.querySelector( id ).innerHTML = ''
             document.querySelector( id ).innerHTML = options
