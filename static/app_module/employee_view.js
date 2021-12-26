@@ -13,7 +13,11 @@ class DatatableEmployeeImpl extends BaseDatatable {
             { data: 'email' },
             { data: 'address' },
             { data: 'salary' },
-            { data: 'employee_status' },
+            {
+                data: 'employee_status', render: ( data ) => {
+                    return data.employee_status
+                }
+            },
             { data: 'start_working' },
             { data: 'end_working' },
             {

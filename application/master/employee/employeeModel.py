@@ -7,7 +7,7 @@ class Employee(db.Model):
     """Object for table ms_employee"""
     __tablename__='ms_employee'
     mse_id =db.Column(db.Integer(), primary_key=True)
-    msse_id=db.Column(db.Integer())
+    msse_id=db.Column(db.Integer(), db.ForeignKey('ms_status_employee.msse_id'))
     mse_name=db.Column(db.String(200))
     mse_phone_number=db.Column(db.String(30))
     mse_email=db.Column(db.String(100))
@@ -25,7 +25,6 @@ class EmployeeSchema(Schema):
     """Schema to retrieve data from Model Employee as dictionary.
     data_key is an alias for column name."""
     mse_id =fields.Int(data_key='employee_id')
-    msse_id=fields.Int(data_key='employee_status')
     mse_name=fields.Str(data_key='name')
     mse_phone_number=fields.Str(data_key='phone_number')
     mse_email=fields.Str(data_key='email')
@@ -34,3 +33,5 @@ class EmployeeSchema(Schema):
     mse_position=fields.Str(data_key='position')
     mse_start_working=fields.Date(data_key='start_working')
     mse_end_working=fields.Date(data_key='end_working')
+    # from relationship
+    employee_status=fields.Nested('StatusEmployeeSchema',only=('msse_id', 'msse_desc'))

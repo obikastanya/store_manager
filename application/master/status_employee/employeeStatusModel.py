@@ -1,4 +1,5 @@
 from marshmallow import fields, Schema
+from sqlalchemy.orm import backref
 from app import db
 
 class StatusEmployee(db.Model):
@@ -11,6 +12,8 @@ class StatusEmployee(db.Model):
     msse_create_date=db.Column(db.Date())
     msse_update_user=db.Column(db.String(30))
     msse_update_date=db.Column(db.Date())
+    # relationship
+    employee_status=db.relationship('Employee', backref='employee_status')
 
 class StatusEmployeeSchema(Schema):
     """Schema to retrieve data from Model Product as dictionary.
