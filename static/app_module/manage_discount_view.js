@@ -81,8 +81,10 @@ class FormDataImpl extends FormData {
         return formValues
     }
     getDeleteFormValues() {
+        let productAndDiscountIds = document.getElementById( 'delete_confirm_massage_id' ).value
         let formValues = {
-            company_id: document.getElementById( 'delete_confirm_massage_id' ).value
+            product_id: productAndDiscountIds.split( ',' )[ 0 ],
+            discount_id: productAndDiscountIds.split( ',' )[ 1 ]
         }
         return formValues
     }
@@ -139,9 +141,11 @@ class FormValidationImpl extends FormValidation {
         return this.validateResult( 'Data is valid', true )
     }
     validateDeleteParams( deleteParams ) {
-        if ( !deleteParams.company_id || deleteParams.company_id.length < 0 ) {
-            return this.validateResult( 'Company Id doesnt found' )
-        }
+        const validIdProduct = this.validateIdProduct( deleteParams )
+        const validIdDiscount = this.validateIdDiscount( deleteParams )
+
+        if ( !validIdProduct.isValid ) return validIdProduct;
+        if ( !validIdDiscount.isValid ) return validIdDiscount;
         return this.validateResult( 'Data is valid', true )
     }
     validateInsertParams( insertParams ) {
@@ -203,10 +207,10 @@ class ModalFormImpl extends ModalForm {
         super()
     }
     setDeleteConfirmMessage( formValues ) {
-        console.log( formValues )
-        const confirmMessage = `Area you sure to delete discount applied on ${ formValues.product_desc } ?`
+        const confirmMessage = `Area you sure to delete discount ${ formValues.discount_master.desc } thats applied on ${ formValues.discount_product.product_desc } ?`
+        const strIdProductAndDiscount = `${ formValues.discount_product.product_id },${ formValues.discount_master.discount_id }`
         document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
-        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.product_id
+        document.getElementById( 'delete_confirm_massage_id' ).value = strIdProductAndDiscount
     }
     clearAddNewDataForm() {
         document.querySelector( '#productIdFields' ).value = ''
