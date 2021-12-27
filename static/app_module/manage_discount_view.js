@@ -97,8 +97,8 @@ class FormDataImpl extends FormData {
         return formValues
     }
     setUpdateFormValues( recordValues ) {
-        document.querySelector( '#productIdUpdateFields' ).value = recordValues.product_id
-        document.querySelector( '#discountIdUpdateFields' ).value = recordValues.discount_id
+        document.querySelector( '#productIdUpdateFields' ).value = recordValues.discount_product.product_id
+        document.querySelector( '#discountIdUpdateFields' ).value = recordValues.discount_master.discount_id
         document.querySelector( '#startDateUpdateFields' ).value = recordValues.start_date
         document.querySelector( '#expiredDateUpdateFields' ).value = recordValues.expired_date
         document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
@@ -115,7 +115,6 @@ class FormDataImpl extends FormData {
         // some dom manipulation
         for ( const id of elementsToSet ) {
             const options = this.generateOption( recordValues )
-            console.log( id )
             document.querySelector( id ).innerHTML = ''
             document.querySelector( id ).innerHTML = options
         }
@@ -282,9 +281,12 @@ class AjaxImpl extends Ajax {
         this.sendAjax( { url: '/manage_discount_api', payload: payload }, ajaxCallback )
     }
     getSingleData( recordId ) {
-        const payload = this.createPayload( 'POST', { 'company_id': recordId } )
+        const params = {
+            product_id: recordId.split( ',' )[ 0 ],
+            discount_id: recordId.split( ',' )[ 1 ]
+        }
+        const payload = this.createPayload( 'POST', params )
         const onSuccess = ( response ) => {
-            console.log( response )
             if ( !response.data.length ) new Alert().failedAjax( response.msg );
             let recordValues = response.data[ 0 ]
 
@@ -304,7 +306,11 @@ class AjaxImpl extends Ajax {
         this.sendAjax( { url: '/manage_discount_api_search', payload: payload }, ajaxCallback )
     }
     getSingleDataForDeleteActions( recordId ) {
-        const payload = this.createPayload( 'POST', { 'company_id': recordId } )
+        const params = {
+            product_id: recordId.split( ',' )[ 0 ],
+            discount_id: recordId.split( ',' )[ 1 ]
+        }
+        const payload = this.createPayload( 'POST', params )
         const onSuccess = ( response ) => {
             if ( !response.data.length ) new Alert().failedAjax( response.msg );
             let recordValues = response.data[ 0 ]
