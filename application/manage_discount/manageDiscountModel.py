@@ -19,6 +19,8 @@ class ManageDiscount(db.Model):
 
 class ManageDiscountSchema(Schema):
     da_active_status = fields.Str(data_key='active_status')
+    da_start_date = fields.Date(data_key='start_date')
+    da_expired_date = fields.Date(data_key='expired_date')
     discount_product = fields.Nested("ProductSchema",
                                      only=('msp_id', 'msp_desc'))
     discount_master = fields.Nested('DiscountSchema',
