@@ -2,7 +2,7 @@ from flask import request
 from sqlalchemy import func
 from .productModel import db,Product, ProductSchema
 from ..baseMasterController import MasterController, DataHandler, ParameterHandler, ValidationHandler
-
+from application.utilities.response import Response
 
 class ProductController(MasterController):
     def __init__(self):
@@ -10,6 +10,13 @@ class ProductController(MasterController):
         self.dataHandler=DataHandlerImpl()
         self.validationHandler=ValidationHandlerImpl()
         self.parameterHandler=ParameterHandlerImpl()
+
+    def getLovData(self):
+        # try:
+        data=self.dataHandler.grabLovData()
+        return Response.make(msg='Data found',data=data)
+        # except:
+        #     return Response.make(status=False,msg='Eror while trying to retrieve data' )
 
 class DataHandlerImpl(DataHandler):
     def __init__(self):
@@ -28,6 +35,10 @@ class DataHandlerImpl(DataHandler):
         product.msp_mscp_id=dataFromRequest.get('msp_mscp_id')
         product.msp_active_status=dataFromRequest.get('msp_active_status')
         db.session.commit()
+
+    def grabLovData(self):
+        groupOfObjectResult=self.Model.query.filter(self.Model.msp_active_status=='Y').all()
+        return self.Schema(many=True).dump(groupOfObjectResult)
 
     def grabOne(self, paramFromRequest):
         return self.Model.query.filter_by(msp_id=paramFromRequest.get('msp_id')).first()

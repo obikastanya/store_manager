@@ -32,19 +32,30 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Update Company</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Update Discount Applied</h5>
                 <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id='formAddNewData'>
                     <div class="mb-3">
-                        <label for="idCompanyFields" class="form-label">Company Code</label>
-                        <input type="text" class="form-control" id="idCompanyFields" placeholder="Company Code"
-                            disabled>
+                        <label for="productIdUpdateFields" class="form-label">Product</label>
+                        <select class="form-control" id="productIdUpdateFields" placeholder='Product Id' disabled>
+                            <option value=0>No item to select</option>
+                        </select>
                     </div>
                     <div class="mb-3">
-                        <label for="companyFieldsUpdate" class="form-label">Description</label>
-                        <input type="text" class="form-control" id="companyFieldsUpdate" placeholder="Company">
+                        <label for="discountIdUpdateFields" class="form-label">Discount</label>
+                        <select class="form-control" id="discountIdUpdateFields" placeholder='Discount Id' disabled>
+                            <option value=0>No item to select</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="startDateUpdateFields" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="startDateUpdateFields" placeholder="Start Date">
+                    </div>
+                    <div class="mb-3">
+                        <label for="expiredDateUpdateFields" class="form-label">Expired Date</label>
+                        <input type="date" class="form-control" id="expiredDateUpdateFields" placeholder="Expired Date">
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="" id="activeStatusFields">
@@ -85,14 +96,30 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Add Company</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Applied Discount</h5>
                 <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id='formAddNewData'>
                     <div class="mb-3">
-                        <label for="companyFields" class="form-label">Company</label>
-                        <input type="text" class="form-control" id="companyFields" placeholder="Company">
+                        <label for="productIdFields" class="form-label">Product</label>
+                        <select class="form-control" id="productIdFields" placeholder='Product Id'>
+                            <option value=0>No item to select</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="discountIdFields" class="form-label">Discount</label>
+                        <select class="form-control" id="discountIdFields" placeholder='Discount Id'>
+                            <option value=0>No item to select</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="startDateFields" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="startDateFields" placeholder="Start Date">
+                    </div>
+                    <div class="mb-3">
+                        <label for="expiredDateFields" class="form-label">Expired Date</label>
+                        <input type="date" class="form-control" id="expiredDateFields" placeholder="Expired Date">
                     </div>
                 </form>
             </div>

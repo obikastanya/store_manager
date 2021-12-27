@@ -73,7 +73,10 @@ class FormDataImpl extends FormData {
     }
     getAddNewDataFormValues() {
         let formValues = {
-            company: document.querySelector( '#companyFields' ).value
+            product_id: document.querySelector( '#productIdFields' ).value,
+            discount_id: document.querySelector( '#discountIdFields' ).value,
+            start_date: document.querySelector( '#startDateFields' ).value,
+            expired_date: document.querySelector( '#expiredDateFields' ).value
         }
         return formValues
     }
@@ -85,17 +88,37 @@ class FormDataImpl extends FormData {
     }
     getUpdateFormValues() {
         let formValues = {
-            company: document.querySelector( '#companyFieldsUpdate' ).value,
-            company_id: document.querySelector( '#idCompanyFields' ).value,
+            product_id: document.querySelector( '#productIdUpdateFields' ).value,
+            discount_id: document.querySelector( '#discountIdUpdateFields' ).value,
+            start_date: document.querySelector( '#startDateUpdateFields' ).value,
+            expired_date: document.querySelector( '#expiredDateUpdateFields' ).value,
             active_status: this.getActiveStatusValue( '#activeStatusFields' )
         }
         return formValues
     }
     setUpdateFormValues( recordValues ) {
-        document.querySelector( '#idCompanyFields' ).value = recordValues.company_id
-        document.querySelector( '#companyFieldsUpdate' ).value = recordValues.company
+        document.querySelector( '#productIdUpdateFields' ).value = recordValues.product_id
+        document.querySelector( '#discountIdUpdateFields' ).value = recordValues.discount_id
+        document.querySelector( '#startDateUpdateFields' ).value = recordValues.start_date
+        document.querySelector( '#expiredDateUpdateFields' ).value = recordValues.expired_date
         document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
         document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
+    }
+    generateOption( recordValues ) {
+        let options = ''
+        for ( const values of recordValues ) {
+            options += ` <option value=${ values.id }>${ values.description }</option> `
+        }
+        return options
+    }
+    setOptionForSelectFields( elementsToSet, recordValues ) {
+        // some dom manipulation
+        for ( const id of elementsToSet ) {
+            const options = this.generateOption( recordValues )
+            console.log( id )
+            document.querySelector( id ).innerHTML = ''
+            document.querySelector( id ).innerHTML = options
+        }
     }
 }
 class FormValidationImpl extends FormValidation {
@@ -103,12 +126,16 @@ class FormValidationImpl extends FormValidation {
         super()
     }
     validateUpdateParams( updateParams ) {
-        const validIdCompany = this.validateIdCompany( updateParams )
-        const validCompany = this.validateCompany( updateParams )
+        const validIdProduct = this.validateIdProduct( updateParams )
+        const validIdDiscount = this.validateIdDiscount( updateParams )
+        const validStartDate = this.validateStartDate( updateParams )
+        const validExpiredDate = this.validateExpiredDate( updateParams )
         const validActiveStatus = this.validateActiveStatus( updateParams )
 
-        if ( !validIdCompany.isValid ) return validIdCompany;
-        if ( !validCompany.isValid ) return validCompany;
+        if ( !validIdProduct.isValid ) return validIdProduct;
+        if ( !validIdDiscount.isValid ) return validIdDiscount;
+        if ( !validStartDate.isValid ) return validStartDate;
+        if ( !validExpiredDate.isValid ) return validExpiredDate;
         if ( !validActiveStatus.isValid ) return validActiveStatus;
         return this.validateResult( 'Data is valid', true )
     }
@@ -119,23 +146,45 @@ class FormValidationImpl extends FormValidation {
         return this.validateResult( 'Data is valid', true )
     }
     validateInsertParams( insertParams ) {
-        return this.validateCompany( insertParams )
+        const validIdProduct = this.validateIdProduct( insertParams )
+        console.log( 'p', validIdProduct )
+        const validIdDiscount = this.validateIdDiscount( insertParams )
+        const validStartDate = this.validateStartDate( insertParams )
+        const validExpiredDate = this.validateExpiredDate( insertParams )
+
+        if ( !validIdProduct.isValid ) return validIdProduct;
+        if ( !validIdDiscount.isValid ) return validIdDiscount;
+        if ( !validStartDate.isValid ) return validStartDate;
+        if ( !validExpiredDate.isValid ) return validExpiredDate;
+        return this.validateResult( 'Data is valid', true )
     }
-    validateCompany( formData ) {
-        if ( !formData.company ) {
-            return this.validateResult( 'Cant insert empty data' )
+    validateIdProduct( formData ) {
+        if ( isNaN( formData.product_id ) ) {
+            return this.validateResult( 'Invalid Product selected' )
         }
-        if ( formData.company.length < 3 ) {
-            return this.validateResult( 'Company Name too short' )
-        }
-        if ( formData.company.length > 200 ) {
-            return this.validateResult( 'Company Name too long' )
+        if ( !( parseInt( formData.product_id ) ) ) {
+            return this.validateResult( 'Invalid Product selected' )
         }
         return this.validateResult( 'Data is valid', true )
     }
-    validateIdCompany( formData ) {
-        if ( !formData.company_id || formData.company_id.length < 0 ) {
-            return this.validateResult( 'There is no company id to update' )
+    validateIdDiscount( formData ) {
+        if ( isNaN( formData.discount_id ) ) {
+            return this.validateResult( 'Invalid master discount selected' )
+        }
+        if ( !( parseInt( formData.product_id ) ) ) {
+            return this.validateResult( 'Invalid Product selected' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateStartDate( formData ) {
+        if ( !formData.start_date ) {
+            return this.validateResult( 'Start date is empty' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateExpiredDate( formData ) {
+        if ( !formData.expired_date ) {
+            return this.validateResult( 'Expired date is empty' )
         }
         return this.validateResult( 'Data is valid', true )
     }
@@ -155,12 +204,16 @@ class ModalFormImpl extends ModalForm {
         super()
     }
     setDeleteConfirmMessage( formValues ) {
-        const confirmMessage = `Area you sure to delete ${ formValues.company_id } - ${ formValues.company } ?`
+        console.log( formValues )
+        const confirmMessage = `Area you sure to delete discount applied on ${ formValues.product_desc } ?`
         document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
-        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.company_id
+        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.product_id
     }
     clearAddNewDataForm() {
-        document.querySelector( '#companyFields' ).value = ''
+        document.querySelector( '#productIdFields' ).value = ''
+        document.querySelector( '#discountIdFields' ).value = ''
+        document.querySelector( '#startDateFields' ).value = ''
+        document.querySelector( '#expiredDateFields' ).value = ''
     }
 }
 
@@ -226,7 +279,7 @@ class AjaxImpl extends Ajax {
                 new ModalForm().enableSaveConfirmBtn()
             }
         }
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/manage_discount_api', payload: payload }, ajaxCallback )
     }
     getSingleData( recordId ) {
         const payload = this.createPayload( 'POST', { 'company_id': recordId } )
@@ -248,7 +301,7 @@ class AjaxImpl extends Ajax {
             },
             onFinal: () => { }
         }
-        this.sendAjax( { url: '/company_api_search', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/manage_discount_api_search', payload: payload }, ajaxCallback )
     }
     getSingleDataForDeleteActions( recordId ) {
         const payload = this.createPayload( 'POST', { 'company_id': recordId } )
@@ -267,7 +320,7 @@ class AjaxImpl extends Ajax {
             },
             onFinal: () => { }
         }
-        this.sendAjax( { url: '/company_api_search', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/manage_discount_api_search', payload: payload }, ajaxCallback )
 
     }
     updateData( formData ) {
@@ -290,7 +343,7 @@ class AjaxImpl extends Ajax {
                 new ModalFormImpl().enableFormButton( '#button_save_updated_data_id' )
             }
         }
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/manage_discount_api', payload: payload }, ajaxCallback )
 
     }
     deleteData( formData ) {
@@ -314,7 +367,47 @@ class AjaxImpl extends Ajax {
             }
         }
 
-        this.sendAjax( { url: '/company_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/manage_discount_api', payload: payload }, ajaxCallback )
+    }
+    getOption( endPoint, onSuccess = () => { } ) {
+        fetch( endPoint )
+            .then( response => response.json() )
+            .then( onSuccess )
+            .catch( ( err ) => { console.log( err ) } )
+    }
+    getLovForProductFields() {
+        const extractIdDescriptionFunc = ( recordValues ) => {
+            let newRecordValues = []
+            for ( const record of recordValues ) {
+                newRecordValues.push( { id: record.product_id, description: record.product_desc } )
+            }
+            return newRecordValues
+        }
+        const onSuccess = ( response ) => {
+            let newRecordValues = extractIdDescriptionFunc( response.data )
+            const selectFieldIds = [ '#productIdUpdateFields', '#productIdFields' ]
+            new FormDataImpl().setOptionForSelectFields( selectFieldIds, newRecordValues )
+        }
+        this.getOption( 'product_lov_api', onSuccess )
+    }
+    getLovForDiscountFields() {
+        const extractIdDescriptionFunc = ( recordValues ) => {
+            let newRecordValues = []
+            for ( const record of recordValues ) {
+                newRecordValues.push( { id: record.discount_id, description: record.desc } )
+            }
+            return newRecordValues
+        }
+        const onSuccess = ( response ) => {
+            let newRecordValues = extractIdDescriptionFunc( response.data )
+            const selectFieldIds = [ '#discountIdUpdateFields', '#discountIdFields' ]
+            new FormDataImpl().setOptionForSelectFields( selectFieldIds, newRecordValues )
+        }
+        this.getOption( 'discount_lov_api', onSuccess )
+    }
+    getLovForSelectField() {
+        this.getLovForProductFields()
+        this.getLovForDiscountFields()
     }
 }
 
@@ -322,6 +415,7 @@ const runScript = () => {
     $( document ).ready( function () {
         const modalForm = new ModalFormImpl()
         new DatatableDiscountAppliedImpl().initiateDatatable()
+        new AjaxImpl().getLovForSelectField()
         modalForm.registerOnHideModal()
         modalForm.disabledBtnNewDataOnClick()
         new ButtonEventImpl().bindEventWithAjax()

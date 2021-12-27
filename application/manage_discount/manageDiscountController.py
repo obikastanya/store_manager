@@ -21,7 +21,6 @@ class DataHandlerImpl(DataHandler):
         self.parameterHandler = ParameterHandlerImpl()
 
     def updateData(self, dataFromRequest):
-        print(dataFromRequest)
         discountApplied = self.grabOne(dataFromRequest)
         discountApplied.da_start_date = dataFromRequest.get('da_start_date')
         discountApplied.da_expired_date = dataFromRequest.get(

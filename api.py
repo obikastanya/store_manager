@@ -142,6 +142,13 @@ def categoryProductLovApi():
 def companyLovApi():
     return CompanyController().getLovData()
 
+@app.get('/product_lov_api')
+def productLovApi():
+    return ProductController().getLovData()
+
+@app.get('/discount_lov_api')
+def discountLovApi():
+    return DiscountController().getLovData()
 
 # api for transaction menu
 # api for manageDiscount
