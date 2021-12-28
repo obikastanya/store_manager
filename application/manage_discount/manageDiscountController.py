@@ -3,6 +3,9 @@ from flask_sqlalchemy.model import Model
 from sqlalchemy import func
 from ..master.baseMasterController import MasterController, DataHandler, ParameterHandler, ValidationHandler
 from .manageDiscountModel import db, ManageDiscount, ManageDiscountSchema
+from ..master.product.productModel import Product
+from ..master.discount.discountModel import Discount
+from ..master.discount_type.discountTypeModel import DiscountType
 
 
 class ManageDiscountController(MasterController):
@@ -29,6 +32,23 @@ class DataHandlerImpl(DataHandler):
             'da_active_status')
         db.session.commit()
 
+    def grabDataWithKeywordAndOrder(self,datatableConfig):
+        orderStatement=self.getOrderStatement(datatableConfig)
+        searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
+        groupOfObjectResult=db.session.query(self.Model).join(Product).join(Discount).join(DiscountType).filter(searchKeyWord).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        return self.Schema(many=True).dump(groupOfObjectResult)
+
+    
+    def grabDataWithKeyword(self,datatableConfig):
+        searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
+        groupOfObjectResult=db.session.query(self.Model).join(Product).filter(searchKeyWord).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        return self.Schema(many=True).dump(groupOfObjectResult)
+    
+    def grabDataWithOrderby(self, datatableConfig):
+        orderStatement=self.getOrderStatement(datatableConfig)
+        groupOfObjectResult=db.session.query(self.Model).join(Product).join(Discount).join(DiscountType).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        return self.Schema(many=True).dump(groupOfObjectResult)
+
     def grabOne(self, paramFromRequest):
         return self.Model.query.filter(
             (self.Model.da_msp_id == paramFromRequest.get('da_msp_id'))
@@ -44,7 +64,7 @@ class DataHandlerImpl(DataHandler):
             self.Model.da_msp_id)).filter(searchKeyWord).scalar()
 
     def getSearchKeywordStatement(self, datatableConfig):
-        return self.Model.da_active_status.like("%{}%".format(
+        return Product.msp_desc.like("%{}%".format(
             datatableConfig.get('searchKeyWord')))
 
     def getOrderStatement(self, datatableConfig):
@@ -54,6 +74,16 @@ class DataHandlerImpl(DataHandler):
 
         if columnToOrder == 'da_msp_id':
             orderStatement = self.getOrderDirectionById(orderDirection)
+        if columnToOrder == 'msp_desc':
+            orderStatement = self.getOrderDirectionByProductDesc(orderDirection)
+        if columnToOrder == 'msd_desc':
+            orderStatement = self.getOrderDirectionByDiscount(orderDirection)
+        if columnToOrder == 'msdt_desc':
+            orderStatement = self.getOrderDirectionByDiscountType(orderDirection)
+        if columnToOrder == 'da_start_date':
+            orderStatement = self.getOrderDirectionByStartDate(orderDirection)
+        if columnToOrder == 'da_expired_date':
+            orderStatement = self.getOrderDirectionByExpiredDate(orderDirection)
         elif columnToOrder == 'da_active_status':
             orderStatement = self.getOrderDirectionByActiveStatus(
                 orderDirection)
@@ -63,6 +93,31 @@ class DataHandlerImpl(DataHandler):
         if orderDirection == 'desc':
             return self.Model.da_msp_id.desc()
         return self.Model.da_msp_id.asc()
+    
+    def getOrderDirectionByProductDesc(self,orderDirection):
+        if orderDirection == 'desc':
+            return Product.msp_desc.desc()
+        return Product.msp_desc.asc()
+    
+    def getOrderDirectionByDiscount(self,orderDirection):
+        if orderDirection == 'desc':
+            return Discount.msd_desc.desc()
+        return Discount.msd_desc.asc()
+    
+    def getOrderDirectionByDiscountType(self,orderDirection):
+        if orderDirection == 'desc':
+            return DiscountType.msdt_desc.desc()
+        return DiscountType.msdt_desc.asc()
+    
+    def getOrderDirectionByStartDate(self,orderDirection):
+        if orderDirection == 'desc':
+            return self.Model.da_start_date.desc()
+        return self.Model.da_start_date.asc()
+    
+    def getOrderDirectionByExpiredDate(self,orderDirection):
+        if orderDirection == 'desc':
+            return self.Model.da_expired_date.desc()
+        return self.Model.da_expired_date.asc()
 
     def getOrderDirectionByActiveStatus(self, orderDirection):
         if orderDirection == 'desc':
@@ -104,6 +159,16 @@ class ParameterHandlerImpl(ParameterHandler):
             'columns[%s][name]' % orderColumnIndex, '')
         if orderColumnName == 'product_id':
             return 'da_msp_id'
+        if orderColumnName == 'product_desc':
+            return 'msp_desc'
+        if orderColumnName == 'discount_desc':
+            return 'msd_desc'
+        if orderColumnName == 'discount_type':
+            return 'msdt_desc'
+        if orderColumnName == 'start_date':
+            return 'da_start_date'
+        if orderColumnName == 'expired_date':
+            return 'da_expired_id'
         if orderColumnName == 'active_status':
             return 'da_active_status'
         return None
@@ -123,7 +188,6 @@ class ValidationHandlerImpl(ValidationHandler):
         return True
 
     def isParamInsertValid(self, dataFromRequest):
-        print(dataFromRequest)
         if not self.isProductIdValid(dataFromRequest):
             return False
         if not self.isDiscountIdValid(dataFromRequest):
