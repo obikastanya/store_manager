@@ -79,8 +79,18 @@ def testFilterTransaction():
         'product_id':1,
         'discount_id':1,
         'cashier_id':1,
-        'transaction_date':formatDate(date.now())
+        'transaction_date':formatDate(date.today())
     }
     response=requests.post(host+'/product_sold_api_filter', json=payload)
     jsonResponse=response.json()
     assert jsonResponse.get('status')==True
+
+@pytest.mark.productSold
+def testDeleteTransaction():
+    payload={
+        'transaction_id':1
+    }
+    response=requests.delete(host+'/product_sold_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==True
+

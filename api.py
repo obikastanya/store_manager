@@ -1,8 +1,9 @@
 from flask import request, abort
+import requests
 from app import app
 from application.master.indexMasterController import *
 from application.manage_discount.manageDiscountController import ManageDiscountController
-
+from application.product_sold.productSoldController import ProductSoldController
 
 def splitRouteByMethods(Controller):
     if request.method == 'POST':
@@ -160,3 +161,21 @@ def manageDiscountApi():
 @app.post('/manage_discount_api_search')
 def manageDiscountApiSearch():
     return ManageDiscountController().searchSingleData()
+
+
+@app.post('/product_sold_api_search')
+def productSoldApiSearch():
+    return ProductSoldController().searchDetailTransaction()
+
+@app.post('/product_sold_api_filter')
+def productSoldApiFilter():
+    return ProductSoldController().filterTransaction()
+
+@app.route('/product_sold_api', methods=['GET','POST','DELETE'])
+def productSoldApi():
+    if request.method=='GET':
+        return ProductSoldController().getData()
+    if request.method=='POST':
+        return ProductSoldController().insertNewTransaction()
+    if request.method=='DELETE':
+        return ProductSoldController().deleteTransaction()
