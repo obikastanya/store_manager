@@ -1,5 +1,6 @@
 from marshmallow import fields, Schema
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.orm import backref
 from app import db
 
 class PaymentMethod(db.Model):
@@ -12,6 +13,8 @@ class PaymentMethod(db.Model):
     mspm_create_date=db.Column(db.Date())
     mspm_update_user=db.Column(db.String(30))
     mspm_update_date=db.Column(db.Date())
+
+    payment_method=db.relationship("SoldTransactionHead", backref='payment_method')
 
 class PaymentMethodSchema(Schema):
     """Schema to retrieve data from Model Stock as dictionary.

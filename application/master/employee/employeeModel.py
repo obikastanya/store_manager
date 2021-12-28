@@ -1,6 +1,7 @@
 from operator import pos
 from marshmallow import fields, Schema
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.orm import backref
 from app import db
 
 class Employee(db.Model):
@@ -20,6 +21,8 @@ class Employee(db.Model):
     mse_create_date=db.Column(db.Date())
     mse_update_user=db.Column(db.String(30))
     mse_update_date=db.Column(db.Date())
+
+    employee_transaction=db.relationship("SoldTransactionHead", backref="employee_transaction")
 
 class EmployeeSchema(Schema):
     """Schema to retrieve data from Model Employee as dictionary.

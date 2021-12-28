@@ -1,4 +1,5 @@
 from marshmallow import fields, Schema
+from sqlalchemy.orm import backref
 from app import db
 
 
@@ -15,6 +16,8 @@ class ManageDiscount(db.Model):
     da_create_date = db.Column(db.Date())
     da_update_user = db.Column(db.String(30))
     da_update_date = db.Column(db.Date())
+
+    discount_applied=db.relationship("SoldTransactionDetailDiscountApplied", backref="discount_applied")
 
 
 class ManageDiscountSchema(Schema):

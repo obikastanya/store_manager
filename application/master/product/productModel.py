@@ -25,6 +25,7 @@ class Product(db.Model):
                               backref=backref('product', uselist=False))
     discount_product = db.relationship('ManageDiscount',
                                        backref='discount_product')
+    product_saled=db.relationship('SoldTransactionDetail',backref='product')
 
 
 class ProductSchema(Schema):
