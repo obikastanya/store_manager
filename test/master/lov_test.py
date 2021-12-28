@@ -32,3 +32,15 @@ def testSelectLovCompany():
     response=requests.get(host+'/company_lov_api')
     jsonResponse=response.json()
     assert jsonResponse.get('status')==True
+
+
+# comand to clear table
+# delete from discount_applied;
+# delete from ms_stock;
+# delete from ms_product;
+# delete from ms_employee;
+# delete from ms_discount;
+# delete from ms_discount_type;
+# delete from ms_category;
+# delete from ms_company;
+# delete from ms_status_employee;
