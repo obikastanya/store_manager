@@ -50,16 +50,16 @@ def testInsertNewTransaction():
         'transaction_date':formatDate(date.today()),
         'product_sold':[
             {
-                'product_id':1, 'quantity':3, 'product_price':500,
+                'product_id':2, 'quantity':3, 'product_price':500,
                 'discount_applied':[
                     {
-                        'discount_id':1,
-                        'discount_type_id':1,
+                        'discount_id':3,
+                        'discount_type_id':2,
                         'cut_off_nominal':200
                     },
                     {
-                        'discount_id':2,
-                        'discount_type_id':1,
+                        'discount_id':4,
+                        'discount_type_id':2,
                         'cut_off_nominal':150
                     }
                 ]

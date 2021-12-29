@@ -2,8 +2,8 @@ from itertools import product
 from flask import request,jsonify
 from marshmallow.fields import Int
 from werkzeug.utils import send_file
-from .productSoldModel import SoldTransactionHead,SoldTransactionDetail, SoldTransactionDetailDiscountApplied,db
-from .productSoldModel import SoldTransactionHeadSchema,SoldTransactionDetailSchema, SoldTransactionDetailDiscountAppliedSchema
+from .productSoldModel import SoldTransactionHead, SoldTransactionDetail, SoldTransactionDetailDiscountApplied,db
+from .productSoldModel import SoldTransactionHead,SoldTransactionHeadSchema
 from application.utilities.response import Response
 from sqlalchemy import func
 
@@ -20,16 +20,14 @@ class ProductSoldController:
             return Response.make(status=False,msg='Eror while trying to retrieve data' )
 
     def insertNewTransaction(self):
-        # try:
-        dataFromRequest=ParameterHandler().getParamInsertFromRequests()
-        print(dataFromRequest)
-        return self.defaultFalse()
-        # if not ValidationHandler().isParamInsertValid(dataFromRequest):
-        #     return Response.statusAndMsg(False,'Data is not valid, insert process has been canceled' )
-        # DataHandler().insertNewData(dataFromRequest)
-        # return Response.statusAndMsg(msg='Data successfully added' )
-        # except:
-        #     return Response.statusAndMsg(False,'Insert data failed' )
+        try:
+            dataFromRequest=ParameterHandler().getParamInsertFromRequests()
+            if not ValidationHandler().isParamInsertValid(dataFromRequest):
+                return Response.statusAndMsg(False,'Data is not valid, insert process has been canceled' )
+            DataHandler().insertNewData(dataFromRequest)
+            return Response.statusAndMsg(msg='Data successfully added' )
+        except:
+            return Response.statusAndMsg(False,'Insert data failed' )
     def deleteTransaction(self):
         return self.defaultFalse()
     def filterTransaction(self):
@@ -39,9 +37,28 @@ class ProductSoldController:
 
 class DataHandler:
     def insertNewData(self,dataFromRequest):
-        objectToInsert=self.Model(**dataFromRequest)
-        db.session.add(objectToInsert)
+        newHeadTransaction=SoldTransactionHead(**dataFromRequest.get("head_transaction"))
+        db.session.add(newHeadTransaction)
+        db.session.flush()
+        self.insertDetailTransaction(dataFromRequest.get("detail_transaction"), newHeadTransaction)
         db.session.commit()
+
+
+    def insertDetailTransaction(self,productSold,newHeadTransaction ):
+        for detailTransaction in productSold:
+            discountApplied=detailTransaction.pop('discount_applied_on_transaction')
+            detailTransaction.update({'td_th_id':newHeadTransaction.th_id})
+            newDetailTransaction=SoldTransactionDetail(**detailTransaction)
+            db.session.add(newDetailTransaction)
+            db.session.flush()
+            self.insertDiscountApplied(discountApplied, newDetailTransaction)
+
+    def insertDiscountApplied(self, discountApplied, newDetailTransaction):
+        for discountOnProduct in discountApplied:
+            discountOnProduct.update({'tdda_td_id':newDetailTransaction.td_id})
+            newDiscountAppliedDetail=SoldTransactionDetailDiscountApplied(**discountOnProduct)
+            db.session.add(newDiscountAppliedDetail)
+            db.session.flush()
 
     def grabData(self):
         """Returning list of data to be shown, total records selected
@@ -145,16 +162,14 @@ class ParameterHandler:
         }
         return headTransactionParam
 
-    def getDiscountAppliedOnTransactionParams(self):
+    def getDiscountAppliedOnTransactionParams(self,product):
         discountAppliedOnTransaction=[]
-        if not request.json.get('product_sold'):
-           return []
-        for product in request.json.get('product_sold'):
-            if not product.get('discount_applied'):
-                continue
-            for discountApplied in product.get('discount_applied'):
-                discountOnProduct=self.getDiscountApplied(discountApplied)
-                discountAppliedOnTransaction.append(discountOnProduct)
+        if not product.get('discount_applied'):
+            return []
+        for discountApplied in product.get('discount_applied'):
+            discountOnProduct=self.getDiscountApplied(discountApplied)
+            discountOnProduct.update({'tdda_da_product_id':product.get('product_id')})
+            discountAppliedOnTransaction.append(discountOnProduct)
         return discountAppliedOnTransaction
 
     def getDetailTransactionParams(self):
@@ -166,7 +181,8 @@ class ParameterHandler:
             itemSold={
             'td_msp_id':item.get('product_id'),
             'td_quantity':item.get('quantity'),
-            'td_on_sale_price':item.get('product_price')
+            'td_on_sale_price':item.get('product_price'),
+            'discount_applied_on_transaction':self.getDiscountAppliedOnTransactionParams(item)
             }
             detailTransactionParams.append(itemSold)
         return detailTransactionParams
@@ -174,16 +190,15 @@ class ParameterHandler:
     def getParamInsertFromRequests(self):
         dataFromRequests={
             'head_transaction':self.getHeadTransactionParams(),
-            'detail_transaction':self.getDetailTransactionParams(),
-            'discount_applied_on_transaction':self.getDiscountAppliedOnTransactionParams()
+            'detail_transaction':self.getDetailTransactionParams()
         }
         return dataFromRequests
 
     def getDiscountApplied(self, discount):
         discountAppliedOnProduct={
-            'tdda_msdt_id':discount.get('discount_id'),
-            'tdda_da_product_id':discount.get('discount_type_id'),
-            'tdda_da_discount_id':discount.get('cut_off_nominal')
+            'tdda_msdt_id':discount.get('discount_type_id'),
+            'tdda_da_discount_id':discount.get('discount_id'),
+            'tdda_cutt_off_nominal':discount.get('cut_off_nominal')
             }
         return discountAppliedOnProduct
 
@@ -206,12 +221,64 @@ class ParameterHandler:
         totalPriceBeforeCuttOff=0
         totalCuttOff=0
         for product in productSold:
-            totalPriceBeforeCuttOff =totalPriceBeforeCuttOff + product.get('product_price',0)
+            totalPriceBeforeCuttOff =totalPriceBeforeCuttOff + (product.get('product_price',0)*product.get('quantity',0))
             totalCuttOff +=self.getCuttOffPriceItem(product.get('discount_applied'))
-        return totalPriceBeforeCuttOff - totalCuttOff
+        totalPrice=totalPriceBeforeCuttOff - totalCuttOff
+        # prevent if discount is bigger than total price
+        if totalPrice<0:
+            return 0
+        return totalPrice
 
 
         
 class ValidationHandler:
     def isParamInsertValid(self, dataFromRequest):
+        if not self.validateInsertHeadTransactionParams(dataFromRequest):
+            print('invalid head')
+            return False
+        if not self.validateInsertDetailTransactionParams(dataFromRequest):
+            print('invalid det')
+            return False
+        if not self.validateDetailDiscountAppliedParams(dataFromRequest):
+            print('invalid discount')
+            return False
+        return True
+
+    def validateInsertHeadTransactionParams(self,dataFromRequest):
+        if not dataFromRequest.get('head_transaction'):
+            return False
+        headTransactionParams=dataFromRequest.get('head_transaction')
+        # set validation result as false if there is an empty value
+        for key, value in headTransactionParams.items():
+            if not value:
+                return False
+        return True
+
+    def validateInsertDetailTransactionParams(self,dataFromRequest):
+        if not dataFromRequest.get('detail_transaction'):
+            return False
+        detailTransactionParams=dataFromRequest.get('detail_transaction')
+        # set validation result as false if there is an empty value
+        for productSold in detailTransactionParams:
+            for key, value in productSold.items():
+                if key=='discount_applied_on_transaction':
+                    continue
+                if not value:
+                    return False
+        return True
+
+    def validateDetailDiscountAppliedParams(self,dataFromRequest):
+        for productSold in  dataFromRequest.get('detail_transaction'):
+            if not dataFromRequest.get('discount_applied_on_transaction'):
+                return True
+            for discountApplied in productSold.get('discount_applied_on_transaction'):
+                if not self.isFalsyValueFound(discountApplied):
+                    return False
+        return True
+
+    def isFalsyValueFound(self, listOfDictData):
+        for dictData in listOfDictData:
+            for key, value in dictData.items():
+                if not value:
+                    return False
         return True
