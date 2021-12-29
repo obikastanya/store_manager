@@ -47,9 +47,10 @@ def testInsertNewTransaction():
         'cashier_id':1,
         'payment_method':1,
         'paid':2000,
+        'transaction_date':formatDate(date.today()),
         'product_sold':[
             {
-                'product_id':1, 'qty':3, 'product_price':500,
+                'product_id':1, 'quantity':3, 'product_price':500,
                 'discount_applied':[
                     {
                         'discount_id':1,
@@ -64,7 +65,7 @@ def testInsertNewTransaction():
                 ]
             },
             {
-                'product_id':2, 'qty':3, 'product_price':500,
+                'product_id':2, 'quantity':3, 'product_price':500,
                 'discount_applied':[]
             },
         ]
