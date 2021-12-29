@@ -1,5 +1,4 @@
 from flask import request, abort
-import requests
 from app import app
 from application.master.indexMasterController import *
 from application.manage_discount.manageDiscountController import ManageDiscountController
