@@ -32,42 +32,42 @@ def testSelectProductSoldSuccess():
     jsonResponse = response.json()
     assert jsonResponse.get('status') == True
 
-# @pytest.mark.productSold
-# def testShowDetailTransaction():
-#     payload={
-#         'transaction_id':1
-#     }
-#     response=requests.post(host+'/product_sold_api_search', json=payload)
-#     jsonResponse=response.json()
-#     assert jsonResponse.get('status')==True
+@pytest.mark.productSold
+def testShowDetailTransaction():
+    payload={
+        'transaction_id':7
+    }
+    response=requests.post(host+'/product_sold_api_search', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==True
 
-# @pytest.mark.productSold
-# def testInsertNewTransaction():
-#     payload={
-#         'cashier_id':1,
-#         'payment_method':1,
-#         'paid':2000,
-#         'transaction_date':formatDate(date.today()),
-#         'product_sold':[
-#             {
-#                 'product_id':2, 'quantity':3, 'product_price':500,
-#                 'discount_applied':[
-#                     {
-#                         'discount_id':5,
-#                         'discount_type_id':2,
-#                         'cut_off_nominal':200
-#                     },
-#                 ]
-#             },
-#             {
-#                 'product_id':2, 'quantity':3, 'product_price':500,
-#                 'discount_applied':[]
-#             },
-#         ]
-#     }
-#     response=requests.post(host+'/product_sold_api', json=payload)
-#     jsonResponse=response.json()
-#     assert jsonResponse.get('status')==True
+@pytest.mark.productSold
+def testInsertNewTransaction():
+    payload={
+        'cashier_id':1,
+        'payment_method':1,
+        'paid':2000,
+        'transaction_date':formatDate(date.today()),
+        'product_sold':[
+            {
+                'product_id':2, 'quantity':3, 'product_price':500,
+                'discount_applied':[
+                    {
+                        'discount_id':5,
+                        'discount_type_id':2,
+                        'cut_off_nominal':200
+                    },
+                ]
+            },
+            {
+                'product_id':2, 'quantity':3, 'product_price':500,
+                'discount_applied':[]
+            },
+        ]
+    }
+    response=requests.post(host+'/product_sold_api', json=payload)
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==True
 
 @pytest.mark.productSold
 def testFilterTransaction():
@@ -151,7 +151,7 @@ def testFilterTransactionCashier():
 @pytest.mark.productSold
 def testDeleteTransaction():
     payload={
-        'transaction_id':1
+        'transaction_id':9
     }
     response=requests.delete(host+'/product_sold_api', json=payload)
     jsonResponse=response.json()
