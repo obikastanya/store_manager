@@ -14,7 +14,7 @@ class SoldTransactionHead(db.Model):
     th_tax=db.Column(postgresql.NUMERIC(12,2))
     th_date=db.Column(db.Date())
     # use back populates so head can access detail and also the other verse
-    detail_transaction=db.relationship('SoldTransactionDetail',back_populates='sold_transaction')
+    detail_transaction=db.relationship('SoldTransactionDetail',back_populates='sold_transaction', cascade="all, delete, delete-orphan")
 
  
 class SoldTransactionDetail(db.Model):
@@ -26,7 +26,7 @@ class SoldTransactionDetail(db.Model):
     td_on_sale_price=db.Column(postgresql.NUMERIC(12,2))
 
     sold_transaction=db.relationship('SoldTransactionHead',back_populates='detail_transaction')
-    detail_discount_applied=db.relationship('SoldTransactionDetailDiscountApplied',back_populates='detail_transaction')
+    detail_discount_applied=db.relationship('SoldTransactionDetailDiscountApplied',back_populates='detail_transaction',cascade="all, delete, delete-orphan")
  
 class SoldTransactionDetailDiscountApplied(db.Model):
     __tablename__='transaction_sold_discount_applied'
