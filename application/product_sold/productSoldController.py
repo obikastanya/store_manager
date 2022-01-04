@@ -10,12 +10,12 @@ class ProductSoldController:
         return {'status':False,'msg':'default false msg'}
         
     def getData(self):
-        # try:
-        data,totalRecords, totalRecordsFiltered=DataHandler().grabData()
-        resp= Response.datatable(data={'datas':data,'totalRecords':totalRecords,'totalRecordsFiltered':totalRecordsFiltered})
-        return resp
-        # except:
-        #     return Response.make(status=False,msg='Eror while trying to retrieve data' )
+        try:
+            data,totalRecords, totalRecordsFiltered=DataHandler().grabData()
+            resp= Response.datatable(data={'datas':data,'totalRecords':totalRecords,'totalRecordsFiltered':totalRecordsFiltered})
+            return resp
+        except:
+            return Response.make(status=False,msg='Eror while trying to retrieve data' )
 
     def insertNewTransaction(self):
         try:
@@ -27,19 +27,30 @@ class ProductSoldController:
         except:
             return Response.statusAndMsg(False,'Insert data failed' )
     def deleteTransaction(self):
-        # try:
-        dataFromRequest=ParameterHandler().getDeleteParams()
-        if not ValidationHandler().isParamDeleteValid(dataFromRequest):
-            return Response.statusAndMsg(False,'Data Id is not valid, delete process has been canceled' )
-        DataHandler().deleteData(dataFromRequest)
-        return Response.statusAndMsg(msg='Data has been deleted' )
-        # except:
-        #     return Response.statusAndMsg(False,'Delete data failed' )
+        try:
+            dataFromRequest=ParameterHandler().getIdFromRequest()
+            if not ValidationHandler().isParamDeleteValid(dataFromRequest):
+                return Response.statusAndMsg(False,'Data Id is not valid, delete process has been canceled' )
+            DataHandler().deleteData(dataFromRequest)
+            return Response.statusAndMsg(msg='Data has been deleted' )
+        except:
+            return Response.statusAndMsg(False,'Delete data failed' )
     def filterTransaction(self):
         return self.getData()
 
     def searchDetailTransaction(self):
-        return self.defaultFalse()
+        try:
+            paramFromRequest=ParameterHandler().getIdFromRequest()
+            if not ValidationHandler().isParamSearchValid(paramFromRequest):
+                return Response.make(False,'Data ID is not valid, process has been canceled' )
+            singleData=DataHandler().grabSingleData(paramFromRequest)
+            if not DataHandler().isDataExist(singleData):
+                return Response.make(False,'Data is not found' )
+            return Response.make(msg='Data Found', data=singleData)
+        except:
+            return Response.make(False,'Cant find data' )
+
+
 
 class DataHandler:
     def insertNewData(self,dataFromRequest):
@@ -48,7 +59,10 @@ class DataHandler:
         db.session.flush()
         self.insertDetailTransaction(dataFromRequest.get("detail_transaction"), newHeadTransaction)
         db.session.commit()
-
+    
+    def grabSingleData(self, paramFromRequest):
+        groupOfObjectResult=self.grabOne(paramFromRequest)
+        return SoldTransactionHeadSchema(many=True).dump([groupOfObjectResult])
 
     def insertDetailTransaction(self,productSold,newHeadTransaction ):
         for detailTransaction in productSold:
@@ -66,8 +80,11 @@ class DataHandler:
             db.session.add(newDiscountAppliedDetail)
             db.session.flush()
 
-    def deleteData(self, dataFromRequest):
-        pass
+    def deleteData(self, paramFromRequest):
+        objectToDelete=self.grabOne(paramFromRequest)
+        db.session.delete(objectToDelete)
+        db.session.commit()
+
     def grabData(self):
         """Returning list of data to be shown, total records selected
             and total records after filtered"""
@@ -181,8 +198,8 @@ class DataHandler:
 
         return orderStatement
 
-    def grabOne(self,paramFromRequest):
-        pass
+    def grabOne(self, paramFromRequest):
+        return SoldTransactionHead.query.filter_by(th_id=paramFromRequest.get('th_id')).first()
 
     def isDataExist(self, queryResult):
         # first check if the array is not empty, then check if its contain empty dictionary
@@ -274,8 +291,13 @@ class ParameterHandler:
             'th_date':request.json.get('transaction_date')
         }
         return dataFromRequests
-    def getDeleteParams(self):
-        pass
+        
+    def getIdFromRequest(self):
+        parameterFromRequest={
+            'th_id':request.json.get('transaction_id')
+        }
+        print(parameterFromRequest)
+        return parameterFromRequest
 
     def countChange(self):
         return  request.json.get('paid',0)-(self.countTotalPrice()+self.countTax())
@@ -354,8 +376,16 @@ class ValidationHandler:
                 if not value:
                     return False
         return True
+    def isIdValid(self,dataFromRequest):
+        if not dataFromRequest.get('th_id'):
+            return False
+        if not self.isNumber(dataFromRequest.get('th_id')):
+            return False
+        return True
     def isParamDeleteValid(self,dataFromRequest):
-        pass
+        return self.isIdValid(dataFromRequest)
+    def isParamSearchValid(self,dataFromRequest):
+        return self.isIdValid(dataFromRequest)
     
     def isFilterExist(self,dataFromRequest):
         # check at dictionary, if there is an item, return true. Return false instead if all key is empty
@@ -366,3 +396,12 @@ class ValidationHandler:
         if falsyValueGroup:
             return True
         return False
+    
+    def isNumber(self,value):
+        # try to parse data to numeric, if work, 
+        # then the data is a number.
+        try:
+            int(value)
+        except:
+            return False
+        return True
