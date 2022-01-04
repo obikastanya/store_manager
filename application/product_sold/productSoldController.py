@@ -1,7 +1,5 @@
-from itertools import product
 from flask import request,jsonify
-from marshmallow.fields import Int
-from werkzeug.utils import send_file
+from marshmallow.fields import Bool
 from .productSoldModel import SoldTransactionHead, SoldTransactionDetail, SoldTransactionDetailDiscountApplied,db
 from .productSoldModel import SoldTransactionHead,SoldTransactionHeadSchema
 from application.utilities.response import Response
@@ -12,12 +10,12 @@ class ProductSoldController:
         return {'status':False,'msg':'default false msg'}
         
     def getData(self):
-        try:
-            data,totalRecords, totalRecordsFiltered=DataHandler().grabData()
-            resp= Response.datatable(data={'datas':data,'totalRecords':totalRecords,'totalRecordsFiltered':totalRecordsFiltered})
-            return resp
-        except:
-            return Response.make(status=False,msg='Eror while trying to retrieve data' )
+        # try:
+        data,totalRecords, totalRecordsFiltered=DataHandler().grabData()
+        resp= Response.datatable(data={'datas':data,'totalRecords':totalRecords,'totalRecordsFiltered':totalRecordsFiltered})
+        return resp
+        # except:
+        #     return Response.make(status=False,msg='Eror while trying to retrieve data' )
 
     def insertNewTransaction(self):
         try:
@@ -29,9 +27,17 @@ class ProductSoldController:
         except:
             return Response.statusAndMsg(False,'Insert data failed' )
     def deleteTransaction(self):
-        return self.defaultFalse()
+        # try:
+        dataFromRequest=ParameterHandler().getDeleteParams()
+        if not ValidationHandler().isParamDeleteValid(dataFromRequest):
+            return Response.statusAndMsg(False,'Data Id is not valid, delete process has been canceled' )
+        DataHandler().deleteData(dataFromRequest)
+        return Response.statusAndMsg(msg='Data has been deleted' )
+        # except:
+        #     return Response.statusAndMsg(False,'Delete data failed' )
     def filterTransaction(self):
-        return self.defaultFalse()
+        return self.getData()
+
     def searchDetailTransaction(self):
         return self.defaultFalse()
 
@@ -60,39 +66,96 @@ class DataHandler:
             db.session.add(newDiscountAppliedDetail)
             db.session.flush()
 
+    def deleteData(self, dataFromRequest):
+        pass
     def grabData(self):
         """Returning list of data to be shown, total records selected
             and total records after filtered"""
         datatableConfig=ParameterHandler().getDatatableConfiguration()
+        isFilterExist,filterStatements=self.createFilterStatement(datatableConfig)
         totalRecords=self.grabTotalRecords()
         totalRecordsFiltered=None
         listData=[]
-        if datatableConfig.get('searchKeyWord'):
-            totalRecordsFiltered=self.grabTotalRecordsFiltered(datatableConfig)
-        if bool(datatableConfig.get('searchKeyWord')) and bool(datatableConfig.get('orderBy')):
-            listData= self.grabDataWithKeywordAndOrder(datatableConfig)
-        elif datatableConfig.get('searchKeyWord'):
-            listData= self.grabDataWithKeyword(datatableConfig)
+        if isFilterExist:
+            totalRecordsFiltered=self.grabTotalRecordsFiltered(filterStatements)
+        if isFilterExist and bool(datatableConfig.get('orderBy')):
+            listData= self.grabDataWithKeywordAndOrder(datatableConfig,filterStatements)
+        elif isFilterExist:
+            listData= self.grabDataWithKeyword(datatableConfig, filterStatements)
         elif datatableConfig.get('orderBy'):
             listData= self.grabDataWithOrderby(datatableConfig)
         else:
             listData= self.grabDataDefault(datatableConfig)
         return listData,totalRecords, totalRecordsFiltered
 
+    def createFilterStatement(self, datatableConfig):
+        isFormFilterExist,formFilterStatements=self.createStatementFromFiltersForm()
+        searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
+        combinedStatement=None
+        if bool(datatableConfig.get('searchKeyWord')) and isFormFilterExist:
+            combinedStatement=(searchKeyWord, *formFilterStatements)
+        elif isFormFilterExist: 
+            combinedStatement=formFilterStatements
+        elif bool(datatableConfig.get('searchKeyWord')):
+            combinedStatement=(searchKeyWord,)
+        else:
+            return False, None
+        return True, combinedStatement
+
+    def createStatementFromFiltersForm(self):
+        dataFromRequest=ParameterHandler().getFilterTransactionParams()
+        if not ValidationHandler().isFilterExist(dataFromRequest):
+            return False, (None,)
+        # saved the query statement inside list so we can append and make it more dynamic,
+        #  then parse them to tuple since its the alchemy requirement
+        groupOfFilterStatement=[]
+        if dataFromRequest.get('td_msp_id'):
+            tempStatement=(SoldTransactionDetail.td_msp_id==int(dataFromRequest.get('td_msp_id')),)
+            groupOfFilterStatement.append(*tempStatement)
+        if dataFromRequest.get('tdda_da_discount_id'):
+            tempStatement=(SoldTransactionDetailDiscountApplied.tdda_da_discount_id==int(dataFromRequest.get('tdda_da_discount_id')),)
+            groupOfFilterStatement.append(*tempStatement)
+        if dataFromRequest.get('th_mse_id'):
+            tempStatement=(SoldTransactionHead.th_mse_id==int(dataFromRequest.get('th_mse_id')),)
+            groupOfFilterStatement.append(*tempStatement)
+        if dataFromRequest.get('th_date'):
+            tempStatement=(SoldTransactionHead.th_date==dataFromRequest.get('th_date'),)
+            groupOfFilterStatement.append(*tempStatement)
+        return True, tuple(groupOfFilterStatement)
+
+    def getFilterStatement(self):
+        dataFromRequest=ParameterHandler().getFilterTransactionParams()
+        if not ValidationHandler().isFilterExist(dataFromRequest):
+            return False, (None,)
+        # saved the query statement inside list so we can append and make it more dynamic,
+        #  then parse them to tuple since its the alchemy requirement
+        groupOfFilterStatement=[]
+        if dataFromRequest.get('td_msp_id'):
+            tempStatement=(SoldTransactionDetail.td_msp_id==int(dataFromRequest.get('td_msp_id')),)
+            groupOfFilterStatement.append(*tempStatement)
+        if dataFromRequest.get('tdda_da_discount_id'):
+            tempStatement=(SoldTransactionDetailDiscountApplied.tdda_da_discount_id==int(dataFromRequest.get('tdda_da_discount_id')),)
+            groupOfFilterStatement.append(*tempStatement)
+        if dataFromRequest.get('th_mse_id'):
+            tempStatement=(SoldTransactionHead.th_mse_id==int(dataFromRequest.get('th_mse_id')),)
+            groupOfFilterStatement.append(*tempStatement)
+        if dataFromRequest.get('th_date'):
+            tempStatement=(SoldTransactionHead.th_date==dataFromRequest.get('th_date'),)
+            groupOfFilterStatement.append(*tempStatement)
+        return True, tuple(groupOfFilterStatement)
+
     def grabDataDefault(self, datatableConfig):
         groupOfObjectResult=SoldTransactionHead.query.offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
         return SoldTransactionHeadSchema(many=True).dump(groupOfObjectResult)
 
-    def grabDataWithKeywordAndOrder(self,datatableConfig):
+    def grabDataWithKeywordAndOrder(self, datatableConfig,filterStatements):
         orderStatement=self.getOrderStatement(datatableConfig)
-        searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
-        groupOfObjectResult=SoldTransactionHead.query.filter(searchKeyWord).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        groupOfObjectResult=SoldTransactionHead.query.join(SoldTransactionDetail).join(SoldTransactionDetailDiscountApplied).filter(*filterStatements ).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
         return SoldTransactionHeadSchema(many=True).dump(groupOfObjectResult)
 
     
-    def grabDataWithKeyword(self,datatableConfig):
-        searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
-        groupOfObjectResult=SoldTransactionHead.query.filter(searchKeyWord).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+    def grabDataWithKeyword(self,datatableConfig, filterStatements):
+        groupOfObjectResult=SoldTransactionHead.query.join(SoldTransactionDetail).join(SoldTransactionDetailDiscountApplied).filter(*filterStatements ).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
         return SoldTransactionHeadSchema(many=True).dump(groupOfObjectResult)
     
     def grabDataWithOrderby(self, datatableConfig):
@@ -103,9 +166,8 @@ class DataHandler:
     def grabTotalRecords(self):
         return db.session.query(func.count(SoldTransactionHead.th_id)).scalar()
 
-    def grabTotalRecordsFiltered(self, datatableConfig):
-        searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
-        return db.session.query(func.count(SoldTransactionHead.th_id)).filter(searchKeyWord ).scalar()
+    def grabTotalRecordsFiltered(self, filterStatements):
+        return db.session.query(func.count(SoldTransactionHead.th_id.distinct())).join(SoldTransactionDetail).join(SoldTransactionDetailDiscountApplied).filter(*filterStatements ).scalar()
 
     def getSearchKeywordStatement(self, datatableConfig):
         return (SoldTransactionHead.th_id==datatableConfig.get('searchKeyWord'))
@@ -201,6 +263,19 @@ class ParameterHandler:
             'tdda_cutt_off_nominal':discount.get('cut_off_nominal')
             }
         return discountAppliedOnProduct
+    
+    def getFilterTransactionParams(self):
+        if not request.json:
+            return {}
+        dataFromRequests={
+            'td_msp_id':request.json.get('product_id'),
+            'tdda_da_discount_id':request.json.get('discount_id'),
+            'th_mse_id':request.json.get('cashier_id'),
+            'th_date':request.json.get('transaction_date')
+        }
+        return dataFromRequests
+    def getDeleteParams(self):
+        pass
 
     def countChange(self):
         return  request.json.get('paid',0)-(self.countTotalPrice()+self.countTax())
@@ -234,13 +309,10 @@ class ParameterHandler:
 class ValidationHandler:
     def isParamInsertValid(self, dataFromRequest):
         if not self.validateInsertHeadTransactionParams(dataFromRequest):
-            print('invalid head')
             return False
         if not self.validateInsertDetailTransactionParams(dataFromRequest):
-            print('invalid det')
             return False
         if not self.validateDetailDiscountAppliedParams(dataFromRequest):
-            print('invalid discount')
             return False
         return True
 
@@ -282,3 +354,15 @@ class ValidationHandler:
                 if not value:
                     return False
         return True
+    def isParamDeleteValid(self,dataFromRequest):
+        pass
+    
+    def isFilterExist(self,dataFromRequest):
+        # check at dictionary, if there is an item, return true. Return false instead if all key is empty
+        falsyValueGroup=[]
+        for key, value in dataFromRequest.items():
+            if value:
+                falsyValueGroup.append(True)
+        if falsyValueGroup:
+            return True
+        return False
