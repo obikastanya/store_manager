@@ -83,7 +83,41 @@
 {% endblock %}
 
 {%block popup_and_modal %}
+<!-- Modal for button add new data  -->
+<div class="modal fade" id="id_modal_for_detail_data" data-backdrop="static" data-keyboard="false" tabindex="-1"
+    aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Detail Transaction</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered table-striped" id='product_sold_detail_transaction_datatable_id'
+                    width='100%'>
+                    <thead>
+                        <tr>
+                            <th scope="col">No</th>
+                            <th scope="col">Product Code</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Sub Total</th>
+                            <th scope="col">Cutt Off</th>
+                            <th scope="col">Discount Applied</th>
+                        </tr>
+                    </thead>
+                    <tbody>
 
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block custom_script %}

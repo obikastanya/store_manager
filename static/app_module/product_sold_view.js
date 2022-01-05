@@ -41,8 +41,8 @@ class DatatableProductSoldImpl extends BaseDatatable {
             {
                 data: null,
                 render: ( data ) => {
-                    return `<button type="button" class="btn btn-warning btn-detail-data" 
-                    value="${ data.transaction_id }">Detail</button>`
+                    const buttonDetail = `<button type="button" class="btn btn-warning btn-detail-data" value=${ data.transaction_id } onclick="new ModalForm().showModal('id_modal_for_detail_data')">Detail</button>`
+                    return buttonDetail + '&nbsp;' + this.buttonDelete.replace( "_data_", data.product_id )
                 }
             }
         ]
@@ -101,7 +101,7 @@ class DatatableProductSoldImpl extends BaseDatatable {
         return tableSetup
     }
     bindEventForActionsButton( datatableInstance ) {
-        datatableInstance.on( 'click', this.btnClassEditData, function ( e ) {
+        datatableInstance.on( 'click', '.btn-detail-data', function ( e ) {
             new AjaxImpl().getSingleData( e.target.value )
         } )
         datatableInstance.on( 'click', this.btnClassDeleteData, ( e ) => {
@@ -149,6 +149,35 @@ class FormDataImpl extends FormData {
         document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
         document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
     }
+    generateRow( record ) {
+        const replaceEmpty = ( value ) => {
+            if ( value ) return value
+            if ( value === 0 ) return value;
+            return '-';
+
+        }
+        let rowRecord = `<tr>
+                            <td>${ replaceEmpty( record.index + 1 ) }</td>
+                            <td>${ replaceEmpty( record.product.product_id ) }</td>
+                            <td>${ replaceEmpty( record.product.product_desc ) }</td>
+                            <td>${ replaceEmpty( record.quantity ) }</td>
+                            <td>${ replaceEmpty( record.saled_price ) }</td>
+                            <td>${ replaceEmpty( record.quantity * record.saled_price ) }</td>
+                            <td>${ replaceEmpty( this.getCuttOff( record.detail_discount_applied ) ) }</td>
+                            <td>${ replaceEmpty( this.getDiscountNames( record.detail_discount_applied ) ) }</td>
+                        </tr>`
+        return rowRecord
+    }
+
+    setDetailModalTables( recordValues ) {
+        let tableContent = ""
+        for ( let [ index, record ] of recordValues.entries() ) {
+            record.index = index
+            tableContent += this.generateRow( record )
+        }
+        let table = document.querySelector( '#product_sold_detail_transaction_datatable_id > tbody' )
+        table.innerHTML = tableContent
+    }
     generateOption( recordValues ) {
         let options = ''
         for ( const values of recordValues ) {
@@ -163,6 +192,20 @@ class FormDataImpl extends FormData {
             document.querySelector( id ).innerHTML = ''
             document.querySelector( id ).innerHTML = options
         }
+    }
+    getCuttOff( discountApplied ) {
+        let cuttOff = 0
+        for ( const discount of discountApplied ) {
+            cuttOff += discount.cutt_off_nominal
+        }
+        return cuttOff
+    }
+    getDiscountNames( discountApplied ) {
+        let discountNames = []
+        for ( const discount of discountApplied ) {
+            discountNames.push( discount.discount_applied.discount_master.desc )
+        }
+        return discountNames.join( ", " )
     }
 }
 class FormValidationImpl extends FormValidation {
@@ -346,28 +389,23 @@ class AjaxImpl extends Ajax {
     }
     getSingleData( recordId ) {
         const params = {
-            product_id: recordId.split( ',' )[ 0 ],
-            discount_id: recordId.split( ',' )[ 1 ]
+            transaction_id: recordId
         }
         const payload = this.createPayload( 'POST', params )
         const onSuccess = ( response ) => {
             if ( !response.data.length ) new Alert().failedAjax( response.msg );
-            let recordValues = response.data[ 0 ]
-
-            // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
-            recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
-
-            new FormDataImpl().setUpdateFormValues( recordValues )
+            new FormDataImpl().setDetailModalTables( response.data[ 0 ].detail_transaction )
             return
         }
         const ajaxCallback = {
             onSuccess: onSuccess,
             onFail: ( error ) => {
+                console.log( error )
                 new Alert().error()
             },
             onFinal: () => { }
         }
-        this.sendAjax( { url: '/manage_discount_api_search', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/product_sold_api_search', payload: payload }, ajaxCallback )
     }
     getSingleDataForDeleteActions( recordId ) {
         const params = {

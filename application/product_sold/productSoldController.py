@@ -23,6 +23,7 @@ class ProductSoldController:
             if not ValidationHandler().isParamInsertValid(dataFromRequest):
                 return Response.statusAndMsg(False,'Data is not valid, insert process has been canceled' )
             DataHandler().insertNewData(dataFromRequest)
+
             return Response.statusAndMsg(msg='Data successfully added' )
         except:
             return Response.statusAndMsg(False,'Insert data failed' )
@@ -90,7 +91,6 @@ class DataHandler:
             and total records after filtered"""
         datatableConfig=ParameterHandler().getDatatableConfiguration()
         isFilterExist,filterStatements=self.createFilterStatement(datatableConfig)
-        print( datatableConfig)
         totalRecords=self.grabTotalRecords()
         totalRecordsFiltered=None
         listData=[]
@@ -122,7 +122,6 @@ class DataHandler:
 
     def createStatementFromFiltersForm(self):
         dataFromRequest=ParameterHandler().getFilterTransactionParams()
-        print('------------------------ ', dataFromRequest)
         if not ValidationHandler().isFilterExist(dataFromRequest):
             return False, (None,)
         # saved the query statement inside list so we can append and make it more dynamic,
@@ -299,7 +298,6 @@ class ParameterHandler:
         parameterFromRequest={
             'th_id':request.json.get('transaction_id')
         }
-        print(parameterFromRequest)
         return parameterFromRequest
 
     def countChange(self):

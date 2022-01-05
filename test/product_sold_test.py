@@ -41,12 +41,12 @@ def testShowDetailTransaction():
     jsonResponse=response.json()
     assert jsonResponse.get('status')==True
 
-@pytest.mark.productSold
+@pytest.mark.productSoldF
 def testInsertNewTransaction():
     payload={
         'cashier_id':1,
         'payment_method':1,
-        'paid':2000,
+        'paid':6000,
         'transaction_date':formatDate(date.today()),
         'product_sold':[
             {
@@ -56,6 +56,11 @@ def testInsertNewTransaction():
                         'discount_id':5,
                         'discount_type_id':2,
                         'cut_off_nominal':200
+                    },
+                    {
+                        'discount_id':4,
+                        'discount_type_id':2,
+                        'cut_off_nominal':100
                     },
                 ]
             },
