@@ -1,5 +1,7 @@
 {% extends 'base_template.html'%}
-
+{% block css_script %}
+<link rel="stylesheet" href="/static/assets/select/selectize.bootstrap4.min.css">
+{% endblock %}
 {%block menu_title %}Product Sold{% endblock %}
 
 {% block main_content%}
@@ -15,16 +17,16 @@
                     <div class="col-sm-4"><label for="productFields" class="form-label">Product</label>
                     </div>
                     <div class="col">
-                        <select class="form-control" id="productFields" placeholder="Product">
+                        <select class="form-control selectForm" id="productFields" placeholder="Product">
                             <option value=0>No item to select</option>
                         </select>
                     </div>
                 </div>
                 <div class="row mb-2">
-                    <div class="col-sm-4"><label for="discountFields" class="form-label">Discount Applied</label>
+                    <div class="col-sm-4"><label for="discountFields " class="form-label">Discount Applied</label>
                     </div>
                     <div class="col">
-                        <select class="form-control" id="discountFields" placeholder="Discount Applied">
+                        <select class="form-control selectForm" id="discountFields" placeholder="Discount Applied">
                             <option value=0>No item to select</option>
                         </select>
                     </div>
@@ -35,7 +37,7 @@
                     <div class="col-sm-4"><label for="cashierFields" class="form-label">Cashier</label>
                     </div>
                     <div class="col">
-                        <select class="form-control" id="cashierFields" placeholder="Cashier">
+                        <select class="form-control selectForm" id="cashierFields" placeholder="Cashier">
                             <option value=0>No item to select</option>
                         </select>
                     </div>
@@ -85,6 +87,15 @@
 {% endblock %}
 
 {% block custom_script %}
+<script src="/static/assets/select/selectize.min.js"></script>
 <script src="/static/app_module/base_view.js"></script>
 <script src="/static/app_module/product_sold_view.js"></script>
+<script>
+    // create select fields with search using selective library
+    $( document ).ready( function () {
+        $( '.selectForm' ).selectize( {
+            sortField: 'text'
+        } );
+    } );
+</script>
 {% endblock %}
