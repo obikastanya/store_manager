@@ -3,6 +3,7 @@ from flask import request
 from sqlalchemy import func
 from .employeeModel import db,Employee,EmployeeSchema
 from ..baseMasterController import MasterController, DataHandler, ParameterHandler, ValidationHandler
+from application.utilities.response import Response
 
 class EmployeeController(MasterController):
     def __init__(self):
@@ -10,6 +11,13 @@ class EmployeeController(MasterController):
         self.dataHandler=DataHandlerImpl()
         self.validationHandler=ValidationHandlerImpl()
         self.parameterHandler=ParameterHandlerImpl()
+
+    def getLovData(self):
+        # try:
+        data=self.dataHandler.grabLovData()
+        return Response.make(msg='Data found',data=data)
+        # except:
+        #     return Response.make(status=False,msg='Eror while trying to retrieve data' )
 
 class DataHandlerImpl(DataHandler):
     def __init__(self):
@@ -31,6 +39,10 @@ class DataHandlerImpl(DataHandler):
         employee.mse_start_working=dataFromRequest.get('mse_start_working')
         employee.mse_end_working=dataFromRequest.get('mse_end_working')
         db.session.commit()
+    
+    def grabLovData(self):
+        groupOfObjectResult=self.Model.query.filter(self.Model.mse_end_working==None).all()
+        return self.Schema(many=True).dump(groupOfObjectResult)
 
     def grabOne(self, paramFromRequest):
         return self.Model.query.filter_by(mse_id=paramFromRequest.get('mse_id')).first()

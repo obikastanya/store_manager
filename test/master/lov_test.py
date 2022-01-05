@@ -33,7 +33,27 @@ def testSelectLovCompany():
     jsonResponse=response.json()
     assert jsonResponse.get('status')==True
 
+@pytest.mark.lov
+@pytest.mark.product
+def testSelectLovProduct():
+    response=requests.get(host+'/product_lov_api')
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==True
 
+@pytest.mark.lov
+@pytest.mark.employee
+def testSelectLovEmployee():
+    response=requests.get(host+'/employee_lov_api')
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==True
+
+@pytest.mark.lov
+@pytest.mark.discount
+def testSelectLovDiscount():
+    response=requests.get(host+'/discount_lov_api')
+    jsonResponse=response.json()
+    assert jsonResponse.get('status')==True
+    
 # comand to clear table
 # delete from discount_applied;
 # delete from ms_stock;

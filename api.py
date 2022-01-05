@@ -132,6 +132,9 @@ def supplierLovApi():
 def employeeStatusLovApi():
     return EmployeeStatusController().getLovData()
 
+@app.get('/employee_lov_api')
+def employeeLovApi():
+    return EmployeeController().getLovData()
 
 @app.get('/category_product_lov_api')
 def categoryProductLovApi():

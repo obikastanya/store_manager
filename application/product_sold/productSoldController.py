@@ -90,6 +90,7 @@ class DataHandler:
             and total records after filtered"""
         datatableConfig=ParameterHandler().getDatatableConfiguration()
         isFilterExist,filterStatements=self.createFilterStatement(datatableConfig)
+        print( datatableConfig)
         totalRecords=self.grabTotalRecords()
         totalRecordsFiltered=None
         listData=[]
@@ -121,6 +122,7 @@ class DataHandler:
 
     def createStatementFromFiltersForm(self):
         dataFromRequest=ParameterHandler().getFilterTransactionParams()
+        print('------------------------ ', dataFromRequest)
         if not ValidationHandler().isFilterExist(dataFromRequest):
             return False, (None,)
         # saved the query statement inside list so we can append and make it more dynamic,
@@ -212,6 +214,7 @@ class DataHandler:
 
 class ParameterHandler:
     def getDatatableConfiguration(self):
+        
         datatableConfig={
             'searchKeyWord':request.args.get('search[value]'),
             'orderDirection':request.args.get('order[0][dir]'),
@@ -282,13 +285,13 @@ class ParameterHandler:
         return discountAppliedOnProduct
     
     def getFilterTransactionParams(self):
-        if not request.json:
+        if not request.args:
             return {}
         dataFromRequests={
-            'td_msp_id':request.json.get('product_id'),
-            'tdda_da_discount_id':request.json.get('discount_id'),
-            'th_mse_id':request.json.get('cashier_id'),
-            'th_date':request.json.get('transaction_date')
+            'td_msp_id':request.args.get('product_id'),
+            'tdda_da_discount_id':request.args.get('discount_id'),
+            'th_mse_id':request.args.get('cashier_id'),
+            'th_date':request.args.get('transaction_date')
         }
         return dataFromRequests
         

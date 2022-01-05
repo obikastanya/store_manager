@@ -1,4 +1,4 @@
-class DatatableDiscountAppliedImpl extends BaseDatatable {
+class DatatableProductSoldImpl extends BaseDatatable {
     constructor() {
         super()
         this.tableColumns = [
@@ -41,8 +41,8 @@ class DatatableDiscountAppliedImpl extends BaseDatatable {
             {
                 data: null,
                 render: ( data ) => {
-                    const strIdProductAndDiscount = `${ data.transaction_id },${ data.transaction_id }`
-                    return this.buttonEdit.replace( "_data_", strIdProductAndDiscount ) + '&nbsp;' + this.buttonDelete.replace( "_data_", strIdProductAndDiscount )
+                    return `<button type="button" class="btn btn-warning btn-detail-data" 
+                    value="${ data.transaction_id }">Detail</button>`
                 }
             }
         ]
@@ -62,14 +62,31 @@ class DatatableDiscountAppliedImpl extends BaseDatatable {
         this.apiEndpoint = '/product_sold_api'
     }
     getTableSetup() {
+        const getDataFromFields = ( id ) => {
+            try {
+                const value = document.querySelector( id ).value
+                return value
+            }
+            catch ( e ) {
+                return null
+            }
+        }
         const tableSetup = {
             ajax: {
                 url: this.apiEndpoint,
-                method: 'GET'
+                method: 'GET',
+                data: ( data ) => {
+                    console.log( getDataFromFields( '#productFields' ) )
+                    data.product_id = getDataFromFields( '#productFields' )
+                    data.discount_id = getDataFromFields( '#discountFields' )
+                    data.cashier_id = getDataFromFields( '#cashierFields' )
+                    data.transaction_date = getDataFromFields( '#transactionDateFields' )
+                }
             },
             language: {
                 searchPlaceholder: "Search transaction code"
             },
+
             processing: true,
             serverSide: true,
             columns: this.tableColumns,
@@ -176,7 +193,6 @@ class FormValidationImpl extends FormValidation {
     }
     validateInsertParams( insertParams ) {
         const validIdProduct = this.validateIdProduct( insertParams )
-        console.log( 'p', validIdProduct )
         const validIdDiscount = this.validateIdDiscount( insertParams )
         const validStartDate = this.validateStartDate( insertParams )
         const validExpiredDate = this.validateExpiredDate( insertParams )
@@ -232,11 +248,29 @@ class ModalFormImpl extends ModalForm {
     constructor() {
         super()
     }
+    createSelectFields() {
+        $( '.selectForm' ).selectize( {
+            sortField: 'text',
+            create: false
+        } );
+    }
+    bindEventToFormFilter() {
+        const btnFilterData = document.querySelector( '.btn-filter-product-sold' )
+        btnFilterData.addEventListener( 'click', () => {
+            new DatatableProductSoldImpl().reloadDatatable()
+        } )
+    }
     setDeleteConfirmMessage( formValues ) {
         const confirmMessage = `Area you sure to delete discount ${ formValues.discount_master.desc } thats applied on ${ formValues.discount_product.product_desc } ?`
         const strIdProductAndDiscount = `${ formValues.discount_product.product_id },${ formValues.discount_master.discount_id }`
         document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
         document.getElementById( 'delete_confirm_massage_id' ).value = strIdProductAndDiscount
+    }
+    clearFormFilter() {
+        document.querySelector( '#productFields' ).value = ''
+        document.querySelector( '#discountFields' ).value = ''
+        document.querySelector( '#cashierFields' ).value = ''
+
     }
     clearAddNewDataForm() {
         document.querySelector( '#productIdFields' ).value = ''
@@ -294,7 +328,7 @@ class AjaxImpl extends Ajax {
             if ( response.status ) {
                 new ModalFormImpl().hideModal( 'id_modal_for_add_new_data' )
                 new Alert().successAjax( response.msg )
-                new DatatableDiscountAppliedImpl().reloadDatatable()
+                new DatatableProductSoldImpl().reloadDatatable()
                 return
             }
             new Alert().failedAjax( response.msg )
@@ -366,7 +400,7 @@ class AjaxImpl extends Ajax {
                 return new Alert().failedAjax( response.msg )
             }
             new Alert().successAjax( response.msg )
-            new DatatableDiscountAppliedImpl().reloadDatatable()
+            new DatatableProductSoldImpl().reloadDatatable()
             new ModalFormImpl().hideModal( 'id_modal_for_edit' )
             return
         }
@@ -389,7 +423,7 @@ class AjaxImpl extends Ajax {
                 return new Alert().failedAjax( response.msg )
             }
             new Alert().successAjax( response.msg )
-            new DatatableDiscountAppliedImpl().reloadDatatable()
+            new DatatableProductSoldImpl().reloadDatatable()
             new ModalFormImpl().hideModal( 'id_modal_for_delete' )
             return
         }
@@ -406,10 +440,12 @@ class AjaxImpl extends Ajax {
         this.sendAjax( { url: '/manage_discount_api', payload: payload }, ajaxCallback )
     }
     getOption( endPoint, onSuccess = () => { } ) {
-        fetch( endPoint )
+        return fetch( endPoint )
             .then( response => response.json() )
             .then( onSuccess )
-            .catch( ( err ) => { console.log( err ) } )
+            .catch( ( err ) => { console.log( err ) } ).finally( () => {
+                return Promise.resolve( 1 )
+            } )
     }
     getLovForProductFields() {
         const extractIdDescriptionFunc = ( recordValues ) => {
@@ -421,10 +457,10 @@ class AjaxImpl extends Ajax {
         }
         const onSuccess = ( response ) => {
             let newRecordValues = extractIdDescriptionFunc( response.data )
-            const selectFieldIds = [ '#productIdUpdateFields', '#productIdFields' ]
+            const selectFieldIds = [ '#productFields' ]
             new FormDataImpl().setOptionForSelectFields( selectFieldIds, newRecordValues )
         }
-        this.getOption( 'product_lov_api', onSuccess )
+        return this.getOption( '/product_lov_api', onSuccess )
     }
     getLovForDiscountFields() {
         const extractIdDescriptionFunc = ( recordValues ) => {
@@ -436,25 +472,47 @@ class AjaxImpl extends Ajax {
         }
         const onSuccess = ( response ) => {
             let newRecordValues = extractIdDescriptionFunc( response.data )
-            const selectFieldIds = [ '#discountIdUpdateFields', '#discountIdFields' ]
+            const selectFieldIds = [ '#discountFields' ]
             new FormDataImpl().setOptionForSelectFields( selectFieldIds, newRecordValues )
         }
-        this.getOption( 'discount_lov_api', onSuccess )
+        return this.getOption( '/discount_lov_api', onSuccess )
+    }
+    getLovForEmployeeFields() {
+        const extractIdDescriptionFunc = ( recordValues ) => {
+            let newRecordValues = []
+            for ( const record of recordValues ) {
+                newRecordValues.push( { id: record.employee_id, description: record.name } )
+            }
+            return newRecordValues
+        }
+        const onSuccess = ( response ) => {
+            let newRecordValues = extractIdDescriptionFunc( response.data )
+            const selectFieldIds = [ '#cashierFields' ]
+            new FormDataImpl().setOptionForSelectFields( selectFieldIds, newRecordValues )
+        }
+        return this.getOption( '/employee_lov_api', onSuccess )
     }
     getLovForSelectField() {
-        this.getLovForProductFields()
-        this.getLovForDiscountFields()
+        const callLovAjax = async () => {
+            const promiseList = [ this.getLovForProductFields(), this.getLovForDiscountFields(), this.getLovForEmployeeFields() ]
+            await Promise.all( promiseList ).then( () => {
+                new ModalFormImpl().clearFormFilter()
+                new ModalFormImpl().createSelectFields()
+            } )
+        }
+        callLovAjax()
     }
 }
 
 const runScript = () => {
     $( document ).ready( function () {
         const modalForm = new ModalFormImpl()
-        new DatatableDiscountAppliedImpl().initiateDatatable()
+        new DatatableProductSoldImpl().initiateDatatable()
         new AjaxImpl().getLovForSelectField()
-        modalForm.registerOnHideModal()
-        modalForm.disabledBtnNewDataOnClick()
-        new ButtonEventImpl().bindEventWithAjax()
+        modalForm.bindEventToFormFilter()
+        // modalForm.registerOnHideModal()
+        // modalForm.disabledBtnNewDataOnClick()
+        // new ButtonEventImpl().bindEventWithAjax()
     } )
 }
 
