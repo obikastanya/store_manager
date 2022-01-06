@@ -42,7 +42,7 @@ class DatatableProductSoldImpl extends BaseDatatable {
                 data: null,
                 render: ( data ) => {
                     const buttonDetail = `<button type="button" class="btn btn-warning btn-detail-data" value=${ data.transaction_id } onclick="new ModalForm().showModal('id_modal_for_detail_data')">Detail</button>`
-                    return buttonDetail + '&nbsp;' + this.buttonDelete.replace( "_data_", data.product_id )
+                    return buttonDetail + '&nbsp;' + this.buttonDelete.replace( "_data_", data.transaction_id )
                 }
             }
         ]
@@ -105,7 +105,8 @@ class DatatableProductSoldImpl extends BaseDatatable {
             new AjaxImpl().getSingleData( e.target.value )
         } )
         datatableInstance.on( 'click', this.btnClassDeleteData, ( e ) => {
-            new AjaxImpl().getSingleDataForDeleteActions( e.target.value )
+            // new AjaxImpl().getSingleDataForDeleteActions( e.target.value )
+            new ModalFormImpl().setDeleteConfirmMessage( e.target.value )
         } )
     }
 }
@@ -124,10 +125,8 @@ class FormDataImpl extends FormData {
         return formValues
     }
     getDeleteFormValues() {
-        let productAndDiscountIds = document.getElementById( 'delete_confirm_massage_id' ).value
         let formValues = {
-            product_id: productAndDiscountIds.split( ',' )[ 0 ],
-            discount_id: productAndDiscountIds.split( ',' )[ 1 ]
+            transaction_id: document.getElementById( 'delete_confirm_massage_id' ).value
         }
         return formValues
     }
@@ -227,11 +226,8 @@ class FormValidationImpl extends FormValidation {
         return this.validateResult( 'Data is valid', true )
     }
     validateDeleteParams( deleteParams ) {
-        const validIdProduct = this.validateIdProduct( deleteParams )
-        const validIdDiscount = this.validateIdDiscount( deleteParams )
-
-        if ( !validIdProduct.isValid ) return validIdProduct;
-        if ( !validIdDiscount.isValid ) return validIdDiscount;
+        const validTransactionId = this.validateTransactionId( deleteParams )
+        if ( !validTransactionId.isValid ) return validTransactionId;
         return this.validateResult( 'Data is valid', true )
     }
     validateInsertParams( insertParams ) {
@@ -246,12 +242,12 @@ class FormValidationImpl extends FormValidation {
         if ( !validExpiredDate.isValid ) return validExpiredDate;
         return this.validateResult( 'Data is valid', true )
     }
-    validateIdProduct( formData ) {
-        if ( isNaN( formData.product_id ) ) {
-            return this.validateResult( 'Invalid Product selected' )
+    validateTransactionId( formData ) {
+        if ( isNaN( formData.transaction_id ) ) {
+            return this.validateResult( 'Invalid transaction selected' )
         }
-        if ( !( parseInt( formData.product_id ) ) ) {
-            return this.validateResult( 'Invalid Product selected' )
+        if ( !( parseInt( formData.transaction_id ) ) ) {
+            return this.validateResult( 'Invalid transaction selected' )
         }
         return this.validateResult( 'Data is valid', true )
     }
@@ -303,11 +299,10 @@ class ModalFormImpl extends ModalForm {
             new DatatableProductSoldImpl().reloadDatatable()
         } )
     }
-    setDeleteConfirmMessage( formValues ) {
-        const confirmMessage = `Area you sure to delete discount ${ formValues.discount_master.desc } thats applied on ${ formValues.discount_product.product_desc } ?`
-        const strIdProductAndDiscount = `${ formValues.discount_product.product_id },${ formValues.discount_master.discount_id }`
+    setDeleteConfirmMessage( recordId ) {
+        const confirmMessage = `Area you sure to delete transaction with id ${ recordId } ?`
         document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
-        document.getElementById( 'delete_confirm_massage_id' ).value = strIdProductAndDiscount
+        document.getElementById( 'delete_confirm_massage_id' ).value = recordId
     }
     clearFormFilter() {
         document.querySelector( '#productFields' ).value = ''
@@ -326,6 +321,14 @@ class ModalFormImpl extends ModalForm {
 class ButtonEventImpl extends ButtonEvent {
     constructor() {
         super()
+    }
+    bindEventWithAjax() {
+        // const buttonSaveNewData = document.querySelector( this.saveNewRecord )
+        // const buttonSaveChanges = document.querySelector( this.btnSaveUpdatedRecord )
+        // buttonSaveNewData.addEventListener( 'click', this.saveNewData )
+        // buttonSaveChanges.addEventListener( 'click', this.saveUpdatedData )
+        const buttonDelete = document.querySelector( this.btnDeleteId )
+        buttonDelete.addEventListener( 'click', this.deleteData )
     }
     saveNewData() {
         const insertParams = new FormDataImpl().getAddNewDataFormValues()
@@ -407,30 +410,30 @@ class AjaxImpl extends Ajax {
         }
         this.sendAjax( { url: '/product_sold_api_search', payload: payload }, ajaxCallback )
     }
-    getSingleDataForDeleteActions( recordId ) {
-        const params = {
-            product_id: recordId.split( ',' )[ 0 ],
-            discount_id: recordId.split( ',' )[ 1 ]
-        }
-        const payload = this.createPayload( 'POST', params )
-        const onSuccess = ( response ) => {
-            if ( !response.data.length ) new Alert().failedAjax( response.msg );
-            let recordValues = response.data[ 0 ]
-            // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
-            recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
-            new ModalFormImpl().setDeleteConfirmMessage( recordValues )
-            return
-        }
-        const ajaxCallback = {
-            onSuccess: onSuccess,
-            onFail: ( error ) => {
-                new Alert().error()
-            },
-            onFinal: () => { }
-        }
-        this.sendAjax( { url: '/manage_discount_api_search', payload: payload }, ajaxCallback )
+    // getSingleDataForDeleteActions( recordId ) {
+    //     const params = {
+    //         product_id: recordId.split( ',' )[ 0 ],
+    //         discount_id: recordId.split( ',' )[ 1 ]
+    //     }
+    //     const payload = this.createPayload( 'POST', params )
+    //     const onSuccess = ( response ) => {
+    //         if ( !response.data.length ) new Alert().failedAjax( response.msg );
+    //         let recordValues = response.data[ 0 ]
+    //         // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
+    //         recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
+    //         new ModalFormImpl().setDeleteConfirmMessage( recordValues )
+    //         return
+    //     }
+    //     const ajaxCallback = {
+    //         onSuccess: onSuccess,
+    //         onFail: ( error ) => {
+    //             new Alert().error()
+    //         },
+    //         onFinal: () => { }
+    //     }
+    //     this.sendAjax( { url: '/manage_discount_api_search', payload: payload }, ajaxCallback )
 
-    }
+    // }
     updateData( formData ) {
         const payload = this.createPayload( 'PUT', formData )
         const onSuccess = ( response ) => {
@@ -475,7 +478,7 @@ class AjaxImpl extends Ajax {
             }
         }
 
-        this.sendAjax( { url: '/manage_discount_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/product_sold_api', payload: payload }, ajaxCallback )
     }
     getOption( endPoint, onSuccess = () => { } ) {
         return fetch( endPoint )
@@ -550,7 +553,7 @@ const runScript = () => {
         modalForm.bindEventToFormFilter()
         // modalForm.registerOnHideModal()
         // modalForm.disabledBtnNewDataOnClick()
-        // new ButtonEventImpl().bindEventWithAjax()
+        new ButtonEventImpl().bindEventWithAjax()
     } )
 }
 
