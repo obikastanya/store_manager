@@ -3,6 +3,7 @@ from flask import request
 from sqlalchemy import func
 from .paymentMethodModel import db,PaymentMethod,PaymentMethodSchema
 from ..baseMasterController import MasterController, DataHandler, ParameterHandler, ValidationHandler
+from application.utilities.response import Response
 
 class PaymentMethodContoller(MasterController):
     def __init__(self):
@@ -11,6 +12,13 @@ class PaymentMethodContoller(MasterController):
         self.validationHandler=ValidationHandlerImpl()
         self.parameterHandler=ParameterHandlerImpl()
 
+    def getLovData(self):
+        # try:
+        data=self.dataHandler.grabLovData()
+        return Response.make(msg='Data found',data=data)
+        # except:
+        #     return Response.make(status=False,msg='Eror while trying to retrieve data' )
+
 class DataHandlerImpl(DataHandler):
     def __init__(self):
         super().__init__()
@@ -18,6 +26,9 @@ class DataHandlerImpl(DataHandler):
         self.Schema=PaymentMethodSchema
         self.parameterHandler=ParameterHandlerImpl()
 
+    def grabLovData(self):
+        groupOfObjectResult=self.Model.query.filter(self.Model.mspm_active_status=='Y').all()
+        return self.Schema(many=True).dump(groupOfObjectResult)
 
     def updateData(self, dataFromRequest):
         payment=self.grabOne(dataFromRequest)

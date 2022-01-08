@@ -153,6 +153,10 @@ def productLovApi():
 def discountLovApi():
     return DiscountController().getLovData()
 
+@app.get('/payment_method_lov_api')
+def paymentMethodLovApi():
+    return PaymentMethodContoller().getLovData()
+
 # api for transaction menu
 # api for manageDiscount
 @app.route('/manage_discount_api', methods=['GET', 'POST', 'PUT', 'DELETE'])

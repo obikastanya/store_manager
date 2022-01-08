@@ -83,7 +83,7 @@
 {% endblock %}
 
 {%block popup_and_modal %}
-<!-- Modal for button add new data  -->
+<!-- Modal for button  detail data  -->
 <div class="modal fade" id="id_modal_for_detail_data" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -133,6 +133,113 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-danger" id="button_delete_data_id">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for button add new transaction  -->
+<div class="modal fade" id="id_modal_for_add_new_data" data-backdrop="static" data-keyboard="false" tabindex="-1"
+    aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add New Transaction</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4 pl-3 pr-3">
+                    <div class="col">
+                        <label for="productInputFields" class="form-label">Select Product</label>
+                        <select class="form-control" id="productInputFields" placeholder="Select Product">
+                            <option value="">No item to select</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-2 pl-3 pr-3">
+                    <table class="table table-bordered table-striped" id='product_sold_cart_datatable_id' width='100%'>
+                        <thead>
+                            <tr>
+                                <th scope="col">No</th>
+                                <th scope="col">Product Code</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Sub Total</th>
+                                <th scope="col">Cutt Off</th>
+                                <th scope="col">Discount Applied</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row mb-2 pl-3 pr-3 ">
+                <div class="col-sm-12 text-right"><button type="button"
+                        class="btn btn-warning text-dark btn-pay-product-sold">Check Out</button>
+                </div>
+            </div>
+            <div class="col" id="container_detail_checkout" hidden>
+                <div class="row mb-2 ml-3 mr-3 ">
+                    <div class="col">
+                        <table class="table table-borderless">
+
+                            <tbody>
+                                <tr>
+                                    <td>Total Price</td>
+                                    <td>:</td>
+                                    <td><span id="netPriceFields">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Tax</td>
+                                    <td>:</td>
+                                    <td><span id="taxFields">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Price To Pay</td>
+                                    <td>:</td>
+                                    <td><span id="priceToPayFields">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Paid</td>
+                                    <td>:</td>
+                                    <td>
+                                        <div><input id='paidFields' type="number" class="form-control text-left"
+                                                value=0></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Change</td>
+                                    <td>:</td>
+                                    <td><span id="changeFields">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Payment Method</td>
+                                    <td>:</td>
+                                    <td>
+                                        <div>
+                                            <select class="form-control selectForm" id="paymentMethodFields"
+                                                placeholder="Payment Method">
+                                                <option value="">No item to select</option>
+                                            </select>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col"></div>
+                </div>
+                <div class="row mb-2 pl-3 pr-3 ">
+                    <div class="col-sm-12 text-right"><button type="button"
+                            class="btn btn-success text-light btn-pay-product-sold" style="width: 120px;">Pay</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="new_data_save_button_id">Save Data</button>
             </div>
         </div>
     </div>

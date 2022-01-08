@@ -83,6 +83,7 @@ class DataHandler:
 
     def grabSingleData(self, paramFromRequest):
         groupOfObjectResult=self.grabOne(paramFromRequest)
+        print(groupOfObjectResult.__dict__)
         return self.Schema(many=True).dump([groupOfObjectResult])
 
     def grabData(self):
@@ -102,6 +103,8 @@ class DataHandler:
             listData= self.grabDataWithOrderby(datatableConfig)
         else:
             listData= self.grabDataDefault(datatableConfig)
+        print('-------------------------------------------------')
+        print(listData)
         return listData,totalRecords, totalRecordsFiltered
 
     def grabDataDefault(self, datatableConfig):
@@ -118,6 +121,7 @@ class DataHandler:
     def grabDataWithKeyword(self,datatableConfig):
         searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
         groupOfObjectResult=self.Model.query.filter(searchKeyWord).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        print(groupOfObjectResult.__dict__)
         return self.Schema(many=True).dump(groupOfObjectResult)
     
     def grabDataWithOrderby(self, datatableConfig):

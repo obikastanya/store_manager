@@ -48,6 +48,7 @@ class BaseDatatable extends DatatableTools {
                 url: this.apiEndpoint,
                 method: 'GET'
             },
+            scrollX: true,
             processing: true,
             serverSide: true,
             columns: this.tableColumns,

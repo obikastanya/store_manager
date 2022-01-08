@@ -76,13 +76,13 @@ class DatatableProductSoldImpl extends BaseDatatable {
                 url: this.apiEndpoint,
                 method: 'GET',
                 data: ( data ) => {
-                    console.log( getDataFromFields( '#productFields' ) )
                     data.product_id = getDataFromFields( '#productFields' )
                     data.discount_id = getDataFromFields( '#discountFields' )
                     data.cashier_id = getDataFromFields( '#cashierFields' )
                     data.transaction_date = getDataFromFields( '#transactionDateFields' )
                 }
             },
+            scrollX: true,
             language: {
                 searchPlaceholder: "Search transaction code"
             },
@@ -105,8 +105,69 @@ class DatatableProductSoldImpl extends BaseDatatable {
             new AjaxImpl().getSingleData( e.target.value )
         } )
         datatableInstance.on( 'click', this.btnClassDeleteData, ( e ) => {
-            // new AjaxImpl().getSingleDataForDeleteActions( e.target.value )
             new ModalFormImpl().setDeleteConfirmMessage( e.target.value )
+        } )
+    }
+    initiateDatatableForTransactionChart() {
+        const tableCashierSettings = {
+            scrollX: true,
+            deferRender: true,
+            columns: [
+                {
+                    data: 'no',
+                    defaultContent: ''
+                },
+                { data: 'product_id' },
+                { data: 'product_desc' },
+                {
+                    data: 'quantity'
+                },
+                {
+                    data: 'price'
+                },
+                {
+                    data: 'sub_total'
+                },
+                {
+                    data: 'cutt_off'
+                },
+                {
+                    data: 'discount_applied', render: ( productRecord ) => {
+                        return new FormDataImpl().getDiscountNamesForCashier( productRecord.discount_applied_on_product ).discount_master
+                    }
+                },
+                {
+                    data: 'btnRemove',
+                    default: ''
+                }
+            ]
+        }
+        const tableCashier = $( '#product_sold_cart_datatable_id' ).DataTable( tableCashierSettings )
+        tableCashier.on( 'draw.dt order.dt search.dt', function () {
+            tableCashier.column( 0, { search: 'applied', order: 'applied' } ).nodes().each( function ( cell, i ) {
+                cell.innerHTML = i + 1;
+            } );
+        } ).draw();
+        $( '#product_sold_cart_datatable_id' ).on( 'click', '.btn-remove-data', function () {
+            const table = $( '#product_sold_cart_datatable_id' ).DataTable()
+            table.row( $( this ).parents( 'tr' ) ).remove().draw();
+        } )
+        $( '#product_sold_cart_datatable_id' ).on( 'input', '.quantityFields', function ( event ) {
+
+            if ( !this.value ) return;
+            let newQuantity = parseInt( this.value )
+            if ( newQuantity < 1 ) newQuantity = 1;
+
+            const table = $( '#product_sold_cart_datatable_id' ).DataTable()
+            let currentRowData = table.row( $( this ).parents( 'tr' ) ).data()
+            let newRowData = { ...currentRowData }
+
+            newRowData.sub_total = currentRowData.price * newQuantity
+            newRowData.quantity = new FormDataImpl().getQuantityTemplate( newRowData, newQuantity )
+            newRowData.cutt_off = new FormDataImpl().getCuttOffTemplate( newRowData.productRecord, newQuantity )
+
+            table.row( $( this ).parents( 'tr' ) ).data( newRowData ).invalidate().draw()
+
         } )
     }
 }
@@ -153,7 +214,6 @@ class FormDataImpl extends FormData {
             if ( value ) return value
             if ( value === 0 ) return value;
             return '-';
-
         }
         let rowRecord = `<tr>
                             <td>${ replaceEmpty( record.index + 1 ) }</td>
@@ -166,6 +226,41 @@ class FormDataImpl extends FormData {
                             <td>${ replaceEmpty( this.getDiscountNames( record.detail_discount_applied ) ) }</td>
                         </tr>`
         return rowRecord
+    }
+
+    getDiscountNamesForCashier( discountAppliedOnProduct ) {
+        let discountMaster = []
+        let discountNominal = 0
+
+        for ( const discount of discountAppliedOnProduct ) {
+            discountMaster.push( discount.discount_master.desc )
+            discountNominal += discount.discount_master.discount_nominal
+        }
+
+        return { discount_master: discountMaster.join( ", " ), discount_nominal: discountNominal }
+    }
+    getQuantityTemplate( productRecord, defaultQuantity = 1 ) {
+        let inputQuantity = `<div ><input id='input_for_quantity_' type="number" class="form-control text-center quantityFields" value=${ defaultQuantity }></div>`
+        return inputQuantity.replace( 'input_for_quantity_', 'input_for_quantity_' + productRecord.product_id )
+    }
+    getCuttOffTemplate( productRecord, defaultQuantity = 1 ) {
+        return new FormDataImpl().getDiscountNamesForCashier( productRecord.discount_applied_on_product ).discount_nominal * defaultQuantity
+    }
+    addItemToCashierTable( productRecord ) {
+        let removeRecordBtn = `<div class='text-center'><button type="button" class="btn btn-danger btn-remove-data" >X</button></div>`
+        let records = {
+            no: '',
+            product_id: productRecord.product_id,
+            product_desc: productRecord.product_desc,
+            price: productRecord.price,
+            quantity: this.getQuantityTemplate( productRecord ),
+            sub_total: productRecord.price * 1,
+            cutt_off: this.getCuttOffTemplate( productRecord ),
+            discount_applied: productRecord,
+            productRecord: productRecord,
+            btnRemove: removeRecordBtn
+        }
+        new ModalFormImpl().addCashierTableRows( [ records ] )
     }
 
     setDetailModalTables( recordValues ) {
@@ -292,12 +387,39 @@ class ModalFormImpl extends ModalForm {
             sortField: 'text',
             create: false
         } );
+        $( '#productInputFields' ).selectize( {
+            sortField: 'text',
+            create: false,
+            onChange: ( productId ) => {
+                if ( !productId ) return;
+                $( "#productInputFields" )[ 0 ].selectize.clear();
+                new AjaxImpl().getSingleProduct( productId )
+            }
+        } );
     }
-    bindEventToFormFilter() {
+    bindEventToFormFilterAndNewTransaction() {
         const btnFilterData = document.querySelector( '.btn-filter-product-sold' )
+        const btnCheckout = document.querySelector( '.btn-pay-product-sold' )
+
         btnFilterData.addEventListener( 'click', () => {
             new DatatableProductSoldImpl().reloadDatatable()
         } )
+        btnCheckout.addEventListener( 'click', () => {
+            new ButtonEventImpl().checkOutTransaction()
+        } )
+
+        // calculate change everytime paid changes
+        const paidField = document.querySelector( '#paidFields' )
+        paidField.addEventListener( 'input', ( event ) => {
+            new ModalFormImpl().setChangeOfTransaction( event.target.value )
+        } )
+    }
+    setChangeOfTransaction( paidValue ) {
+        let netPrice = document.querySelector( '#netPriceFields' ).textContent;
+        let tax = document.querySelector( '#taxFields' ).textContent;
+        let totalPriceToPaid = parseInt( netPrice ) + parseInt( tax )
+        let change = paidValue - totalPriceToPaid
+        document.querySelector( '#changeFields' ).innerHTML = change
     }
     setDeleteConfirmMessage( recordId ) {
         const confirmMessage = `Area you sure to delete transaction with id ${ recordId } ?`
@@ -308,6 +430,8 @@ class ModalFormImpl extends ModalForm {
         document.querySelector( '#productFields' ).value = ''
         document.querySelector( '#discountFields' ).value = ''
         document.querySelector( '#cashierFields' ).value = ''
+        // the last fields is an input fields for adding new transaction
+        document.querySelector( '#productInputFields' ).value = ''
 
     }
     clearAddNewDataForm() {
@@ -316,11 +440,101 @@ class ModalFormImpl extends ModalForm {
         document.querySelector( '#startDateFields' ).value = ''
         document.querySelector( '#expiredDateFields' ).value = ''
     }
+    addCashierTableRows( recordsRow ) {
+        let tableCashier = $( '#product_sold_cart_datatable_id' ).DataTable()
+        tableCashier.rows.add( recordsRow ).draw()
+    }
 }
 
 class ButtonEventImpl extends ButtonEvent {
     constructor() {
         super()
+    }
+    checkOutTransaction() {
+        this.showDetailCheckout()
+        this.setNetTotalPriceAndTax()
+        // this.serializeDataFromTableCashier()
+    }
+    calculateTotalPrice( productSolds ) {
+        const getCuttOff = ( product ) => {
+            if ( !product.discount_applied ) return 0;
+            if ( !product.discount_applied.discount_applied_on_product ) return 0;
+            return new FormDataImpl().getDiscountNamesForCashier( product.discount_applied.discount_applied_on_product ).discount_nominal
+        }
+        let grossTotalPrice = 0
+        for ( let product of productSolds ) {
+            let quantity = document.querySelector( `#input_for_quantity_${ product.product_id }` ).value
+            if ( quantity < 1 ) quantity = 1;
+            let grossPrice = product.price * quantity  //its should be * quantity, not 1
+            let cuttOffNominal = getCuttOff( product ) * quantity
+            grossTotalPrice += ( grossPrice - cuttOffNominal )
+        }
+        return grossTotalPrice
+    }
+    calculateTax( productSolds ) {
+        let netPrice = new ButtonEventImpl().calculateTotalPrice( productSolds )
+        return netPrice * 0.1
+    }
+    calculateChange( productSolds ) {
+        let netTotalPrice = new ButtonEventImpl().calculateTotalPrice( productSolds )
+        let tax = new ButtonEventImpl().calculateTax( productSolds )
+        let paid = 1
+        return paid - ( netTotalPrice + tax )
+    }
+    getDiscountAppliedOnProductTransaction( discountApplieds ) {
+        if ( !discountApplieds ) return [];
+        if ( !discountApplieds.discount_applied_on_product ) return [];
+
+        let allDiscountApplied = []
+        for ( let discount of discountApplieds.discount_applied_on_product ) {
+            let discountAppliedOnProduct = {
+                discount_id: discount.discount_master.discount_id,
+                discount_type_id: discount.discount_master.discount_type.discount_type_id,
+                cutt_off_nominal: discount.discount_master.discount_nominal
+            }
+            allDiscountApplied.push( discountAppliedOnProduct )
+        }
+        return allDiscountApplied
+    }
+    getItemFromSerializedData( productSoldData ) {
+        let allProductSolds = []
+        for ( let product of productSoldData ) {
+            let productDetail = {
+                product_id: product.product_id,
+                quantity: 1,
+                product_price: product.product_price,
+                discount_applied: this.getDiscountAppliedOnProductTransaction( product.discount_applied )
+            }
+            allProductSolds.push( productDetail )
+        }
+        return allProductSolds
+    }
+    serializeDataFromTableCashier() {
+        let tableCashier = $( '#product_sold_cart_datatable_id' ).DataTable()
+        let shopingItems = tableCashier.rows().data().toArray()
+        let transactionRecord = {
+            total_price: new ButtonEventImpl().calculateTotalPrice( shopingItems ),
+            tax: new ButtonEventImpl().calculateTax( shopingItems ),
+            change: new ButtonEventImpl().calculateChange( shopingItems ),
+            paid: 0,
+            payment_method: 1,
+            cashier_id: 1,
+            transaction_date: Date.now(),
+            productSold: new ButtonEventImpl().getItemFromSerializedData( shopingItems )
+        }
+        return transactionRecord
+    }
+    setNetTotalPriceAndTax() {
+        const tableCashier = $( '#product_sold_cart_datatable_id' ).DataTable()
+        const shopingItems = tableCashier.rows().data().toArray()
+        let netTotalPrice = new ButtonEventImpl().calculateTotalPrice( shopingItems )
+        let tax = new ButtonEventImpl().calculateTax( shopingItems )
+        document.querySelector( '#netPriceFields' ).innerHTML = netTotalPrice
+        document.querySelector( '#taxFields' ).innerHTML = tax
+        document.querySelector( '#priceToPayFields' ).innerHTML = tax + netTotalPrice
+    }
+    showDetailCheckout() {
+        document.querySelector( '#container_detail_checkout' ).removeAttribute( 'hidden' )
     }
     bindEventWithAjax() {
         // const buttonSaveNewData = document.querySelector( this.saveNewRecord )
@@ -403,37 +617,32 @@ class AjaxImpl extends Ajax {
         const ajaxCallback = {
             onSuccess: onSuccess,
             onFail: ( error ) => {
-                console.log( error )
                 new Alert().error()
             },
             onFinal: () => { }
         }
         this.sendAjax( { url: '/product_sold_api_search', payload: payload }, ajaxCallback )
     }
-    // getSingleDataForDeleteActions( recordId ) {
-    //     const params = {
-    //         product_id: recordId.split( ',' )[ 0 ],
-    //         discount_id: recordId.split( ',' )[ 1 ]
-    //     }
-    //     const payload = this.createPayload( 'POST', params )
-    //     const onSuccess = ( response ) => {
-    //         if ( !response.data.length ) new Alert().failedAjax( response.msg );
-    //         let recordValues = response.data[ 0 ]
-    //         // the script bellow is a tenary operator, its update active_status to 1 if the current value is Y and 0 for others.
-    //         recordValues.active_status = recordValues.active_status == 'Y' ? 1 : 0
-    //         new ModalFormImpl().setDeleteConfirmMessage( recordValues )
-    //         return
-    //     }
-    //     const ajaxCallback = {
-    //         onSuccess: onSuccess,
-    //         onFail: ( error ) => {
-    //             new Alert().error()
-    //         },
-    //         onFinal: () => { }
-    //     }
-    //     this.sendAjax( { url: '/manage_discount_api_search', payload: payload }, ajaxCallback )
 
-    // }
+    getSingleProduct( recordId ) {
+        const params = {
+            product_id: recordId
+        }
+        const payload = this.createPayload( 'POST', params )
+        const onSuccess = ( response ) => {
+            if ( !response.data.length ) return new Alert().failedAjax( response.msg );
+            new FormDataImpl().addItemToCashierTable( response.data[ 0 ] )
+            return
+        }
+        const ajaxCallback = {
+            onSuccess: onSuccess,
+            onFail: ( error ) => {
+                new Alert().error()
+            },
+            onFinal: () => { }
+        }
+        this.sendAjax( { url: '/product_api_search', payload: payload }, ajaxCallback )
+    }
     updateData( formData ) {
         const payload = this.createPayload( 'PUT', formData )
         const onSuccess = ( response ) => {
@@ -498,7 +707,7 @@ class AjaxImpl extends Ajax {
         }
         const onSuccess = ( response ) => {
             let newRecordValues = extractIdDescriptionFunc( response.data )
-            const selectFieldIds = [ '#productFields' ]
+            const selectFieldIds = [ '#productFields', '#productInputFields' ]
             new FormDataImpl().setOptionForSelectFields( selectFieldIds, newRecordValues )
         }
         return this.getOption( '/product_lov_api', onSuccess )
@@ -533,9 +742,24 @@ class AjaxImpl extends Ajax {
         }
         return this.getOption( '/employee_lov_api', onSuccess )
     }
+    getLovForPaymentMethodFields() {
+        const extractIdDescriptionFunc = ( recordValues ) => {
+            let newRecordValues = []
+            for ( const record of recordValues ) {
+                newRecordValues.push( { id: record.payment_method_id, description: record.payment_method } )
+            }
+            return newRecordValues
+        }
+        const onSuccess = ( response ) => {
+            let newRecordValues = extractIdDescriptionFunc( response.data )
+            const selectFieldIds = [ '#paymentMethodFields' ]
+            new FormDataImpl().setOptionForSelectFields( selectFieldIds, newRecordValues )
+        }
+        return this.getOption( '/payment_method_lov_api', onSuccess )
+    }
     getLovForSelectField() {
         const callLovAjax = async () => {
-            const promiseList = [ this.getLovForProductFields(), this.getLovForDiscountFields(), this.getLovForEmployeeFields() ]
+            const promiseList = [ this.getLovForProductFields(), this.getLovForDiscountFields(), this.getLovForEmployeeFields(), this.getLovForPaymentMethodFields() ]
             await Promise.all( promiseList ).then( () => {
                 new ModalFormImpl().clearFormFilter()
                 new ModalFormImpl().createSelectFields()
@@ -548,12 +772,15 @@ class AjaxImpl extends Ajax {
 const runScript = () => {
     $( document ).ready( function () {
         const modalForm = new ModalFormImpl()
-        new DatatableProductSoldImpl().initiateDatatable()
+        const datatable = new DatatableProductSoldImpl()
         new AjaxImpl().getLovForSelectField()
-        modalForm.bindEventToFormFilter()
+        new ButtonEventImpl().bindEventWithAjax()
+        datatable.initiateDatatable()
+        datatable.initiateDatatableForTransactionChart()
+        modalForm.bindEventToFormFilterAndNewTransaction()
         // modalForm.registerOnHideModal()
         // modalForm.disabledBtnNewDataOnClick()
-        new ButtonEventImpl().bindEventWithAjax()
+
     } )
 }
 

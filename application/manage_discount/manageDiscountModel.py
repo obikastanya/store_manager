@@ -18,6 +18,8 @@ class ManageDiscount(db.Model):
     da_update_date = db.Column(db.Date())
 
     discount_applied=db.relationship("SoldTransactionDetailDiscountApplied", backref="discount_applied")
+    discount_product = db.relationship('Product',
+                                       back_populates='discount_applied_on_product')
 
 
 class ManageDiscountSchema(Schema):
@@ -27,5 +29,5 @@ class ManageDiscountSchema(Schema):
     discount_product = fields.Nested("ProductSchema",
                                      only=('msp_id', 'msp_desc'))
     discount_master = fields.Nested('DiscountSchema',
-                                    only=('msd_id', 'msd_desc',
+                                    only=('msd_id', 'msd_desc','msd_nominal',
                                           'discount_type'))

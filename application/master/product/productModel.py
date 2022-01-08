@@ -23,8 +23,8 @@ class Product(db.Model):
     # relationship
     product = db.relationship('Stock',
                               backref=backref('product', uselist=False))
-    discount_product = db.relationship('ManageDiscount',
-                                       backref='discount_product')
+    discount_applied_on_product = db.relationship('ManageDiscount',
+                                       back_populates="discount_product")
     product_saled=db.relationship('SoldTransactionDetail',backref='product')
 
 
@@ -40,3 +40,4 @@ class ProductSchema(Schema):
                                      only=('msc_id', 'msc_desc'))
     supplier = fields.Nested('SupplierSchema', only=('mssp_id', 'mssp_desc'))
     company = fields.Nested('CompanySchema', only=('mscp_id', 'mscp_desc'))
+    discount_applied_on_product=fields.List( fields.Nested('ManageDiscountSchema', only=('da_expired_date','da_start_date','da_active_status','discount_master')))
