@@ -169,6 +169,10 @@ class DatatableProductSoldImpl extends BaseDatatable {
 
         } )
     }
+    clearCashierTable() {
+        let table = $( '#product_sold_cart_datatable_id' ).DataTable();
+        table.clear().draw();
+    }
 }
 
 class FormDataImpl extends FormData {
@@ -452,6 +456,14 @@ class ModalFormImpl extends ModalForm {
         let tableCashier = $( '#product_sold_cart_datatable_id' ).DataTable()
         tableCashier.rows.add( recordsRow ).draw()
     }
+    registerOnHideModal() {
+        $( document ).on( 'hidden.bs.modal', '#id_modal_for_add_new_data', () => {
+            new DatatableProductSoldImpl().clearCashierTable()
+            new ButtonEventImpl().hideDetailCheckout()
+            new ButtonEventImpl().resetDetailCheckout()
+        } )
+
+    }
 }
 
 class ButtonEventImpl extends ButtonEvent {
@@ -461,7 +473,6 @@ class ButtonEventImpl extends ButtonEvent {
     checkOutTransaction() {
         this.showDetailCheckout()
         this.setNetTotalPriceAndTax()
-
     }
     isExistInCashierTable( productId ) {
         let tableCashier = $( '#product_sold_cart_datatable_id' ).DataTable()
@@ -592,8 +603,17 @@ class ButtonEventImpl extends ButtonEvent {
         document.querySelector( '#cuttOffFields' ).innerHTML = totalCuttOff
         document.querySelector( '#priceToPayFields' ).innerHTML = tax + ( netTotalPrice - totalCuttOff )
     }
+    resetDetailCheckout() {
+        document.querySelector( '#netPriceFields' ).textContent = 0;
+        document.querySelector( '#taxFields' ).textContent = 0;
+        document.querySelector( '#cuttOffFields' ).textContent = 0;
+        document.querySelector( '#changeFields' ).innerHTML = 0
+    }
     showDetailCheckout() {
         document.querySelector( '#container_detail_checkout' ).removeAttribute( 'hidden' )
+    }
+    hideDetailCheckout() {
+        document.querySelector( '#container_detail_checkout' ).hidden = true
     }
     bindEventWithAjax() {
         const buttonDelete = document.querySelector( this.btnDeleteId )
@@ -801,8 +821,7 @@ const runScript = () => {
         datatable.initiateDatatable()
         datatable.initiateDatatableForTransactionChart()
         modalForm.bindEventToFormFilterAndNewTransaction()
-        // modalForm.registerOnHideModal()
-
+        modalForm.registerOnHideModal()
     } )
 }
 
