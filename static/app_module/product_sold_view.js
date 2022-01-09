@@ -153,7 +153,7 @@ class DatatableProductSoldImpl extends BaseDatatable {
             table.row( $( this ).parents( 'tr' ) ).remove().draw();
         } )
         $( '#product_sold_cart_datatable_id' ).on( 'input', '.quantityFields', function ( event ) {
-
+            console.log( 'trrriggered' )
             if ( !this.value ) return;
             let newQuantity = parseInt( this.value )
             if ( newQuantity < 1 ) newQuantity = 1;
@@ -165,7 +165,6 @@ class DatatableProductSoldImpl extends BaseDatatable {
             newRowData.sub_total = currentRowData.price * newQuantity
             newRowData.quantity = new FormDataImpl().getQuantityTemplate( newRowData, newQuantity )
             newRowData.cutt_off = new FormDataImpl().getCuttOffTemplate( newRowData.productRecord, newQuantity )
-
             table.row( $( this ).parents( 'tr' ) ).data( newRowData ).invalidate().draw()
 
         } )
@@ -326,15 +325,6 @@ class FormValidationImpl extends FormValidation {
         return this.validateResult( 'Data is valid', true )
     }
     validateInsertParams( insertParams ) {
-        const validIdProduct = this.validateIdProduct( insertParams )
-        const validIdDiscount = this.validateIdDiscount( insertParams )
-        const validStartDate = this.validateStartDate( insertParams )
-        const validExpiredDate = this.validateExpiredDate( insertParams )
-
-        if ( !validIdProduct.isValid ) return validIdProduct;
-        if ( !validIdDiscount.isValid ) return validIdDiscount;
-        if ( !validStartDate.isValid ) return validStartDate;
-        if ( !validExpiredDate.isValid ) return validExpiredDate;
         return this.validateResult( 'Data is valid', true )
     }
     validateTransactionId( formData ) {
@@ -393,6 +383,7 @@ class ModalFormImpl extends ModalForm {
             onChange: ( productId ) => {
                 if ( !productId ) return;
                 $( "#productInputFields" )[ 0 ].selectize.clear();
+
                 if ( new ButtonEventImpl().isExistInCashierTable( productId ) ) {
                     new ModalFormImpl().increaseProductQuantity( productId )
                     return
@@ -404,11 +395,12 @@ class ModalFormImpl extends ModalForm {
     increaseProductQuantity( productId ) {
         let quantityField = document.querySelector( `#input_for_quantity_${ productId }` )
         let oldQuantity = quantityField.value
-        quantityField.value = parseInt(oldQuantity) + 1
+        quantityField.value = parseInt( oldQuantity ) + 1
+        $( `#input_for_quantity_${ productId }.quantityFields` ).trigger( 'input' )
     }
     bindEventToFormFilterAndNewTransaction() {
         const btnFilterData = document.querySelector( '.btn-filter-product-sold' )
-        const btnCheckout = document.querySelector( '.btn-pay-product-sold' )
+        const btnCheckout = document.querySelector( '.btn-checkout-product-sold' )
 
         btnFilterData.addEventListener( 'click', () => {
             new DatatableProductSoldImpl().reloadDatatable()
@@ -422,6 +414,12 @@ class ModalFormImpl extends ModalForm {
         paidField.addEventListener( 'input', ( event ) => {
             new ModalFormImpl().setChangeOfTransaction( event.target.value )
         } )
+
+        const payTransaction = document.querySelector( '.btn-pay-product-sold' )
+        payTransaction.addEventListener( 'click', () => {
+            new ButtonEventImpl().saveNewTransaction()
+        } )
+
     }
     setChangeOfTransaction( paidValue ) {
         let netPrice = document.querySelector( '#netPriceFields' ).textContent;
@@ -463,7 +461,7 @@ class ButtonEventImpl extends ButtonEvent {
     checkOutTransaction() {
         this.showDetailCheckout()
         this.setNetTotalPriceAndTax()
-        // this.serializeDataFromTableCashier()
+
     }
     isExistInCashierTable( productId ) {
         let tableCashier = $( '#product_sold_cart_datatable_id' ).DataTable()
@@ -474,6 +472,19 @@ class ButtonEventImpl extends ButtonEvent {
             }
         }
         return false
+    }
+    saveNewTransaction() {
+        let newTransactionParams = this.serializeDataFromTableCashier()
+        newTransactionParams.cashier_id = 1 // set 1 as default cashier, because cashier data came from login session.
+        const validationResult = new FormValidationImpl().validateInsertParams( newTransactionParams )
+        if ( !validationResult.isValid ) {
+            new Alert().showWarning( validationResult.message )
+            return
+        }
+
+        new ModalFormImpl().disableFormButton( '#btn_pay_transaction' )
+        new AjaxImpl().saveNewTransaction( newTransactionParams )
+
     }
     calculateTotalPrice( productSolds ) {
         let grossTotalPrice = 0
@@ -507,9 +518,10 @@ class ButtonEventImpl extends ButtonEvent {
     }
     calculateChange( productSolds ) {
         let netTotalPrice = new ButtonEventImpl().calculateTotalPrice( productSolds )
+        let totalCutOff = new ButtonEventImpl().calculateTotalCuttOff( productSolds )
         let tax = new ButtonEventImpl().calculateTax( productSolds )
-        let paid = 1
-        return paid - ( netTotalPrice + tax )
+        let paid = parseInt( document.querySelector( '#paidFields' ).value )
+        return paid - ( netTotalPrice - totalCutOff + tax )
     }
     getDiscountAppliedOnProductTransaction( discountApplieds ) {
         if ( !discountApplieds ) return [];
@@ -527,12 +539,22 @@ class ButtonEventImpl extends ButtonEvent {
         return allDiscountApplied
     }
     getItemFromSerializedData( productSoldData ) {
+        const getQuantityValue = ( product ) => {
+            let textQuantityValue = document.querySelector( `#input_for_quantity_${ product.product_id }` ).value
+            try {
+                let quantityValue = parseInt( textQuantityValue )
+                return quantityValue
+            }
+            catch {
+                return 0
+            }
+        }
         let allProductSolds = []
         for ( let product of productSoldData ) {
             let productDetail = {
                 product_id: product.product_id,
-                quantity: 1,
-                product_price: product.product_price,
+                quantity: getQuantityValue( product ),
+                product_price: product.price,
                 discount_applied: this.getDiscountAppliedOnProductTransaction( product.discount_applied )
             }
             allProductSolds.push( productDetail )
@@ -542,15 +564,20 @@ class ButtonEventImpl extends ButtonEvent {
     serializeDataFromTableCashier() {
         let tableCashier = $( '#product_sold_cart_datatable_id' ).DataTable()
         let shopingItems = tableCashier.rows().data().toArray()
+        let netTotalPrice = new ButtonEventImpl().calculateTotalPrice( shopingItems )
+        let totalCuttOff = new ButtonEventImpl().calculateTotalCuttOff( shopingItems )
+        let totalPriceToPaid = parseInt( netTotalPrice ) - parseInt( totalCuttOff )
+
+        let tax = new ButtonEventImpl().calculateTax( shopingItems )
         let transactionRecord = {
-            total_price: new ButtonEventImpl().calculateTotalPrice( shopingItems ),
-            tax: new ButtonEventImpl().calculateTax( shopingItems ),
+            total_price: totalPriceToPaid,
+            tax: tax,
             change: new ButtonEventImpl().calculateChange( shopingItems ),
-            paid: 0,
-            payment_method: 1,
-            cashier_id: 1,
-            transaction_date: Date.now(),
-            productSold: new ButtonEventImpl().getItemFromSerializedData( shopingItems )
+            paid: parseInt( document.querySelector( '#paidFields' ).value ),
+            payment_method: parseInt( document.querySelector( '#paymentMethodFields' ).value ),
+            cashier_id: null,
+            transaction_date: new Date().toISOString().slice( 0, 10 ),
+            product_sold: new ButtonEventImpl().getItemFromSerializedData( shopingItems )
         }
         return transactionRecord
     }
@@ -587,6 +614,7 @@ class ButtonEventImpl extends ButtonEvent {
         new ModalFormImpl().disableFormButton( new ButtonSelector().saveNewRecord )
         new AjaxImpl().saveNewRecord( insertParams )
     }
+
     saveUpdatedData() {
         const updateParams = new FormDataImpl().getUpdateFormValues()
         const validationResult = new FormValidationImpl().validateUpdateParams( updateParams )
@@ -614,11 +642,12 @@ class AjaxImpl extends Ajax {
     constructor() {
         super()
     }
-    saveNewRecord( formData ) {
+    saveNewTransaction( formData ) {
         const payload = this.createPayload( 'POST', formData )
         const onSuccess = ( response ) => {
             if ( response.status ) {
-                new ModalFormImpl().hideModal( 'id_modal_for_add_new_data' )
+
+                // new ModalFormImpl().hideModal( 'id_modal_for_add_new_data' )
                 new Alert().successAjax( response.msg )
                 new DatatableProductSoldImpl().reloadDatatable()
                 return
@@ -631,10 +660,10 @@ class AjaxImpl extends Ajax {
                 new Alert().error()
             },
             onFinal: () => {
-                new ModalForm().enableSaveConfirmBtn()
+                new ModalForm().enableFormButton( '#btn_pay_transaction' )
             }
         }
-        this.sendAjax( { url: '/manage_discount_api', payload: payload }, ajaxCallback )
+        this.sendAjax( { url: '/product_sold_api', payload: payload }, ajaxCallback )
     }
     getSingleData( recordId ) {
         const params = {

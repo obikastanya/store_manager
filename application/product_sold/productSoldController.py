@@ -18,15 +18,15 @@ class ProductSoldController:
             return Response.make(status=False,msg='Eror while trying to retrieve data' )
 
     def insertNewTransaction(self):
-        try:
-            dataFromRequest=ParameterHandler().getParamInsertFromRequests()
-            if not ValidationHandler().isParamInsertValid(dataFromRequest):
-                return Response.statusAndMsg(False,'Data is not valid, insert process has been canceled' )
-            DataHandler().insertNewData(dataFromRequest)
+        # try:
+        dataFromRequest=ParameterHandler().getParamInsertFromRequests()
+        if not ValidationHandler().isParamInsertValid(dataFromRequest):
+            return Response.statusAndMsg(False,'Data is not valid, insert process has been canceled' )
+        DataHandler().insertNewData(dataFromRequest)
 
-            return Response.statusAndMsg(msg='Data successfully added' )
-        except:
-            return Response.statusAndMsg(False,'Insert data failed' )
+        return Response.statusAndMsg(msg='Data successfully added' )
+        # except:
+        #     return Response.statusAndMsg(False,'Insert data failed' )
     def deleteTransaction(self):
         try:
             dataFromRequest=ParameterHandler().getIdFromRequest()
@@ -279,7 +279,7 @@ class ParameterHandler:
         discountAppliedOnProduct={
             'tdda_msdt_id':discount.get('discount_type_id'),
             'tdda_da_discount_id':discount.get('discount_id'),
-            'tdda_cutt_off_nominal':discount.get('cut_off_nominal')
+            'tdda_cutt_off_nominal':discount.get('cutt_off_nominal')
             }
         return discountAppliedOnProduct
     
