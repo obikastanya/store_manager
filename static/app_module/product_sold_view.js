@@ -330,6 +330,57 @@ class FormValidationImpl extends FormValidation {
         return this.validateResult( 'Data is valid', true )
     }
     validateInsertParams( insertParams ) {
+        const paidIsGreaterThanPrice = this.validatePaidVsTotalPrice( insertParams )
+        const validProductSoldData = this.validateProductSold( insertParams.product_sold )
+        if ( !paidIsGreaterThanPrice.isValid ) return paidIsGreaterThanPrice;
+        if ( !validProductSoldData.isValid ) return validProductSoldData;
+        return this.validateResult( 'Data is valid', true )
+    }
+    validatePaidVsTotalPrice( formData ) {
+        if ( formData.total_price < 0 ) {
+            return this.validateResult( 'Invalid price detected for this transaction' )
+        }
+        if ( formData.paid < 0 ) {
+            return this.validateResult( 'Invalid paid value' )
+        }
+        if ( formData.paid < formData.total_price ) {
+            return this.validateResult( 'Paid value is  less than total price to pay' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateProductSold( productSoldData ) {
+        if ( !productSoldData.length ) {
+            return this.validateResult( 'No product selected' )
+        }
+
+        for ( let product of productSoldData ) {
+            if ( !product.product_id ) {
+                return this.validateResult( 'Invalid product selected' )
+            }
+            if ( !product.product_price ) {
+                return this.validateResult( 'There is invalid value for product selected' )
+            }
+            if ( !( this.validateDiscountAppliedOnProduct( product.discount_applied ).isValid ) ) {
+                return this.validateResult( 'There is invalid value for discount that applied on product' )
+            }
+        }
+
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateDiscountAppliedOnProduct( discountApplied ) {
+        if ( !discountApplied.length ) {
+            return this.validateResult( 'Data is valid', true )
+        }
+
+        for ( let discount of discountApplied ) {
+            for ( let [ key, value ] of Object.entries( discount ) ) {
+                if ( value == 0 ) continue;
+                if ( !value ) {
+                    return this.validateResult( 'There is invalid value for discount that applied on product' )
+                }
+            }
+        }
+
         return this.validateResult( 'Data is valid', true )
     }
     validateTransactionId( formData ) {
