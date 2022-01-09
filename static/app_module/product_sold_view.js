@@ -596,10 +596,6 @@ class ButtonEventImpl extends ButtonEvent {
         document.querySelector( '#container_detail_checkout' ).removeAttribute( 'hidden' )
     }
     bindEventWithAjax() {
-        // const buttonSaveNewData = document.querySelector( this.saveNewRecord )
-        // const buttonSaveChanges = document.querySelector( this.btnSaveUpdatedRecord )
-        // buttonSaveNewData.addEventListener( 'click', this.saveNewData )
-        // buttonSaveChanges.addEventListener( 'click', this.saveUpdatedData )
         const buttonDelete = document.querySelector( this.btnDeleteId )
         buttonDelete.addEventListener( 'click', this.deleteData )
     }
@@ -615,17 +611,6 @@ class ButtonEventImpl extends ButtonEvent {
         new AjaxImpl().saveNewRecord( insertParams )
     }
 
-    saveUpdatedData() {
-        const updateParams = new FormDataImpl().getUpdateFormValues()
-        const validationResult = new FormValidationImpl().validateUpdateParams( updateParams )
-        if ( !validationResult.isValid ) {
-            new Alert().showWarning( validationResult.message )
-            new ModalFormImpl().enableFormButton( new ButtonSelector().btnSaveUpdatedRecord )
-            return
-        }
-        new ModalFormImpl().disableFormButton( new ButtonSelector().btnSaveUpdatedRecord )
-        new AjaxImpl().updateData( updateParams )
-    }
     deleteData() {
         const deleteParams = new FormDataImpl().getDeleteFormValues()
         const validationResult = new FormValidationImpl().validateDeleteParams( deleteParams )
@@ -703,29 +688,6 @@ class AjaxImpl extends Ajax {
             onFinal: () => { }
         }
         this.sendAjax( { url: '/product_api_search', payload: payload }, ajaxCallback )
-    }
-    updateData( formData ) {
-        const payload = this.createPayload( 'PUT', formData )
-        const onSuccess = ( response ) => {
-            if ( !response.status ) {
-                return new Alert().failedAjax( response.msg )
-            }
-            new Alert().successAjax( response.msg )
-            new DatatableProductSoldImpl().reloadDatatable()
-            new ModalFormImpl().hideModal( 'id_modal_for_edit' )
-            return
-        }
-        const ajaxCallback = {
-            onSuccess: onSuccess,
-            onFail: ( error ) => {
-                new Alert().error()
-            },
-            onFinal: () => {
-                new ModalFormImpl().enableFormButton( '#button_save_updated_data_id' )
-            }
-        }
-        this.sendAjax( { url: '/manage_discount_api', payload: payload }, ajaxCallback )
-
     }
     deleteData( formData ) {
         const payload = this.createPayload( 'DELETE', formData )
@@ -840,7 +802,6 @@ const runScript = () => {
         datatable.initiateDatatableForTransactionChart()
         modalForm.bindEventToFormFilterAndNewTransaction()
         // modalForm.registerOnHideModal()
-        // modalForm.disabledBtnNewDataOnClick()
 
     } )
 }
