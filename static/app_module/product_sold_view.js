@@ -151,9 +151,10 @@ class DatatableProductSoldImpl extends BaseDatatable {
         $( '#product_sold_cart_datatable_id' ).on( 'click', '.btn-remove-data', function () {
             const table = $( '#product_sold_cart_datatable_id' ).DataTable()
             table.row( $( this ).parents( 'tr' ) ).remove().draw();
+            new ButtonEventImpl().hideDetailCheckout()
+            new ButtonEventImpl().resetDetailCheckout()
         } )
         $( '#product_sold_cart_datatable_id' ).on( 'input', '.quantityFields', function ( event ) {
-            console.log( 'trrriggered' )
             if ( !this.value ) return;
             let newQuantity = parseInt( this.value )
             if ( newQuantity < 1 ) newQuantity = 1;
@@ -462,7 +463,6 @@ class ModalFormImpl extends ModalForm {
             new ButtonEventImpl().hideDetailCheckout()
             new ButtonEventImpl().resetDetailCheckout()
         } )
-
     }
 }
 
@@ -471,6 +471,15 @@ class ButtonEventImpl extends ButtonEvent {
         super()
     }
     checkOutTransaction() {
+        let tableCashier = $( '#product_sold_cart_datatable_id' ).DataTable()
+        let shopingItems = tableCashier.rows().data().toArray()
+        if ( shopingItems.length < 1 ) {
+            new Alert().showWarning( 'No product selected' )
+            this.hideDetailCheckout()
+            this.resetDetailCheckout()
+
+            return
+        }
         this.showDetailCheckout()
         this.setNetTotalPriceAndTax()
     }
@@ -608,6 +617,7 @@ class ButtonEventImpl extends ButtonEvent {
         document.querySelector( '#taxFields' ).textContent = 0;
         document.querySelector( '#cuttOffFields' ).textContent = 0;
         document.querySelector( '#changeFields' ).innerHTML = 0
+        document.querySelector( '#paidFields' ).value = 0
     }
     showDetailCheckout() {
         document.querySelector( '#container_detail_checkout' ).removeAttribute( 'hidden' )
@@ -651,10 +661,11 @@ class AjaxImpl extends Ajax {
         const payload = this.createPayload( 'POST', formData )
         const onSuccess = ( response ) => {
             if ( response.status ) {
-
-                // new ModalFormImpl().hideModal( 'id_modal_for_add_new_data' )
                 new Alert().successAjax( response.msg )
                 new DatatableProductSoldImpl().reloadDatatable()
+                new DatatableProductSoldImpl().clearCashierTable()
+                new ButtonEventImpl().hideDetailCheckout()
+                new ButtonEventImpl().resetDetailCheckout()
                 return
             }
             new Alert().failedAjax( response.msg )
