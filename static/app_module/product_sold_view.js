@@ -393,9 +393,18 @@ class ModalFormImpl extends ModalForm {
             onChange: ( productId ) => {
                 if ( !productId ) return;
                 $( "#productInputFields" )[ 0 ].selectize.clear();
+                if ( new ButtonEventImpl().isExistInCashierTable( productId ) ) {
+                    new ModalFormImpl().increaseProductQuantity( productId )
+                    return
+                }
                 new AjaxImpl().getSingleProduct( productId )
             }
         } );
+    }
+    increaseProductQuantity( productId ) {
+        let quantityField = document.querySelector( `#input_for_quantity_${ productId }` )
+        let oldQuantity = quantityField.value
+        quantityField.value = parseInt(oldQuantity) + 1
     }
     bindEventToFormFilterAndNewTransaction() {
         const btnFilterData = document.querySelector( '.btn-filter-product-sold' )
@@ -417,7 +426,8 @@ class ModalFormImpl extends ModalForm {
     setChangeOfTransaction( paidValue ) {
         let netPrice = document.querySelector( '#netPriceFields' ).textContent;
         let tax = document.querySelector( '#taxFields' ).textContent;
-        let totalPriceToPaid = parseInt( netPrice ) + parseInt( tax )
+        let cuttOff = document.querySelector( '#cuttOffFields' ).textContent;
+        let totalPriceToPaid = ( parseInt( netPrice ) - parseInt( cuttOff ) ) + parseInt( tax )
         let change = paidValue - totalPriceToPaid
         document.querySelector( '#changeFields' ).innerHTML = change
     }
@@ -455,25 +465,45 @@ class ButtonEventImpl extends ButtonEvent {
         this.setNetTotalPriceAndTax()
         // this.serializeDataFromTableCashier()
     }
+    isExistInCashierTable( productId ) {
+        let tableCashier = $( '#product_sold_cart_datatable_id' ).DataTable()
+        let shopingItems = tableCashier.rows().data().toArray()
+        for ( let productInCart of shopingItems ) {
+            if ( productId == productInCart.product_id ) {
+                return true
+            }
+        }
+        return false
+    }
     calculateTotalPrice( productSolds ) {
+        let grossTotalPrice = 0
+        for ( let product of productSolds ) {
+            let quantity = document.querySelector( `#input_for_quantity_${ product.product_id }` ).value
+            if ( quantity < 1 ) quantity = 1;
+            let grossPrice = product.price * quantity
+            grossTotalPrice += grossPrice
+        }
+        return grossTotalPrice
+    }
+    calculateTotalCuttOff( productSolds ) {
         const getCuttOff = ( product ) => {
             if ( !product.discount_applied ) return 0;
             if ( !product.discount_applied.discount_applied_on_product ) return 0;
             return new FormDataImpl().getDiscountNamesForCashier( product.discount_applied.discount_applied_on_product ).discount_nominal
         }
-        let grossTotalPrice = 0
+        let cuttOffTotalPrice = 0
         for ( let product of productSolds ) {
             let quantity = document.querySelector( `#input_for_quantity_${ product.product_id }` ).value
             if ( quantity < 1 ) quantity = 1;
-            let grossPrice = product.price * quantity  //its should be * quantity, not 1
             let cuttOffNominal = getCuttOff( product ) * quantity
-            grossTotalPrice += ( grossPrice - cuttOffNominal )
+            cuttOffTotalPrice += cuttOffNominal
         }
-        return grossTotalPrice
+        return cuttOffTotalPrice
     }
     calculateTax( productSolds ) {
         let netPrice = new ButtonEventImpl().calculateTotalPrice( productSolds )
-        return netPrice * 0.1
+        let totalCutOff = new ButtonEventImpl().calculateTotalCuttOff( productSolds )
+        return ( netPrice - totalCutOff ) * 0.1
     }
     calculateChange( productSolds ) {
         let netTotalPrice = new ButtonEventImpl().calculateTotalPrice( productSolds )
@@ -528,10 +558,12 @@ class ButtonEventImpl extends ButtonEvent {
         const tableCashier = $( '#product_sold_cart_datatable_id' ).DataTable()
         const shopingItems = tableCashier.rows().data().toArray()
         let netTotalPrice = new ButtonEventImpl().calculateTotalPrice( shopingItems )
+        let totalCuttOff = new ButtonEventImpl().calculateTotalCuttOff( shopingItems )
         let tax = new ButtonEventImpl().calculateTax( shopingItems )
         document.querySelector( '#netPriceFields' ).innerHTML = netTotalPrice
         document.querySelector( '#taxFields' ).innerHTML = tax
-        document.querySelector( '#priceToPayFields' ).innerHTML = tax + netTotalPrice
+        document.querySelector( '#cuttOffFields' ).innerHTML = totalCuttOff
+        document.querySelector( '#priceToPayFields' ).innerHTML = tax + ( netTotalPrice - totalCuttOff )
     }
     showDetailCheckout() {
         document.querySelector( '#container_detail_checkout' ).removeAttribute( 'hidden' )
