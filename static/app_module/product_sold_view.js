@@ -251,6 +251,14 @@ class FormDataImpl extends FormData {
         return new FormDataImpl().getDiscountNamesForCashier( productRecord.discount_applied_on_product ).discount_nominal * defaultQuantity
     }
     addItemToCashierTable( productRecord ) {
+        if ( !productRecord.stock ) {
+            new Alert().showWarning( 'Product stock has  not been input yet' )
+            return
+        }
+        if ( productRecord.stock.store_stock < 1 ) {
+            new Alert().showWarning( 'Product stock is empty' )
+            return
+        }
         let removeRecordBtn = `<div class='text-center'><button type="button" class="btn btn-danger btn-remove-data" >X</button></div>`
         let records = {
             no: '',
@@ -440,10 +448,18 @@ class ModalFormImpl extends ModalForm {
                 if ( !productId ) return;
                 $( "#productInputFields" )[ 0 ].selectize.clear();
 
-                if ( new ButtonEventImpl().isExistInCashierTable( productId ) ) {
+                const isExist = new ButtonEventImpl().isExistInCashierTable( productId )
+
+                if ( isExist ) {
+                    const isReady = new ButtonEventImpl().isStockReady( productId )
+                    if ( !isReady ) {
+                        new Alert().showWarning( 'Product Stock already empty' )
+                        return
+                    }
                     new ModalFormImpl().increaseProductQuantity( productId )
                     return
                 }
+
                 new AjaxImpl().getSingleProduct( productId )
             }
         } );
@@ -543,6 +559,29 @@ class ButtonEventImpl extends ButtonEvent {
             }
         }
         return false
+    }
+    isStockReady( productId ) {
+        let tableCashier = $( '#product_sold_cart_datatable_id' ).DataTable()
+
+        let quantityField = document.querySelector( `#input_for_quantity_${ productId }` ).value
+
+        if ( !quantityField ) {
+            quantityField = 1
+        } else {
+            quantityField = parseInt( quantityField ) + 1
+        }
+
+
+        let shopingItems = tableCashier.rows().data().toArray()
+        for ( let productInCart of shopingItems ) {
+            if ( productId == productInCart.product_id ) {
+                let stock = productInCart.productRecord.stock
+                if ( !stock ) return false;
+                if ( !stock.store_stock ) return false;
+                if ( stock.store_stock < quantityField ) return false;
+            }
+        }
+        return true
     }
     saveNewTransaction() {
         let newTransactionParams = this.serializeDataFromTableCashier()
