@@ -1,0 +1,34 @@
+Sometimes its hard to reconfig database when are going to production, 
+keeping trigger and functions inside project make it simpler and easier to access them.
+
+#CREATE FUNCTION TRIGGER COMAND
+    create or replace function after_insert_detail_transaction_sold()
+    returns trigger
+    language plpgsql
+    as $$
+	declare
+		current_stock integer =0;
+		new_stock integer :=0;
+    Begin
+	
+	select mss_store_stock  into current_stock from ms_stock where mss_msp_id=new.td_msp_id;
+	if new.td_quantity > current_stock then
+    raise exception 'Stock store is less than product sold for id product %',new.td_msp_id;
+    end if;
+	
+	new_stock= current_stock - new.td_quantity;
+	if new_stock <0 then 
+	raise exception 'Stock is minus';
+	end if;
+    update  ms_stock set mss_store_stock = new_stock where mss_msp_id=new.td_msp_id;
+	
+    return new;
+    end;
+    $$
+
+#CREATE TRIGGER COMAND
+
+    create trigger after_insert_detail_transaction_sold_trigger
+    before insert on transaction_sold_detail
+    for each row 
+        execute procedure after_insert_detail_transaction_sold();	
