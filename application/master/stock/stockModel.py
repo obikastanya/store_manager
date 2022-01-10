@@ -14,6 +14,8 @@ class Stock(db.Model):
     mss_create_date=db.Column(db.Date())
     mss_update_user=db.Column(db.String(30))
     mss_update_date=db.Column(db.Date())
+    product = db.relationship('Product',
+                              back_populates='stock')
 
 class StockSchema(Schema):
     
