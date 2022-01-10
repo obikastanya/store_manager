@@ -345,6 +345,8 @@ class ValidationHandler:
         headTransactionParams=dataFromRequest.get('head_transaction')
         # set validation result as false if there is an empty value
         for key, value in headTransactionParams.items():
+            if value in [0,0.0]:
+                continue
             if not value:
                 return False
         return True
@@ -357,6 +359,8 @@ class ValidationHandler:
         for productSold in detailTransactionParams:
             for key, value in productSold.items():
                 if key=='discount_applied_on_transaction':
+                    continue
+                if value in [0,0.0]:
                     continue
                 if not value:
                     return False
