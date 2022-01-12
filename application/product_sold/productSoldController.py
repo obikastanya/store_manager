@@ -2,6 +2,8 @@ from flask import request,jsonify
 from marshmallow.fields import Bool
 from .productSoldModel import SoldTransactionHead, SoldTransactionDetail, SoldTransactionDetailDiscountApplied,db
 from .productSoldModel import SoldTransactionHead,SoldTransactionHeadSchema
+from ..master.employee.employeeModel import Employee
+from ..master.payment_method.paymentMethodModel import PaymentMethod
 from application.utilities.response import Response
 from sqlalchemy import func
 
@@ -10,12 +12,12 @@ class ProductSoldController:
         return {'status':False,'msg':'default false msg'}
         
     def getData(self):
-        try:
-            data,totalRecords, totalRecordsFiltered=DataHandler().grabData()
-            resp= Response.datatable(data={'datas':data,'totalRecords':totalRecords,'totalRecordsFiltered':totalRecordsFiltered})
-            return resp
-        except:
-            return Response.make(status=False,msg='Eror while trying to retrieve data' )
+        # try:
+        data,totalRecords, totalRecordsFiltered=DataHandler().grabData()
+        resp= Response.datatable(data={'datas':data,'totalRecords':totalRecords,'totalRecordsFiltered':totalRecordsFiltered})
+        return resp
+        # except:
+        #     return Response.make(status=False,msg='Eror while trying to retrieve data' )
 
     def insertNewTransaction(self):
         # try:
@@ -85,6 +87,9 @@ class DataHandler:
         objectToDelete=self.grabOne(paramFromRequest)
         db.session.delete(objectToDelete)
         db.session.commit()
+    
+    def grabOne(self, paramFromRequest):
+        return SoldTransactionHead.query.filter_by(th_id=paramFromRequest.get('th_id')).first()
 
     def grabData(self):
         """Returning list of data to be shown, total records selected
@@ -166,20 +171,21 @@ class DataHandler:
         groupOfObjectResult=SoldTransactionHead.query.offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
         return SoldTransactionHeadSchema(many=True).dump(groupOfObjectResult)
 
+    
     def grabDataWithKeywordAndOrder(self, datatableConfig,filterStatements):
         orderStatement=self.getOrderStatement(datatableConfig)
-        groupOfObjectResult=SoldTransactionHead.query.join(SoldTransactionDetail).join(SoldTransactionDetailDiscountApplied).filter(*filterStatements ).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        groupOfObjectResult=SoldTransactionHead.query.join(PaymentMethod).join(SoldTransactionDetail).join(SoldTransactionDetailDiscountApplied).filter(*filterStatements ).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
         return SoldTransactionHeadSchema(many=True).dump(groupOfObjectResult)
 
     
     def grabDataWithKeyword(self,datatableConfig, filterStatements):
-        groupOfObjectResult=SoldTransactionHead.query.join(SoldTransactionDetail).join(SoldTransactionDetailDiscountApplied).filter(*filterStatements ).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        groupOfObjectResult=SoldTransactionHead.query.join(PaymentMethod).join(SoldTransactionDetail).join(SoldTransactionDetailDiscountApplied).filter(*filterStatements ).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
         return SoldTransactionHeadSchema(many=True).dump(groupOfObjectResult)
     
     def grabDataWithOrderby(self, datatableConfig):
         orderStatement=self.getOrderStatement(datatableConfig)
-        groupOfObjectResult=SoldTransactionHead.query.order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
-        return SoldTransactionHead.Schema(many=True).dump(groupOfObjectResult)
+        groupOfObjectResult=SoldTransactionHead.query.join(PaymentMethod).join(SoldTransactionDetail).join(SoldTransactionDetailDiscountApplied).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        return SoldTransactionHeadSchema(many=True).dump(groupOfObjectResult)
     
     def grabTotalRecords(self):
         return db.session.query(func.count(SoldTransactionHead.th_id)).scalar()
@@ -194,13 +200,64 @@ class DataHandler:
         orderStatement=None
         columnToOrder=datatableConfig.get('orderBy')
         orderDirection=datatableConfig.get('orderDirection')
-        # if columnToOrder=='msp_id': 
-        #     orderStatement=self.getOrderDirectionById(orderDirection)
-
+        print('------------------------------------------------------', columnToOrder)
+        if columnToOrder=='th_id':
+            orderStatement=self.getOrderByTransactionHeadId(orderDirection)
+        if columnToOrder=='th_date':
+            orderStatement=self.getOrderByTransactionDate(orderDirection)
+        if columnToOrder=='th_mse_id':
+            orderStatement=self.getOrderByCashier(orderDirection)
+        if columnToOrder=='th_mspm_id':
+            orderStatement=self.getOrderByPaymentMethod(orderDirection)
+        if columnToOrder=='th_total_price':
+            orderStatement=self.getOrderByTotalPrice(orderDirection)
+        if columnToOrder=='th_tax':
+            orderStatement=self.getOrderByTax(orderDirection)
+        if columnToOrder=='th_paid':
+            orderStatement=self.getOrderByPaid(orderDirection)
+        if columnToOrder=='th_change':
+            orderStatement=self.getOrderByChange(orderDirection)
         return orderStatement
 
-    def grabOne(self, paramFromRequest):
-        return SoldTransactionHead.query.filter_by(th_id=paramFromRequest.get('th_id')).first()
+    def getOrderByTransactionHeadId(self,orderDirection):
+        if orderDirection=='desc':
+            return SoldTransactionHead.th_id.desc()
+        return SoldTransactionHead.th_id.asc()
+
+    def getOrderByTransactionDate(self, orderDirection):
+        if orderDirection=='desc':
+            return SoldTransactionHead.th_date.desc()
+        return SoldTransactionHead.th_date.asc()
+
+    def getOrderByCashier(self, orderDirection):
+        if orderDirection=='desc':
+            return Employee.mse_name.desc()
+        return Employee.mse_name.asc()
+
+    def getOrderByPaymentMethod(self, orderDirection):
+        if orderDirection=='desc':
+            return PaymentMethod.mspm_desc.desc()
+        return PaymentMethod.mspm_desc.asc()
+
+    def getOrderByTotalPrice(self,orderDirection):
+        if orderDirection=='desc':
+            return SoldTransactionHead.th_total_price.desc()
+        return SoldTransactionHead.th_total_price.asc()
+
+    def getOrderByTax(self, orderDirection):
+        if orderDirection=='desc':
+            return SoldTransactionHead.th_tax.desc()
+        return SoldTransactionHead.th_tax.asc()
+
+    def getOrderByPaid(self, orderDirection):
+        if orderDirection=='desc':
+            return SoldTransactionHead.th_paid.desc()
+        return SoldTransactionHead.th_paid.asc()
+
+    def getOrderByChange(self,orderDirection):
+        if orderDirection=='desc':
+            return SoldTransactionHead.th_change.desc()
+        return SoldTransactionHead.th_change.asc()
 
     def isDataExist(self, queryResult):
         # first check if the array is not empty, then check if its contain empty dictionary
@@ -226,8 +283,22 @@ class ParameterHandler:
     def getOrderColumnName(self):
         orderColumnIndex=request.args.get('order[0][column]','')
         orderColumnName=request.args.get('columns[%s][name]'%orderColumnIndex,'')
-        if orderColumnName=='product_id':
-            return 'msp_id'
+        if orderColumnName=='transaction_id':
+            return 'th_id'
+        if orderColumnName=='transaction_date':
+            return 'th_date'
+        if orderColumnName=='employee_transaction':
+            return 'th_mse_id'
+        if orderColumnName=='payment_method':
+            return 'th_mspm_id'
+        if orderColumnName=='total_price':
+            return 'th_total_price'
+        if orderColumnName=='tax':
+            return 'th_tax'
+        if orderColumnName=='paid':
+            return 'th_paid'
+        if orderColumnName=='change':
+            return 'th_change'
         return None
 
 
