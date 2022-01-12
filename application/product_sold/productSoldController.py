@@ -171,20 +171,19 @@ class DataHandler:
         groupOfObjectResult=SoldTransactionHead.query.offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
         return SoldTransactionHeadSchema(many=True).dump(groupOfObjectResult)
 
-    
     def grabDataWithKeywordAndOrder(self, datatableConfig,filterStatements):
         orderStatement=self.getOrderStatement(datatableConfig)
-        groupOfObjectResult=SoldTransactionHead.query.join(PaymentMethod).join(SoldTransactionDetail).join(SoldTransactionDetailDiscountApplied).filter(*filterStatements ).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        groupOfObjectResult=self.getQueryJoined().filter(*filterStatements ).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
         return SoldTransactionHeadSchema(many=True).dump(groupOfObjectResult)
 
     
     def grabDataWithKeyword(self,datatableConfig, filterStatements):
-        groupOfObjectResult=SoldTransactionHead.query.join(PaymentMethod).join(SoldTransactionDetail).join(SoldTransactionDetailDiscountApplied).filter(*filterStatements ).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        groupOfObjectResult=self.getQueryJoined().filter(*filterStatements ).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
         return SoldTransactionHeadSchema(many=True).dump(groupOfObjectResult)
     
     def grabDataWithOrderby(self, datatableConfig):
         orderStatement=self.getOrderStatement(datatableConfig)
-        groupOfObjectResult=SoldTransactionHead.query.join(PaymentMethod).join(SoldTransactionDetail).join(SoldTransactionDetailDiscountApplied).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        groupOfObjectResult=self.getQueryJoined().order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
         return SoldTransactionHeadSchema(many=True).dump(groupOfObjectResult)
     
     def grabTotalRecords(self):
@@ -195,12 +194,14 @@ class DataHandler:
 
     def getSearchKeywordStatement(self, datatableConfig):
         return (SoldTransactionHead.th_id==datatableConfig.get('searchKeyWord'))
+        
+    def getQueryJoined(self):
+        return SoldTransactionHead.query.join(PaymentMethod).join(SoldTransactionDetail).join(SoldTransactionDetailDiscountApplied)
 
     def getOrderStatement(self,datatableConfig):
         orderStatement=None
         columnToOrder=datatableConfig.get('orderBy')
         orderDirection=datatableConfig.get('orderDirection')
-        print('------------------------------------------------------', columnToOrder)
         if columnToOrder=='th_id':
             orderStatement=self.getOrderByTransactionHeadId(orderDirection)
         if columnToOrder=='th_date':
