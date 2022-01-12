@@ -1,5 +1,4 @@
 from flask import request,jsonify
-from marshmallow.fields import Bool
 from .productSoldModel import SoldTransactionHead, SoldTransactionDetail, SoldTransactionDetailDiscountApplied,db
 from .productSoldModel import SoldTransactionHead,SoldTransactionHeadSchema
 from ..master.employee.employeeModel import Employee
@@ -146,29 +145,8 @@ class DataHandler:
             groupOfFilterStatement.append(*tempStatement)
         return True, tuple(groupOfFilterStatement)
 
-    def getFilterStatement(self):
-        dataFromRequest=ParameterHandler().getFilterTransactionParams()
-        if not ValidationHandler().isFilterExist(dataFromRequest):
-            return False, (None,)
-        # saved the query statement inside list so we can append and make it more dynamic,
-        #  then parse them to tuple since its the alchemy requirement
-        groupOfFilterStatement=[]
-        if dataFromRequest.get('td_msp_id'):
-            tempStatement=(SoldTransactionDetail.td_msp_id==int(dataFromRequest.get('td_msp_id')),)
-            groupOfFilterStatement.append(*tempStatement)
-        if dataFromRequest.get('tdda_da_discount_id'):
-            tempStatement=(SoldTransactionDetailDiscountApplied.tdda_da_discount_id==int(dataFromRequest.get('tdda_da_discount_id')),)
-            groupOfFilterStatement.append(*tempStatement)
-        if dataFromRequest.get('th_mse_id'):
-            tempStatement=(SoldTransactionHead.th_mse_id==int(dataFromRequest.get('th_mse_id')),)
-            groupOfFilterStatement.append(*tempStatement)
-        if dataFromRequest.get('th_date'):
-            tempStatement=(SoldTransactionHead.th_date==dataFromRequest.get('th_date'),)
-            groupOfFilterStatement.append(*tempStatement)
-        return True, tuple(groupOfFilterStatement)
-
     def grabDataDefault(self, datatableConfig):
-        groupOfObjectResult=SoldTransactionHead.query.offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        groupOfObjectResult=self.getQueryJoined().offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
         return SoldTransactionHeadSchema(many=True).dump(groupOfObjectResult)
 
     def grabDataWithKeywordAndOrder(self, datatableConfig,filterStatements):
@@ -190,13 +168,13 @@ class DataHandler:
         return db.session.query(func.count(SoldTransactionHead.th_id)).scalar()
 
     def grabTotalRecordsFiltered(self, filterStatements):
-        return db.session.query(func.count(SoldTransactionHead.th_id.distinct())).join(SoldTransactionDetail).join(SoldTransactionDetailDiscountApplied).filter(*filterStatements ).scalar()
+        return db.session.query(func.count(SoldTransactionHead.th_id.distinct())).join(SoldTransactionDetail).filter(*filterStatements ).scalar()
 
     def getSearchKeywordStatement(self, datatableConfig):
         return (SoldTransactionHead.th_id==datatableConfig.get('searchKeyWord'))
-        
+
     def getQueryJoined(self):
-        return SoldTransactionHead.query.join(PaymentMethod).join(SoldTransactionDetail).join(SoldTransactionDetailDiscountApplied)
+        return SoldTransactionHead.query.join(PaymentMethod).join(SoldTransactionDetail)
 
     def getOrderStatement(self,datatableConfig):
         orderStatement=None
