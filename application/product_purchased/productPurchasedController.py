@@ -7,9 +7,6 @@ from ..master.payment_method.paymentMethodModel import PaymentMethod
 from application.utilities.response import Response
 from sqlalchemy import func
 
-# from ..product_sold.productSoldModel import SoldTransactionHead, SoldTransactionDetail, SoldTransactionDetailDiscountApplied
-# from ..product_sold.productSoldModel import SoldTransactionHead,SoldTransactionHeadSchema
-
 class ProductPurchasedController:
     def defaultFalse(self):
         return {'status':False,'msg':'default false msg'}
@@ -24,7 +21,6 @@ class ProductPurchasedController:
         #     return Response.make(status=False,msg='Eror while trying to retrieve data' )
 
     def insertNewTransaction(self):
-        # return self.defaultFalse()
         # try:
         dataFromRequest=ParameterHandler().getParamInsertFromRequests()
         if not ValidationHandler().isParamInsertValid(dataFromRequest):
@@ -34,32 +30,30 @@ class ProductPurchasedController:
         return Response.statusAndMsg(msg='Data successfully added' )
         # except:
         #     return Response.statusAndMsg(False,'Insert data failed' )
+
     def deleteTransaction(self):
-        return self.defaultFalse()
-        try:
-            dataFromRequest=ParameterHandler().getIdFromRequest()
-            if not ValidationHandler().isParamDeleteValid(dataFromRequest):
-                return Response.statusAndMsg(False,'Data Id is not valid, delete process has been canceled' )
-            DataHandler().deleteData(dataFromRequest)
-            return Response.statusAndMsg(msg='Data has been deleted' )
-        except:
-            return Response.statusAndMsg(False,'Delete data failed' )
+        # try:
+        dataFromRequest=ParameterHandler().getIdFromRequest()
+        if not ValidationHandler().isParamDeleteValid(dataFromRequest):
+            return Response.statusAndMsg(False,'Data Id is not valid, delete process has been canceled' )
+        DataHandler().deleteData(dataFromRequest)
+        return Response.statusAndMsg(msg='Data has been deleted' )
+        # except:
+        #     return Response.statusAndMsg(False,'Delete data failed' )
     def filterTransaction(self):
-        return self.defaultFalse()
         return self.getData()
 
     def searchDetailTransaction(self):
-        return self.defaultFalse()
-        try:
-            paramFromRequest=ParameterHandler().getIdFromRequest()
-            if not ValidationHandler().isParamSearchValid(paramFromRequest):
-                return Response.make(False,'Data ID is not valid, process has been canceled' )
-            singleData=DataHandler().grabSingleData(paramFromRequest)
-            if not DataHandler().isDataExist(singleData):
-                return Response.make(False,'Data is not found' )
-            return Response.make(msg='Data Found', data=singleData)
-        except:
-            return Response.make(False,'Cant find data' )
+        # try:
+        paramFromRequest=ParameterHandler().getIdFromRequest()
+        if not ValidationHandler().isParamSearchValid(paramFromRequest):
+            return Response.make(False,'Data ID is not valid, process has been canceled' )
+        singleData=DataHandler().grabSingleData(paramFromRequest)
+        if not DataHandler().isDataExist(singleData):
+            return Response.make(False,'Data is not found' )
+        return Response.make(msg='Data Found', data=singleData)
+        # except:
+        #     return Response.make(False,'Cant find data' )
 
 
 
@@ -78,17 +72,17 @@ class DataHandler:
             db.session.add(newDetailTransaction)
             db.session.flush()
     
-    # def grabSingleData(self, paramFromRequest):
-    #     groupOfObjectResult=self.grabOne(paramFromRequest)
-    #     return SoldTransactionHeadSchema(many=True).dump([groupOfObjectResult])
+    def grabSingleData(self, paramFromRequest):
+        groupOfObjectResult=self.grabOne(paramFromRequest)
+        return PurchasedTransactionHeadSchema(many=True).dump([groupOfObjectResult])
 
-    # def deleteData(self, paramFromRequest):
-    #     objectToDelete=self.grabOne(paramFromRequest)
-    #     db.session.delete(objectToDelete)
-    #     db.session.commit()
+    def deleteData(self, paramFromRequest):
+        objectToDelete=self.grabOne(paramFromRequest)
+        db.session.delete(objectToDelete)
+        db.session.commit()
     
     def grabOne(self, paramFromRequest):
-        return PurchasedTransactionHead.query.filter_by(th_id=paramFromRequest.get('tp_id')).first()
+        return PurchasedTransactionHead.query.filter_by(tp_id=paramFromRequest.get('tp_id')).first()
 
     def grabData(self):
         """Returning list of data to be shown, total records selected
@@ -320,7 +314,7 @@ class ParameterHandler:
         
     def getIdFromRequest(self):
         parameterFromRequest={
-            'th_id':request.json.get('transaction_id')
+            'tp_id':request.json.get('transaction_purchased_id')
         }
         return parameterFromRequest
 
@@ -359,8 +353,6 @@ class ValidationHandler:
             return False
         if not self.validateInsertDetailTransactionParams(dataFromRequest):
             return False
-        if not self.validateDetailDiscountAppliedParams(dataFromRequest):
-            return False
         return True
 
     def validateInsertHeadTransactionParams(self,dataFromRequest):
@@ -382,8 +374,6 @@ class ValidationHandler:
         # set validation result as false if there is an empty value
         for productSold in detailTransactionParams:
             for key, value in productSold.items():
-                if key=='discount_applied_on_transaction':
-                    continue
                 if value in [0,0.0]:
                     continue
                 if not value:
@@ -406,9 +396,9 @@ class ValidationHandler:
                     return False
         return True
     def isIdValid(self,dataFromRequest):
-        if not dataFromRequest.get('th_id'):
+        if not dataFromRequest.get('tp_id'):
             return False
-        if not self.isNumber(dataFromRequest.get('th_id')):
+        if not self.isNumber(dataFromRequest.get('tp_id')):
             return False
         return True
     def isParamDeleteValid(self,dataFromRequest):

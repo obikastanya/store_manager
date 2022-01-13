@@ -37,7 +37,7 @@ def testSelectProductPurchasedSuccess():
 @pytest.mark.productPurchased
 def testShowDetailTransaction():
     payload={
-        'transaction_purchased_id':7
+        'transaction_purchased_id':3
     }
     response=requests.post(host+'/product_purchased_api_search', json=payload)
     jsonResponse=response.json()
@@ -64,10 +64,10 @@ def testInsertNewTransaction():
     assert jsonResponse.get('status')==True
 
     
-@pytest.mark.productSold
+@pytest.mark.productPurchased
 def testDeleteTransaction():
     payload={
-        'transaction_purchased_id':2
+        'transaction_purchased_id':4
     }
     response=requests.delete(host+endpoint, json=payload)
     jsonResponse=response.json()
