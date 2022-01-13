@@ -1,194 +1,259 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base_template.html'%}
+{% block css_script %}
+<link rel="stylesheet" href="/static/assets/select/selectize.bootstrap4.min.css">
+{% endblock %}
+{%block menu_title %}Product Sold{% endblock %}
 
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <meta name="description" content="">
-        <meta name="author" content="">
-        <title>Store Manager</title>
-        <link href="static/theme/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-        <link
-            href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-            rel="stylesheet">
-        <link href="static/theme/css/sb-admin-2.min.css" rel="stylesheet">
-
-    </head>
-
-    <body id="page-top">
-        <div id="wrapper">
-            <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-                <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
-                    <div class="sidebar-brand-icon rotate-n-15">
-                        <i class="fas fas fa-cart-plus"></i>
-                    </div>
-                    <div class="sidebar-brand-text mx-3">Store Manager</div>
-                </a>
-                <hr class="sidebar-divider my-0">
-                <li class="nav-item active">
-                    <a class="nav-link" href="/">
-                        <i class="fas fa-fw fa-tachometer-alt"></i>
-                        <span>Dashboard</span></a>
-                </li>
-                <hr class="sidebar-divider">
-                <div class="sidebar-heading">Store Menu</div>
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="/product-sold">
-                        <i class="fas fa-fw fa-cog"></i>
-                        <span>Product Sold</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="/product-purchased">
-                        <i class="fas fa-fw fa-wrench"></i>
-                        <span>Product Purchased</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="/manage-discount">
-                        <i class="fas fa-fw fa-folder"></i>
-                        <span>Manage Discount</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="/report">
-                        <i class="fas fa-fw fa-folder"></i>
-                        <span>Generate Report</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="/master" data-toggle="collapse" data-target="#collapsePages"
-                        aria-expanded="true" aria-controls="collapsePages">
-                        <i class="fas fa-fw fa-folder"></i>
-                        <span>Master</span>
-                    </a>
-                    <div id="collapsePages" class="collapse" aria-labelledby="headingPages"
-                        data-parent="#accordionSidebar">
-                        <div class="bg-white py-2 collapse-inner rounded">
-                            <a class="collapse-item" href="/stock">Stock</a>
-                            <a class="collapse-item" href="/discount">Discount</a>
-                            <a class="collapse-item" href="/discount-type">Discount Type</a>
-                            <a class="collapse-item" href="/product">Product</a>
-                            <a class="collapse-item" href="/employee">Employee</a>
-                            <a class="collapse-item" href="/payment-method">Payment Method</a>
-                            <a class="collapse-item" href="/supplier">Supplier</a>
-                            <a class="collapse-item" href="/product-category">Product Category</a>
-                            <a class="collapse-item" href="/company">Company</a>
-                        </div>
-                    </div>
-                </li>
-                <hr class="sidebar-divider d-none d-md-block">
-                <!-- Sidebar Toggler (Sidebar) -->
-                <div class="text-center d-none d-md-inline">
-                    <button class="rounded-circle border-0" id="sidebarToggle"></button>
-                </div>
-            </ul>
-            <!-- End of Sidebar -->
-
-            <!-- Content Wrapper -->
-            <div id="content-wrapper" class="d-flex flex-column">
-
-                <!-- Main Content -->
-                <div id="content">
-
-                    <!-- Topbar -->
-                    <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-
-                        <!-- Sidebar Toggle (Topbar) -->
-                        <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-                            <i class="fa fa-bars"></i>
-                        </button>
-
-                        <!-- Topbar Navbar -->
-                        <ul class="navbar-nav ml-auto">
-
-
-                            <div class="topbar-divider d-none d-sm-block"></div>
-                            <!-- Nav Item - User Information -->
-                            <li class="nav-item dropdown no-arrow">
-                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
-                                    <img class="img-profile rounded-circle" src="static/theme/img/undraw_profile.svg">
-                                </a>
-                                <!-- Dropdown - User Information -->
-                                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                    aria-labelledby="userDropdown">
-                                    <a class="dropdown-item" href="/logout" data-toggle="modal"
-                                        data-target="#logoutModal">
-                                        <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                        Logout
-                                    </a>
-                                </div>
-                            </li>
-
-                        </ul>
-
-                    </nav>
-                    <div class="container-fluid">
-
-                        <!-- Page Heading -->
-                        <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                            <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-                            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-                                <i class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
-                        </div>
-
-                        <!-- Content Row -->
-                        <div class="row">
-                            <!-- place for content -->
-                        </div>
-                    </div>
-                    <!-- /.container-fluid -->
-
-                </div>
-                <!-- End of Main Content -->
-                <!-- Footer -->
-                <footer class="sticky-footer bg-white">
-                    <div class="container my-auto">
-                        <div class="copyright text-center my-auto">
-                            <span>Copyright &copy; Obi Kastanya 2021</span>
-                        </div>
-                    </div>
-                </footer>
-            </div>
-
+{% block main_content%}
+<!-- datatables product -->
+<div class="card mr-4 ml-4 mb-3 bg-light">
+    <div class="card-body">
+        <div class="row ml-2 mb-3">
+            <h3>Filter Transaction</h3>
         </div>
-        <!-- End of Page Wrapper -->
-
-        <!-- Scroll to Top Button-->
-        <a class="scroll-to-top rounded" href="#page-top">
-            <i class="fas fa-angle-up"></i>
-        </a>
-
-        <!-- Logout Modal-->
-        <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                        </button>
+        <div class="row ">
+            <div class="col-md-7">
+                <div class="row mb-2">
+                    <div class="col-sm-4"><label for="productFields" class="form-label">Product</label>
                     </div>
-                    <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                        <a class="btn btn-primary" href="login.html">Logout</a>
+                    <div class="col">
+                        <select class="form-control selectForm" id="productFields" placeholder="Product">
+                            <option value="">No item to select</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-4"><label for="discountFields" class="form-label">Discount Applied</label>
+                    </div>
+                    <div class="col">
+                        <select class="form-control selectForm" id="discountFields" placeholder="Discount Applied">
+                            <option value="">No item to select</option>
+                        </select>
                     </div>
                 </div>
             </div>
+            <div class="col-md-4">
+                <div class="row mb-2">
+                    <div class="col-sm-4"><label for="cashierFields" class="form-label">Cashier</label>
+                    </div>
+                    <div class="col">
+                        <select class="form-control selectForm" id="cashierFields" placeholder="Cashier">
+                            <option value="">No item to select</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-4"><label for="transactionDateFields" class="form-label">Transaction Date</label>
+                    </div>
+                    <div class="col"><input type="date" class="form-control" id="transactionDateFields"
+                            placeholder="Transaction Date"></div>
+                </div>
+            </div>
+            <div class="col-md-1"></div>
         </div>
+        <div class="row">
+            <div class="col-md-11 ml-6 text-right">
+                <button type="button" class="btn btn-primary btn-filter-product-sold">Filter</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-        <script src="static/theme/vendor/jquery/jquery.min.js"></script>
-        <script src="static/theme/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-        <script src="static/theme/vendor/jquery-easing/jquery.easing.min.js"></script>
-        <script src="static/theme/js/sb-admin-2.min.js"></script>
-        <script src="static/theme/vendor/chart.js/Chart.min.js"></script>
-        <script src="static/theme/js/demo/chart-area-demo.js"></script>
-        <script src="static/theme/js/demo/chart-pie-demo.js"></script>
-    </body>
+<div class="row mt-4 ml-3 mr-3">
+    <div class="col-sm-12">
+        <table class="table table-bordered table-striped" id='product_sold_transaction_datatable_id' width='100%'>
+            <thead>
+                <tr>
+                    <th scope="col">No</th>
+                    <th scope="col">Transaction Code</th>
+                    <th scope="col">Transaction Date</th>
+                    <th scope="col">Cashier</th>
+                    <th scope="col">Payment Method</th>
+                    <th scope="col">Total Price</th>
+                    <th scope="col">Tax</th>
+                    <th scope="col">Paid</th>
+                    <th scope="col">Change</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
 
-</html>
+{%block popup_and_modal %}
+<!-- Modal for button  detail data  -->
+<div class="modal fade" id="id_modal_for_detail_data" data-backdrop="static" data-keyboard="false" tabindex="-1"
+    aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Detail Transaction</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered table-striped" id='product_sold_detail_transaction_datatable_id'
+                    width='100%'>
+                    <thead>
+                        <tr>
+                            <th scope="col">No</th>
+                            <th scope="col">Product Code</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Sub Total</th>
+                            <th scope="col">Cutt Off</th>
+                            <th scope="col">Discount Applied</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modul pop up for delete inside datatable -->
+<div class="modal fade" id="id_modal_for_delete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Delete Transaction</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6 id="delete_confirm_massage_id">Are you sure to delete this data ?</h6>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="button_delete_data_id">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for button add new transaction  -->
+<div class="modal fade" id="id_modal_for_add_new_data" data-backdrop="static" data-keyboard="false" tabindex="-1"
+    aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add New Transaction</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4 pl-3 pr-3">
+                    <div class="col">
+                        <label for="productInputFields" class="form-label">Select Product</label>
+                        <select class="form-control" id="productInputFields" placeholder="Select Product">
+                            <option value="">No item to select</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-2 pl-3 pr-3">
+                    <table class="table table-bordered table-striped" id='product_sold_cart_datatable_id' width='100%'>
+                        <thead>
+                            <tr>
+                                <th scope="col">No</th>
+                                <th scope="col">Product Code</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Sub Total</th>
+                                <th scope="col">Cutt Off</th>
+                                <th scope="col">Discount Applied</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row mb-2 pl-3 pr-3 ">
+                <div class="col-sm-12 text-right"><button type="button"
+                        class="btn btn-success btn-checkout-product-sold">Check Out</button>
+                </div>
+            </div>
+            <div class="col" id="container_detail_checkout" hidden>
+                <div class="row mb-2 ml-3 mr-3 ">
+                    <div class="col">
+                        <table class="table table-borderless">
+
+                            <tbody>
+                                <tr>
+                                    <td>Total Price</td>
+                                    <td>:</td>
+                                    <td><span id="netPriceFields">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Cutt Off</td>
+                                    <td>:</td>
+                                    <td><span id="cuttOffFields">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Tax</td>
+                                    <td>:</td>
+                                    <td><span id="taxFields">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Price To Pay</td>
+                                    <td>:</td>
+                                    <td><span id="priceToPayFields">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Paid</td>
+                                    <td>:</td>
+                                    <td>
+                                        <div><input id='paidFields' type="number" class="form-control text-left"
+                                                value=0></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Change</td>
+                                    <td>:</td>
+                                    <td><span id="changeFields">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Payment Method</td>
+                                    <td>:</td>
+                                    <td>
+                                        <div>
+                                            <select class="form-control selectForm" id="paymentMethodFields"
+                                                placeholder="Payment Method">
+                                                <option value="">No item to select</option>
+                                            </select>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col"></div>
+                </div>
+                <div class="row mb-2 pl-3 pr-3 ">
+                    <div class="col-sm-12 text-right"><button type="button"
+                            class="btn btn-primary text-light btn-pay-product-sold" id="btn_pay_transaction"
+                            style="width: 120px;">Pay</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block custom_script %}
+<script src="/static/assets/select/selectize.min.js"></script>
+<script src="/static/app_module/base_view.js"></script>
+<script src="/static/app_module/product_sold_view.js"></script>
+{% endblock %}

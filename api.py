@@ -3,6 +3,7 @@ from app import app
 from application.master.indexMasterController import *
 from application.manage_discount.manageDiscountController import ManageDiscountController
 from application.product_sold.productSoldController import ProductSoldController
+from application.product_purchased.productPurchasedController import ProductPurchasedController
 
 def splitRouteByMethods(Controller):
     if request.method == 'POST':
@@ -185,3 +186,16 @@ def productSoldApi():
         return ProductSoldController().insertNewTransaction()
     if request.method=='DELETE':
         return ProductSoldController().deleteTransaction()
+
+@app.route('/product_purchased_api', methods=['GET','POST','DELETE'])
+def productPurchasedApi():
+    if request.method=='GET':
+        return ProductPurchasedController().getData()
+    if request.method=='POST':
+        return ProductPurchasedController().insertNewTransaction()
+    if request.method=='DELETE':
+        return ProductPurchasedController().deleteTransaction()
+
+@app.post('/product_purchased_api_search')
+def productPurchasedApiSearch():
+    return ProductPurchasedController().searchDetailTransaction()

@@ -15,6 +15,7 @@ class PaymentMethod(db.Model):
     mspm_update_date=db.Column(db.Date())
 
     payment_method=db.relationship("SoldTransactionHead", backref='payment_method')
+    payment_method_purchased_product=db.relationship("PurchasedTransactionHead", backref="payment_method")
 
 class PaymentMethodSchema(Schema):
     """Schema to retrieve data from Model Stock as dictionary.

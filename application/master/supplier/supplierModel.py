@@ -17,6 +17,7 @@ class Supplier(db.Model):
     mssp_update_date=db.Column(db.Date())
     # relationship
     supplier=db.relationship('Product', backref='supplier')
+    supplier_for_purchased_transaction=db.relationship('PurchasedTransactionHead', backref='supplier')
 
 class SupplierSchema(Schema):
     """Schema to retrieve data from Model Supplier as dictionary.
