@@ -1,7 +1,7 @@
 const runScript = () => {
     $( document ).ready( function () {
         const modalForm = new ModalFormImpl()
-        const datatable = new DatatableProductSoldImpl()
+        const datatable = new DatatableProductPurchasedImpl()
         new AjaxImpl().getLovForSelectField()
         new ButtonEventImpl().bindEventWithAjax()
         datatable.initiateDatatable()
@@ -14,7 +14,7 @@ const runScript = () => {
 runScript()
 
 
-class DatatableProductSoldImpl extends BaseDatatable {
+class DatatableProductPurchasedImpl extends BaseDatatable {
     constructor() {
         super()
         this.tableColumns = [
@@ -126,24 +126,24 @@ class DatatableProductSoldImpl extends BaseDatatable {
                 }
             ]
         }
-        const tableCashier = $( '#product_sold_cart_datatable_id' ).DataTable( tableCashierSettings )
+        const tableCashier = $( '#product_purchased_cart_datatable_id' ).DataTable( tableCashierSettings )
         tableCashier.on( 'draw.dt order.dt search.dt', function () {
             tableCashier.column( 0, { search: 'applied', order: 'applied' } ).nodes().each( function ( cell, i ) {
                 cell.innerHTML = i + 1;
             } );
         } ).draw();
-        $( '#product_sold_cart_datatable_id' ).on( 'click', '.btn-remove-data', function () {
-            const table = $( '#product_sold_cart_datatable_id' ).DataTable()
+        $( '#product_purchased_cart_datatable_id' ).on( 'click', '.btn-remove-data', function () {
+            const table = $( '#product_purchased_cart_datatable_id' ).DataTable()
             table.row( $( this ).parents( 'tr' ) ).remove().draw();
             new ButtonEventImpl().hideDetailCheckout()
             new ButtonEventImpl().resetDetailCheckout()
         } )
-        $( '#product_sold_cart_datatable_id' ).on( 'input', '.quantityFields', function ( event ) {
+        $( '#product_purchased_cart_datatable_id' ).on( 'input', '.quantityFields', function ( event ) {
             if ( !this.value ) return;
             let newQuantity = parseInt( this.value )
             if ( newQuantity < 1 ) newQuantity = 1;
 
-            const table = $( '#product_sold_cart_datatable_id' ).DataTable()
+            const table = $( '#product_purchased_cart_datatable_id' ).DataTable()
             let currentRowData = table.row( $( this ).parents( 'tr' ) ).data()
             let newRowData = { ...currentRowData }
 
@@ -162,7 +162,7 @@ class DatatableProductSoldImpl extends BaseDatatable {
         } )
     }
     clearCashierTable() {
-        let table = $( '#product_sold_cart_datatable_id' ).DataTable();
+        let table = $( '#product_purchased_cart_datatable_id' ).DataTable();
         table.clear().draw();
     }
 }
@@ -200,7 +200,7 @@ class ButtonEventImpl extends ButtonEvent {
     }
 
     checkOutTransaction() {
-        let tableCashier = $( '#product_sold_cart_datatable_id' ).DataTable()
+        let tableCashier = $( '#product_purchased_cart_datatable_id' ).DataTable()
         let shopingItems = tableCashier.rows().data().toArray()
         if ( shopingItems.length < 1 ) {
             new Alert().showWarning( 'No product selected' )
@@ -221,7 +221,7 @@ class ButtonEventImpl extends ButtonEvent {
     }
 
     serializeDataFromTableCashier() {
-        let tableCashier = $( '#product_sold_cart_datatable_id' ).DataTable()
+        let tableCashier = $( '#product_purchased_cart_datatable_id' ).DataTable()
         let shopingItems = tableCashier.rows().data().toArray()
         let netTotalPrice = new ButtonEventImpl().calculateTotalPrice( shopingItems )
         let transactionRecord = {
@@ -234,7 +234,7 @@ class ButtonEventImpl extends ButtonEvent {
         return transactionRecord
     }
 
-    getItemFromSerializedData( productSoldData ) {
+    getItemFromSerializedData( productPurchasedData ) {
         const getQuantityValue = ( product ) => {
             let textQuantityValue = document.querySelector( `#input_for_quantity_${ product.product_id }` ).value
             try {
@@ -245,16 +245,16 @@ class ButtonEventImpl extends ButtonEvent {
                 return 0
             }
         }
-        let allProductSolds = []
-        for ( let product of productSoldData ) {
+        let allProductPurchaseds = []
+        for ( let product of productPurchasedData ) {
             let productDetail = {
                 product_id: product.product_id,
                 quantity: getQuantityValue( product ),
                 product_price: product.price
             }
-            allProductSolds.push( productDetail )
+            allProductPurchaseds.push( productDetail )
         }
-        return allProductSolds
+        return allProductPurchaseds
     }
     getDiscountAppliedOnProductTransaction( discountApplieds ) {
         if ( !discountApplieds ) return [];
@@ -273,7 +273,7 @@ class ButtonEventImpl extends ButtonEvent {
     }
 
     setNetTotalPrice() {
-        const tableCashier = $( '#product_sold_cart_datatable_id' ).DataTable()
+        const tableCashier = $( '#product_purchased_cart_datatable_id' ).DataTable()
         const shopingItems = tableCashier.rows().data().toArray()
         let netTotalPrice = new ButtonEventImpl().calculateTotalPrice( shopingItems )
         document.querySelector( '#netPriceFields' ).innerHTML = netTotalPrice
@@ -282,7 +282,7 @@ class ButtonEventImpl extends ButtonEvent {
         document.querySelector( '#netPriceFields' ).textContent = 0;
     }
     isExistInCashierTable( productId ) {
-        let tableCashier = $( '#product_sold_cart_datatable_id' ).DataTable()
+        let tableCashier = $( '#product_purchased_cart_datatable_id' ).DataTable()
         let shopingItems = tableCashier.rows().data().toArray()
         for ( let productInCart of shopingItems ) {
             if ( productId == productInCart.product_id ) {
@@ -291,9 +291,9 @@ class ButtonEventImpl extends ButtonEvent {
         }
         return false
     }
-    calculateTotalPrice( productSolds ) {
+    calculateTotalPrice( ProductPurchaseds ) {
         let grossTotalPrice = 0
-        for ( let product of productSolds ) {
+        for ( let product of ProductPurchaseds ) {
             let quantity = document.querySelector( `#input_for_quantity_${ product.product_id }` ).value
             if ( quantity < 1 ) quantity = 1;
             let grossPrice = product.price * quantity
@@ -312,8 +312,8 @@ class AjaxImpl extends Ajax {
         const onSuccess = ( response ) => {
             if ( response.status ) {
                 new Alert().successAjax( response.msg )
-                new DatatableProductSoldImpl().reloadDatatable()
-                new DatatableProductSoldImpl().clearCashierTable()
+                new DatatableProductPurchasedImpl().reloadDatatable()
+                new DatatableProductPurchasedImpl().clearCashierTable()
                 new ButtonEventImpl().hideDetailCheckout()
                 new ButtonEventImpl().resetDetailCheckout()
                 return
@@ -377,7 +377,7 @@ class AjaxImpl extends Ajax {
                 return new Alert().failedAjax( response.msg )
             }
             new Alert().successAjax( response.msg )
-            new DatatableProductSoldImpl().reloadDatatable()
+            new DatatableProductPurchasedImpl().reloadDatatable()
             new ModalFormImpl().hideModal( 'id_modal_for_delete' )
             return
         }
@@ -490,7 +490,7 @@ class FormDataImpl extends FormData {
             record.sub_total = record.purchased_price * record.quantity
             tableContent += this.generateRow( record )
         }
-        let table = document.querySelector( '#product_sold_detail_transaction_datatable_id > tbody' )
+        let table = document.querySelector( '#product_purchased_detail_transaction_datatable_id > tbody' )
         table.innerHTML = tableContent
     }
     generateRow( record ) {
@@ -636,7 +636,7 @@ class ModalFormImpl extends ModalForm {
 
     registerOnHideModal() {
         $( document ).on( 'hidden.bs.modal', '#id_modal_for_add_new_data', () => {
-            new DatatableProductSoldImpl().clearCashierTable()
+            new DatatableProductPurchasedImpl().clearCashierTable()
             new ButtonEventImpl().hideDetailCheckout()
             new ButtonEventImpl().resetDetailCheckout()
         } )
@@ -663,17 +663,17 @@ class ModalFormImpl extends ModalForm {
         } );
     }
     bindEventToFormFilterAndNewTransaction() {
-        const btnFilterData = document.querySelector( '.btn-filter-product-sold' )
-        const btnCheckout = document.querySelector( '.btn-checkout-product-sold' )
+        const btnFilterData = document.querySelector( '.btn-filter-product-purchased' )
+        const btnCheckout = document.querySelector( '.btn-checkout-product-purchased' )
 
         btnFilterData.addEventListener( 'click', () => {
-            new DatatableProductSoldImpl().reloadDatatable()
+            new DatatableProductPurchasedImpl().reloadDatatable()
         } )
         btnCheckout.addEventListener( 'click', () => {
             new ButtonEventImpl().checkOutTransaction()
         } )
 
-        const payTransaction = document.querySelector( '.btn-pay-product-sold' )
+        const payTransaction = document.querySelector( '.btn-pay-product-purchased' )
         payTransaction.addEventListener( 'click', () => {
             new ButtonEventImpl().saveNewTransaction()
         } )
@@ -692,7 +692,7 @@ class ModalFormImpl extends ModalForm {
     }
 
     addCashierTableRows( recordsRow ) {
-        let tableCashier = $( '#product_sold_cart_datatable_id' ).DataTable()
+        let tableCashier = $( '#product_purchased_cart_datatable_id' ).DataTable()
         tableCashier.rows.add( recordsRow ).draw()
     }
     clearFormFilter() {
@@ -700,14 +700,7 @@ class ModalFormImpl extends ModalForm {
         document.querySelector( '#supplierFields' ).value = ''
         document.querySelector( '#productInputFields' ).value = ''
     }
-    setChangeOfTransaction( paidValue ) {
-        let netPrice = document.querySelector( '#netPriceFields' ).textContent;
-        let tax = document.querySelector( '#taxFields' ).textContent;
-        let cuttOff = document.querySelector( '#cuttOffFields' ).textContent;
-        let totalPriceToPaid = ( parseInt( netPrice ) - parseInt( cuttOff ) ) + parseInt( tax )
-        let change = paidValue - totalPriceToPaid
-        document.querySelector( '#changeFields' ).innerHTML = change
-    }
+
 }
 
 
