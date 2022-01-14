@@ -1,3 +1,178 @@
+
+const runScript = () => {
+    $( document ).ready( function () {
+        const modalForm = new ModalFormImpl()
+        new DatatableEmployeeImpl().initiateDatatable()
+        new AjaxImpl().getOptionForEmployeeStatusMaster()
+        modalForm.registerOnHideModal()
+        modalForm.disabledBtnNewDataOnClick()
+        new ButtonEventImpl().bindEventWithAjax()
+    } )
+}
+
+runScript()
+
+
+class ButtonEventImpl extends ButtonEvent {
+    constructor() {
+        super()
+    }
+    saveNewData() {
+        const insertParams = new FormDataImpl().getAddNewDataFormValues()
+        const validationResult = new FormValidationImpl().validateInsertParams( insertParams )
+        if ( !validationResult.isValid ) {
+            new Alert().showWarning( validationResult.message )
+            new ModalFormImpl().enableFormButton( new ButtonSelector().saveNewRecord )
+            return
+        }
+        new ModalFormImpl().disableFormButton( new ButtonSelector().saveNewRecord )
+        new AjaxImpl().saveNewRecord( insertParams )
+    }
+    saveUpdatedData() {
+        const updateParams = new FormDataImpl().getUpdateFormValues()
+        const validationResult = new FormValidationImpl().validateUpdateParams( updateParams )
+        if ( !validationResult.isValid ) {
+            new Alert().showWarning( validationResult.message )
+            new ModalFormImpl().enableFormButton( new ButtonSelector().btnSaveUpdatedRecord )
+            return
+        }
+        new ModalFormImpl().disableFormButton( new ButtonSelector().btnSaveUpdatedRecord )
+        new AjaxImpl().updateData( updateParams )
+    }
+    deleteData() {
+        const deleteParams = new FormDataImpl().getDeleteFormValues()
+        const validationResult = new FormValidationImpl().validateDeleteParams( deleteParams )
+        if ( !validationResult.isValid ) {
+            new Alert().showWarning( validationResult.message )
+            new ModalFormImpl().enableFormButton( new ButtonSelector().btnDeleteId )
+            return
+        }
+        new ModalFormImpl().disableFormButton( new ButtonSelector().btnDeleteId )
+        new AjaxImpl().deleteData( deleteParams )
+    }
+}
+class AjaxImpl extends Ajax {
+    constructor() {
+        super()
+    }
+    saveNewRecord( formData ) {
+        const payload = this.createPayload( 'POST', formData )
+        const onSuccess = ( response ) => {
+            if ( response.status ) {
+                new ModalFormImpl().hideModal( 'id_modal_for_add_new_data' )
+                new Alert().successAjax( response.msg )
+                new DatatableEmployeeImpl().reloadDatatable()
+                return
+            }
+            new Alert().failedAjax( response.msg )
+        }
+        const ajaxCallback = {
+            onSuccess: onSuccess,
+            onFail: ( error ) => {
+                new Alert().error()
+            },
+            onFinal: () => {
+                new ModalForm().enableSaveConfirmBtn()
+            }
+        }
+        this.sendAjax( { url: '/employee_api', payload: payload }, ajaxCallback )
+    }
+    getSingleData( recordId ) {
+        const payload = this.createPayload( 'POST', { 'employee_id': recordId } )
+        const onSuccess = ( response ) => {
+            console.log( response )
+            if ( !response.data.length ) new Alert().failedAjax( response.msg );
+            new FormDataImpl().setUpdateFormValues( response.data[ 0 ] )
+            return
+        }
+        const ajaxCallback = {
+            onSuccess: onSuccess,
+            onFail: ( error ) => {
+                new Alert().error()
+            },
+            onFinal: () => { }
+        }
+        this.sendAjax( { url: '/employee_api_search', payload: payload }, ajaxCallback )
+    }
+    getSingleDataForDeleteActions( recordId ) {
+        const payload = this.createPayload( 'POST', { 'employee_id': recordId } )
+        const onSuccess = ( response ) => {
+            if ( !response.data.length ) new Alert().failedAjax( response.msg );
+            new ModalFormImpl().setDeleteConfirmMessage( response.data[ 0 ] )
+            return
+        }
+        const ajaxCallback = {
+            onSuccess: onSuccess,
+            onFail: ( error ) => {
+                new Alert().error()
+            },
+            onFinal: () => { }
+        }
+        this.sendAjax( { url: '/employee_api_search', payload: payload }, ajaxCallback )
+
+    }
+    updateData( formData ) {
+        const payload = this.createPayload( 'PUT', formData )
+        const onSuccess = ( response ) => {
+            if ( !response.status ) {
+                return new Alert().failedAjax( response.msg )
+            }
+            new Alert().successAjax( response.msg )
+            new DatatableEmployeeImpl().reloadDatatable()
+            new ModalFormImpl().hideModal( 'id_modal_for_edit' )
+            return
+        }
+        const ajaxCallback = {
+            onSuccess: onSuccess,
+            onFail: ( error ) => {
+                new Alert().error()
+            },
+            onFinal: () => {
+                new ModalFormImpl().enableFormButton( '#button_save_updated_data_id' )
+            }
+        }
+        this.sendAjax( { url: '/employee_api', payload: payload }, ajaxCallback )
+
+    }
+    deleteData( formData ) {
+        const payload = this.createPayload( 'DELETE', formData )
+        const onSuccess = ( response ) => {
+            if ( !response.status ) {
+                return new Alert().failedAjax( response.msg )
+            }
+            new Alert().successAjax( response.msg )
+            new DatatableEmployeeImpl().reloadDatatable()
+            new ModalFormImpl().hideModal( 'id_modal_for_delete' )
+            return
+        }
+        const ajaxCallback = {
+            onSuccess: onSuccess,
+            onFail: ( error ) => {
+                new Alert().error()
+            },
+            onFinal: () => {
+                new ModalFormImpl().enableFormButton( '#button_delete_data_id' )
+            }
+        }
+
+        this.sendAjax( { url: '/employee_api', payload: payload }, ajaxCallback )
+    }
+    getOptionForEmployeeStatusMaster() {
+        const onSuccess = ( response ) => {
+            new FormDataImpl().setOptionForEmployeeStatusMaster( response.data )
+        }
+        const ajaxCallback = {
+            onSuccess: onSuccess,
+            onFail: ( err ) => { console.log( err ) }
+        }
+        fetch( '/employee_status_lov_api' )
+            .then( response => response.json() )
+            .then( onSuccess )
+            .catch( ajaxCallback.onFail )
+
+    }
+}
+
 class DatatableEmployeeImpl extends BaseDatatable {
     constructor() {
         super()
@@ -314,176 +489,3 @@ class ModalFormImpl extends ModalForm {
         get( '#startWorkingFields' ).value = ''
     }
 }
-
-class ButtonEventImpl extends ButtonEvent {
-    constructor() {
-        super()
-    }
-    saveNewData() {
-        const insertParams = new FormDataImpl().getAddNewDataFormValues()
-        const validationResult = new FormValidationImpl().validateInsertParams( insertParams )
-        if ( !validationResult.isValid ) {
-            new Alert().showWarning( validationResult.message )
-            new ModalFormImpl().enableFormButton( new ButtonSelector().saveNewRecord )
-            return
-        }
-        new ModalFormImpl().disableFormButton( new ButtonSelector().saveNewRecord )
-        new AjaxImpl().saveNewRecord( insertParams )
-    }
-    saveUpdatedData() {
-        const updateParams = new FormDataImpl().getUpdateFormValues()
-        const validationResult = new FormValidationImpl().validateUpdateParams( updateParams )
-        if ( !validationResult.isValid ) {
-            new Alert().showWarning( validationResult.message )
-            new ModalFormImpl().enableFormButton( new ButtonSelector().btnSaveUpdatedRecord )
-            return
-        }
-        new ModalFormImpl().disableFormButton( new ButtonSelector().btnSaveUpdatedRecord )
-        new AjaxImpl().updateData( updateParams )
-    }
-    deleteData() {
-        const deleteParams = new FormDataImpl().getDeleteFormValues()
-        const validationResult = new FormValidationImpl().validateDeleteParams( deleteParams )
-        if ( !validationResult.isValid ) {
-            new Alert().showWarning( validationResult.message )
-            new ModalFormImpl().enableFormButton( new ButtonSelector().btnDeleteId )
-            return
-        }
-        new ModalFormImpl().disableFormButton( new ButtonSelector().btnDeleteId )
-        new AjaxImpl().deleteData( deleteParams )
-    }
-}
-class AjaxImpl extends Ajax {
-    constructor() {
-        super()
-    }
-    saveNewRecord( formData ) {
-        const payload = this.createPayload( 'POST', formData )
-        const onSuccess = ( response ) => {
-            if ( response.status ) {
-                new ModalFormImpl().hideModal( 'id_modal_for_add_new_data' )
-                new Alert().successAjax( response.msg )
-                new DatatableEmployeeImpl().reloadDatatable()
-                return
-            }
-            new Alert().failedAjax( response.msg )
-        }
-        const ajaxCallback = {
-            onSuccess: onSuccess,
-            onFail: ( error ) => {
-                new Alert().error()
-            },
-            onFinal: () => {
-                new ModalForm().enableSaveConfirmBtn()
-            }
-        }
-        this.sendAjax( { url: '/employee_api', payload: payload }, ajaxCallback )
-    }
-    getSingleData( recordId ) {
-        const payload = this.createPayload( 'POST', { 'employee_id': recordId } )
-        const onSuccess = ( response ) => {
-            console.log( response )
-            if ( !response.data.length ) new Alert().failedAjax( response.msg );
-            new FormDataImpl().setUpdateFormValues( response.data[ 0 ] )
-            return
-        }
-        const ajaxCallback = {
-            onSuccess: onSuccess,
-            onFail: ( error ) => {
-                new Alert().error()
-            },
-            onFinal: () => { }
-        }
-        this.sendAjax( { url: '/employee_api_search', payload: payload }, ajaxCallback )
-    }
-    getSingleDataForDeleteActions( recordId ) {
-        const payload = this.createPayload( 'POST', { 'employee_id': recordId } )
-        const onSuccess = ( response ) => {
-            if ( !response.data.length ) new Alert().failedAjax( response.msg );
-            new ModalFormImpl().setDeleteConfirmMessage( response.data[ 0 ] )
-            return
-        }
-        const ajaxCallback = {
-            onSuccess: onSuccess,
-            onFail: ( error ) => {
-                new Alert().error()
-            },
-            onFinal: () => { }
-        }
-        this.sendAjax( { url: '/employee_api_search', payload: payload }, ajaxCallback )
-
-    }
-    updateData( formData ) {
-        const payload = this.createPayload( 'PUT', formData )
-        const onSuccess = ( response ) => {
-            if ( !response.status ) {
-                return new Alert().failedAjax( response.msg )
-            }
-            new Alert().successAjax( response.msg )
-            new DatatableEmployeeImpl().reloadDatatable()
-            new ModalFormImpl().hideModal( 'id_modal_for_edit' )
-            return
-        }
-        const ajaxCallback = {
-            onSuccess: onSuccess,
-            onFail: ( error ) => {
-                new Alert().error()
-            },
-            onFinal: () => {
-                new ModalFormImpl().enableFormButton( '#button_save_updated_data_id' )
-            }
-        }
-        this.sendAjax( { url: '/employee_api', payload: payload }, ajaxCallback )
-
-    }
-    deleteData( formData ) {
-        const payload = this.createPayload( 'DELETE', formData )
-        const onSuccess = ( response ) => {
-            if ( !response.status ) {
-                return new Alert().failedAjax( response.msg )
-            }
-            new Alert().successAjax( response.msg )
-            new DatatableEmployeeImpl().reloadDatatable()
-            new ModalFormImpl().hideModal( 'id_modal_for_delete' )
-            return
-        }
-        const ajaxCallback = {
-            onSuccess: onSuccess,
-            onFail: ( error ) => {
-                new Alert().error()
-            },
-            onFinal: () => {
-                new ModalFormImpl().enableFormButton( '#button_delete_data_id' )
-            }
-        }
-
-        this.sendAjax( { url: '/employee_api', payload: payload }, ajaxCallback )
-    }
-    getOptionForEmployeeStatusMaster() {
-        const onSuccess = ( response ) => {
-            new FormDataImpl().setOptionForEmployeeStatusMaster( response.data )
-        }
-        const ajaxCallback = {
-            onSuccess: onSuccess,
-            onFail: ( err ) => { console.log( err ) }
-        }
-        fetch( '/employee_status_lov_api' )
-            .then( response => response.json() )
-            .then( onSuccess )
-            .catch( ajaxCallback.onFail )
-
-    }
-}
-
-const runScript = () => {
-    $( document ).ready( function () {
-        const modalForm = new ModalFormImpl()
-        new DatatableEmployeeImpl().initiateDatatable()
-        new AjaxImpl().getOptionForEmployeeStatusMaster()
-        modalForm.registerOnHideModal()
-        modalForm.disabledBtnNewDataOnClick()
-        new ButtonEventImpl().bindEventWithAjax()
-    } )
-}
-
-runScript()

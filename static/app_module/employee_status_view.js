@@ -1,3 +1,15 @@
+const runScript = () => {
+    $( document ).ready( function () {
+        const modalForm = new ModalFormImpl()
+        new DatatableEmployeeStatusImpl().initiateDatatable()
+        modalForm.registerOnHideModal()
+        modalForm.disabledBtnNewDataOnClick()
+        new ButtonEventImpl().bindEventWithAjax()
+    } )
+}
+
+runScript()
+
 class DatatableEmployeeStatusImpl extends BaseDatatable {
     constructor() {
         super()
@@ -39,104 +51,6 @@ class DatatableEmployeeStatusImpl extends BaseDatatable {
         datatableInstance.on( 'click', this.btnClassDeleteData, ( e ) => {
             new AjaxImpl().getSingleDataForDeleteActions( e.target.value )
         } )
-    }
-}
-
-class FormDataImpl extends FormData {
-    constructor() {
-        super()
-    }
-    getAddNewDataFormValues() {
-        let formValues = {
-            employee_status: document.querySelector( '#employeeStatusFields' ).value
-        }
-        return formValues
-    }
-    getDeleteFormValues() {
-        let formValues = {
-            employee_status_id: document.getElementById( 'delete_confirm_massage_id' ).value
-        }
-        return formValues
-    }
-    getUpdateFormValues() {
-        let formValues = {
-            employee_status: document.querySelector( '#employeeStatusFieldsUpdate' ).value,
-            employee_status_id: document.querySelector( '#idEmployeeStatusFields' ).value,
-            active_status: this.getActiveStatusValue( '#activeStatusFields' )
-        }
-        return formValues
-    }
-    setUpdateFormValues( recordValues ) {
-        document.querySelector( '#idEmployeeStatusFields' ).value = recordValues.employee_status_id
-        document.querySelector( '#employeeStatusFieldsUpdate' ).value = recordValues.employee_status
-        document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
-        document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
-    }
-}
-class FormValidationImpl extends FormValidation {
-    constructor() {
-        super()
-    }
-    validateUpdateParams( updateParams ) {
-        const validEmployeeStatusId = this.validateEmployeeStatusId( updateParams )
-        const validEmployeeStatus = this.validateEmployeeStatus( updateParams )
-        const validActiveStatus = this.validateActiveStatus( updateParams )
-
-        if ( !validEmployeeStatusId.isValid ) return validEmployeeStatusId;
-        if ( !validEmployeeStatus.isValid ) return validEmployeeStatus;
-        if ( !validActiveStatus.isValid ) return validActiveStatus;
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateDeleteParams( deleteParams ) {
-        if ( !deleteParams.employee_status_id || deleteParams.employee_status_id.length < 0 ) {
-            return this.validateResult( 'Employee status id doesnt found' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateInsertParams( insertParams ) {
-        return this.validateEmployeeStatus( insertParams )
-    }
-    validateEmployeeStatus( formData ) {
-        if ( !formData.employee_status ) {
-            return this.validateResult( 'Cant insert empty data' )
-        }
-        if ( formData.employee_status.length < 3 ) {
-            return this.validateResult( 'Employee Status too short' )
-        }
-        if ( formData.employee_status.length > 200 ) {
-            return this.validateResult( 'Employee Status too long' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateEmployeeStatusId( formData ) {
-        if ( !formData.employee_status_id || formData.employee_status_id.length < 0 ) {
-            return this.validateResult( 'There is no employe status id to update' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateActiveStatus( formData ) {
-        const isValidStatus = [ 'Y', 'N' ].includes( formData.active_status )
-        if ( !isValidStatus ) {
-            return this.validateResult( 'Active status value is invalid' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateResult( message = '', isValid = false ) {
-        return { isValid: isValid, message: message }
-    }
-}
-class ModalFormImpl extends ModalForm {
-    constructor() {
-        super()
-    }
-    setDeleteConfirmMessage( formValues ) {
-        console.log( formValues )
-        const confirmMessage = `Area you sure to delete ${ formValues.employee_status_id } - ${ formValues.employee_status } ?`
-        document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
-        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.employee_status_id
-    }
-    clearAddNewDataForm() {
-        document.querySelector( '#employeeStatusFields' ).value = ''
     }
 }
 
@@ -292,14 +206,101 @@ class AjaxImpl extends Ajax {
     }
 }
 
-const runScript = () => {
-    $( document ).ready( function () {
-        const modalForm = new ModalFormImpl()
-        new DatatableEmployeeStatusImpl().initiateDatatable()
-        modalForm.registerOnHideModal()
-        modalForm.disabledBtnNewDataOnClick()
-        new ButtonEventImpl().bindEventWithAjax()
-    } )
+class FormDataImpl extends FormData {
+    constructor() {
+        super()
+    }
+    getAddNewDataFormValues() {
+        let formValues = {
+            employee_status: document.querySelector( '#employeeStatusFields' ).value
+        }
+        return formValues
+    }
+    getDeleteFormValues() {
+        let formValues = {
+            employee_status_id: document.getElementById( 'delete_confirm_massage_id' ).value
+        }
+        return formValues
+    }
+    getUpdateFormValues() {
+        let formValues = {
+            employee_status: document.querySelector( '#employeeStatusFieldsUpdate' ).value,
+            employee_status_id: document.querySelector( '#idEmployeeStatusFields' ).value,
+            active_status: this.getActiveStatusValue( '#activeStatusFields' )
+        }
+        return formValues
+    }
+    setUpdateFormValues( recordValues ) {
+        document.querySelector( '#idEmployeeStatusFields' ).value = recordValues.employee_status_id
+        document.querySelector( '#employeeStatusFieldsUpdate' ).value = recordValues.employee_status
+        document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
+        document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
+    }
+}
+class FormValidationImpl extends FormValidation {
+    constructor() {
+        super()
+    }
+    validateUpdateParams( updateParams ) {
+        const validEmployeeStatusId = this.validateEmployeeStatusId( updateParams )
+        const validEmployeeStatus = this.validateEmployeeStatus( updateParams )
+        const validActiveStatus = this.validateActiveStatus( updateParams )
+
+        if ( !validEmployeeStatusId.isValid ) return validEmployeeStatusId;
+        if ( !validEmployeeStatus.isValid ) return validEmployeeStatus;
+        if ( !validActiveStatus.isValid ) return validActiveStatus;
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateDeleteParams( deleteParams ) {
+        if ( !deleteParams.employee_status_id || deleteParams.employee_status_id.length < 0 ) {
+            return this.validateResult( 'Employee status id doesnt found' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateInsertParams( insertParams ) {
+        return this.validateEmployeeStatus( insertParams )
+    }
+    validateEmployeeStatus( formData ) {
+        if ( !formData.employee_status ) {
+            return this.validateResult( 'Cant insert empty data' )
+        }
+        if ( formData.employee_status.length < 3 ) {
+            return this.validateResult( 'Employee Status too short' )
+        }
+        if ( formData.employee_status.length > 200 ) {
+            return this.validateResult( 'Employee Status too long' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateEmployeeStatusId( formData ) {
+        if ( !formData.employee_status_id || formData.employee_status_id.length < 0 ) {
+            return this.validateResult( 'There is no employe status id to update' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateActiveStatus( formData ) {
+        const isValidStatus = [ 'Y', 'N' ].includes( formData.active_status )
+        if ( !isValidStatus ) {
+            return this.validateResult( 'Active status value is invalid' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateResult( message = '', isValid = false ) {
+        return { isValid: isValid, message: message }
+    }
+}
+class ModalFormImpl extends ModalForm {
+    constructor() {
+        super()
+    }
+    setDeleteConfirmMessage( formValues ) {
+        console.log( formValues )
+        const confirmMessage = `Area you sure to delete ${ formValues.employee_status_id } - ${ formValues.employee_status } ?`
+        document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
+        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.employee_status_id
+    }
+    clearAddNewDataForm() {
+        document.querySelector( '#employeeStatusFields' ).value = ''
+    }
 }
 
-runScript()

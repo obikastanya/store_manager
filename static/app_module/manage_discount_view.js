@@ -1,3 +1,17 @@
+const runScript = () => {
+    $( document ).ready( function () {
+        const modalForm = new ModalFormImpl()
+        new DatatableDiscountAppliedImpl().initiateDatatable()
+        new AjaxImpl().getLovForSelectField()
+        modalForm.registerOnHideModal()
+        modalForm.disabledBtnNewDataOnClick()
+        new ButtonEventImpl().bindEventWithAjax()
+    } )
+}
+
+runScript()
+
+
 class DatatableDiscountAppliedImpl extends BaseDatatable {
     constructor() {
         super()
@@ -64,159 +78,6 @@ class DatatableDiscountAppliedImpl extends BaseDatatable {
         datatableInstance.on( 'click', this.btnClassDeleteData, ( e ) => {
             new AjaxImpl().getSingleDataForDeleteActions( e.target.value )
         } )
-    }
-}
-
-class FormDataImpl extends FormData {
-    constructor() {
-        super()
-    }
-    getAddNewDataFormValues() {
-        let formValues = {
-            product_id: document.querySelector( '#productIdFields' ).value,
-            discount_id: document.querySelector( '#discountIdFields' ).value,
-            start_date: document.querySelector( '#startDateFields' ).value,
-            expired_date: document.querySelector( '#expiredDateFields' ).value
-        }
-        return formValues
-    }
-    getDeleteFormValues() {
-        let productAndDiscountIds = document.getElementById( 'delete_confirm_massage_id' ).value
-        let formValues = {
-            product_id: productAndDiscountIds.split( ',' )[ 0 ],
-            discount_id: productAndDiscountIds.split( ',' )[ 1 ]
-        }
-        return formValues
-    }
-    getUpdateFormValues() {
-        let formValues = {
-            product_id: document.querySelector( '#productIdUpdateFields' ).value,
-            discount_id: document.querySelector( '#discountIdUpdateFields' ).value,
-            start_date: document.querySelector( '#startDateUpdateFields' ).value,
-            expired_date: document.querySelector( '#expiredDateUpdateFields' ).value,
-            active_status: this.getActiveStatusValue( '#activeStatusFields' )
-        }
-        return formValues
-    }
-    setUpdateFormValues( recordValues ) {
-        document.querySelector( '#productIdUpdateFields' ).value = recordValues.discount_product.product_id
-        document.querySelector( '#discountIdUpdateFields' ).value = recordValues.discount_master.discount_id
-        document.querySelector( '#startDateUpdateFields' ).value = recordValues.start_date
-        document.querySelector( '#expiredDateUpdateFields' ).value = recordValues.expired_date
-        document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
-        document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
-    }
-    generateOption( recordValues ) {
-        let options = ''
-        for ( const values of recordValues ) {
-            options += ` <option value=${ values.id }>${ values.description }</option> `
-        }
-        return options
-    }
-    setOptionForSelectFields( elementsToSet, recordValues ) {
-        // some dom manipulation
-        for ( const id of elementsToSet ) {
-            const options = this.generateOption( recordValues )
-            document.querySelector( id ).innerHTML = ''
-            document.querySelector( id ).innerHTML = options
-        }
-    }
-}
-class FormValidationImpl extends FormValidation {
-    constructor() {
-        super()
-    }
-    validateUpdateParams( updateParams ) {
-        const validIdProduct = this.validateIdProduct( updateParams )
-        const validIdDiscount = this.validateIdDiscount( updateParams )
-        const validStartDate = this.validateStartDate( updateParams )
-        const validExpiredDate = this.validateExpiredDate( updateParams )
-        const validActiveStatus = this.validateActiveStatus( updateParams )
-
-        if ( !validIdProduct.isValid ) return validIdProduct;
-        if ( !validIdDiscount.isValid ) return validIdDiscount;
-        if ( !validStartDate.isValid ) return validStartDate;
-        if ( !validExpiredDate.isValid ) return validExpiredDate;
-        if ( !validActiveStatus.isValid ) return validActiveStatus;
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateDeleteParams( deleteParams ) {
-        const validIdProduct = this.validateIdProduct( deleteParams )
-        const validIdDiscount = this.validateIdDiscount( deleteParams )
-
-        if ( !validIdProduct.isValid ) return validIdProduct;
-        if ( !validIdDiscount.isValid ) return validIdDiscount;
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateInsertParams( insertParams ) {
-        const validIdProduct = this.validateIdProduct( insertParams )
-        console.log( 'p', validIdProduct )
-        const validIdDiscount = this.validateIdDiscount( insertParams )
-        const validStartDate = this.validateStartDate( insertParams )
-        const validExpiredDate = this.validateExpiredDate( insertParams )
-
-        if ( !validIdProduct.isValid ) return validIdProduct;
-        if ( !validIdDiscount.isValid ) return validIdDiscount;
-        if ( !validStartDate.isValid ) return validStartDate;
-        if ( !validExpiredDate.isValid ) return validExpiredDate;
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateIdProduct( formData ) {
-        if ( isNaN( formData.product_id ) ) {
-            return this.validateResult( 'Invalid Product selected' )
-        }
-        if ( !( parseInt( formData.product_id ) ) ) {
-            return this.validateResult( 'Invalid Product selected' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateIdDiscount( formData ) {
-        if ( isNaN( formData.discount_id ) ) {
-            return this.validateResult( 'Invalid master discount selected' )
-        }
-        if ( !( parseInt( formData.product_id ) ) ) {
-            return this.validateResult( 'Invalid Product selected' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateStartDate( formData ) {
-        if ( !formData.start_date ) {
-            return this.validateResult( 'Start date is empty' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateExpiredDate( formData ) {
-        if ( !formData.expired_date ) {
-            return this.validateResult( 'Expired date is empty' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateActiveStatus( formData ) {
-        const isValidStatus = [ 'Y', 'N' ].includes( formData.active_status )
-        if ( !isValidStatus ) {
-            return this.validateResult( 'Active status value is invalid' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateResult( message = '', isValid = false ) {
-        return { isValid: isValid, message: message }
-    }
-}
-class ModalFormImpl extends ModalForm {
-    constructor() {
-        super()
-    }
-    setDeleteConfirmMessage( formValues ) {
-        const confirmMessage = `Area you sure to delete discount ${ formValues.discount_master.desc } thats applied on ${ formValues.discount_product.product_desc } ?`
-        const strIdProductAndDiscount = `${ formValues.discount_product.product_id },${ formValues.discount_master.discount_id }`
-        document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
-        document.getElementById( 'delete_confirm_massage_id' ).value = strIdProductAndDiscount
-    }
-    clearAddNewDataForm() {
-        document.querySelector( '#productIdFields' ).value = ''
-        document.querySelector( '#discountIdFields' ).value = ''
-        document.querySelector( '#startDateFields' ).value = ''
-        document.querySelector( '#expiredDateFields' ).value = ''
     }
 }
 
@@ -379,11 +240,9 @@ class AjaxImpl extends Ajax {
 
         this.sendAjax( { url: '/manage_discount_api', payload: payload }, ajaxCallback )
     }
-    getOption( endPoint, onSuccess = () => { } ) {
-        fetch( endPoint )
-            .then( response => response.json() )
-            .then( onSuccess )
-            .catch( ( err ) => { console.log( err ) } )
+    getLovForSelectField() {
+        this.getLovForProductFields()
+        this.getLovForDiscountFields()
     }
     getLovForProductFields() {
         const extractIdDescriptionFunc = ( recordValues ) => {
@@ -415,21 +274,165 @@ class AjaxImpl extends Ajax {
         }
         this.getOption( 'discount_lov_api', onSuccess )
     }
-    getLovForSelectField() {
-        this.getLovForProductFields()
-        this.getLovForDiscountFields()
+    getOption( endPoint, onSuccess = () => { } ) {
+        fetch( endPoint )
+            .then( response => response.json() )
+            .then( onSuccess )
+            .catch( ( err ) => { console.log( err ) } )
     }
 }
 
-const runScript = () => {
-    $( document ).ready( function () {
-        const modalForm = new ModalFormImpl()
-        new DatatableDiscountAppliedImpl().initiateDatatable()
-        new AjaxImpl().getLovForSelectField()
-        modalForm.registerOnHideModal()
-        modalForm.disabledBtnNewDataOnClick()
-        new ButtonEventImpl().bindEventWithAjax()
-    } )
-}
 
-runScript()
+class FormDataImpl extends FormData {
+    constructor() {
+        super()
+    }
+    getAddNewDataFormValues() {
+        let formValues = {
+            product_id: document.querySelector( '#productIdFields' ).value,
+            discount_id: document.querySelector( '#discountIdFields' ).value,
+            start_date: document.querySelector( '#startDateFields' ).value,
+            expired_date: document.querySelector( '#expiredDateFields' ).value
+        }
+        return formValues
+    }
+    getDeleteFormValues() {
+        let productAndDiscountIds = document.getElementById( 'delete_confirm_massage_id' ).value
+        let formValues = {
+            product_id: productAndDiscountIds.split( ',' )[ 0 ],
+            discount_id: productAndDiscountIds.split( ',' )[ 1 ]
+        }
+        return formValues
+    }
+    getUpdateFormValues() {
+        let formValues = {
+            product_id: document.querySelector( '#productIdUpdateFields' ).value,
+            discount_id: document.querySelector( '#discountIdUpdateFields' ).value,
+            start_date: document.querySelector( '#startDateUpdateFields' ).value,
+            expired_date: document.querySelector( '#expiredDateUpdateFields' ).value,
+            active_status: this.getActiveStatusValue( '#activeStatusFields' )
+        }
+        return formValues
+    }
+    setUpdateFormValues( recordValues ) {
+        document.querySelector( '#productIdUpdateFields' ).value = recordValues.discount_product.product_id
+        document.querySelector( '#discountIdUpdateFields' ).value = recordValues.discount_master.discount_id
+        document.querySelector( '#startDateUpdateFields' ).value = recordValues.start_date
+        document.querySelector( '#expiredDateUpdateFields' ).value = recordValues.expired_date
+        document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
+        document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
+    }
+    setOptionForSelectFields( elementsToSet, recordValues ) {
+        // some dom manipulation
+        for ( const id of elementsToSet ) {
+            const options = this.generateOption( recordValues )
+            document.querySelector( id ).innerHTML = ''
+            document.querySelector( id ).innerHTML = options
+        }
+    }
+    generateOption( recordValues ) {
+        let options = ''
+        for ( const values of recordValues ) {
+            options += ` <option value=${ values.id }>${ values.description }</option> `
+        }
+        return options
+    }
+
+}
+class FormValidationImpl extends FormValidation {
+    constructor() {
+        super()
+    }
+    validateUpdateParams( updateParams ) {
+        const validIdProduct = this.validateIdProduct( updateParams )
+        const validIdDiscount = this.validateIdDiscount( updateParams )
+        const validStartDate = this.validateStartDate( updateParams )
+        const validExpiredDate = this.validateExpiredDate( updateParams )
+        const validActiveStatus = this.validateActiveStatus( updateParams )
+
+        if ( !validIdProduct.isValid ) return validIdProduct;
+        if ( !validIdDiscount.isValid ) return validIdDiscount;
+        if ( !validStartDate.isValid ) return validStartDate;
+        if ( !validExpiredDate.isValid ) return validExpiredDate;
+        if ( !validActiveStatus.isValid ) return validActiveStatus;
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateDeleteParams( deleteParams ) {
+        const validIdProduct = this.validateIdProduct( deleteParams )
+        const validIdDiscount = this.validateIdDiscount( deleteParams )
+
+        if ( !validIdProduct.isValid ) return validIdProduct;
+        if ( !validIdDiscount.isValid ) return validIdDiscount;
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateInsertParams( insertParams ) {
+        const validIdProduct = this.validateIdProduct( insertParams )
+        console.log( 'p', validIdProduct )
+        const validIdDiscount = this.validateIdDiscount( insertParams )
+        const validStartDate = this.validateStartDate( insertParams )
+        const validExpiredDate = this.validateExpiredDate( insertParams )
+
+        if ( !validIdProduct.isValid ) return validIdProduct;
+        if ( !validIdDiscount.isValid ) return validIdDiscount;
+        if ( !validStartDate.isValid ) return validStartDate;
+        if ( !validExpiredDate.isValid ) return validExpiredDate;
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateIdProduct( formData ) {
+        if ( isNaN( formData.product_id ) ) {
+            return this.validateResult( 'Invalid Product selected' )
+        }
+        if ( !( parseInt( formData.product_id ) ) ) {
+            return this.validateResult( 'Invalid Product selected' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateIdDiscount( formData ) {
+        if ( isNaN( formData.discount_id ) ) {
+            return this.validateResult( 'Invalid master discount selected' )
+        }
+        if ( !( parseInt( formData.product_id ) ) ) {
+            return this.validateResult( 'Invalid Product selected' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateStartDate( formData ) {
+        if ( !formData.start_date ) {
+            return this.validateResult( 'Start date is empty' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateExpiredDate( formData ) {
+        if ( !formData.expired_date ) {
+            return this.validateResult( 'Expired date is empty' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateActiveStatus( formData ) {
+        const isValidStatus = [ 'Y', 'N' ].includes( formData.active_status )
+        if ( !isValidStatus ) {
+            return this.validateResult( 'Active status value is invalid' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateResult( message = '', isValid = false ) {
+        return { isValid: isValid, message: message }
+    }
+}
+class ModalFormImpl extends ModalForm {
+    constructor() {
+        super()
+    }
+    setDeleteConfirmMessage( formValues ) {
+        const confirmMessage = `Area you sure to delete discount ${ formValues.discount_master.desc } thats applied on ${ formValues.discount_product.product_desc } ?`
+        const strIdProductAndDiscount = `${ formValues.discount_product.product_id },${ formValues.discount_master.discount_id }`
+        document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
+        document.getElementById( 'delete_confirm_massage_id' ).value = strIdProductAndDiscount
+    }
+    clearAddNewDataForm() {
+        document.querySelector( '#productIdFields' ).value = ''
+        document.querySelector( '#discountIdFields' ).value = ''
+        document.querySelector( '#startDateFields' ).value = ''
+        document.querySelector( '#expiredDateFields' ).value = ''
+    }
+}

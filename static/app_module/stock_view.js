@@ -1,3 +1,16 @@
+const runScript = () => {
+    $( document ).ready( function () {
+        const modalForm = new ModalFormImpl()
+        new DatatableStockImpl().initiateDatatable()
+        new AjaxImpl().getOptionForProductMaster()
+        modalForm.registerOnHideModal()
+        modalForm.disabledBtnNewDataOnClick()
+        new ButtonEventImpl().bindEventWithAjax()
+    } )
+}
+
+runScript()
+
 class DatatableStockImpl extends BaseDatatable {
     constructor() {
         super()
@@ -50,167 +63,6 @@ class DatatableStockImpl extends BaseDatatable {
     }
 }
 
-class FormDataImpl extends FormData {
-    constructor() {
-        super()
-    }
-    getAddNewDataFormValues() {
-        const get = ( idElement ) => {
-            return document.querySelector( idElement ).value
-        }
-        let formValues = {
-            warehouse_stock: get( '#warehouseStockFields' ),
-            store_stock: get( '#storeStockFields' ),
-            product_id: get( '#idProductFields' )
-        }
-        return formValues
-    }
-    getDeleteFormValues() {
-        let formValues = {
-            stock_id: document.getElementById( 'delete_confirm_massage_id' ).value
-        }
-        return formValues
-    }
-    getUpdateFormValues() {
-        const get = ( idElement ) => {
-            return document.querySelector( idElement ).value
-        }
-        let formValues = {
-            stock_id: get( '#idStockHiddenFields' ),
-            warehouse_stock: get( '#warehouseStockUpdateFields' ),
-            store_stock: get( '#storeStockUpdateFields' ),
-            product_id: get( '#idProductUpdateFields' )
-        }
-        return formValues
-    }
-    generateOption( recordValues ) {
-        let options = ''
-        for ( const values of recordValues ) {
-            options += ` <option value=${ values.product_id }>${ values.product_desc }</option> `
-        }
-        return options
-    }
-    setUpdateFormValues( recordValues ) {
-        const set = ( idElement ) => {
-            return document.querySelector( idElement )
-        }
-        const setIfExistProductId = ( value ) => {
-            if ( !value ) return '';
-            return value.product_id
-        }
-        const setIfExistProductDesc = ( value ) => {
-            if ( !value ) return '';
-            return value.product_desc
-        }
-        set( '#idStockHiddenFields' ).value = recordValues.stock_id
-        set( '#warehouseStockUpdateFields' ).value = recordValues.warehouse_stock
-        set( '#storeStockUpdateFields' ).value = recordValues.store_stock
-        set( '#idProductUpdateFields' ).value = setIfExistProductId( recordValues.product )
-        set( '#productDescUpdateFields' ).value = setIfExistProductDesc( recordValues.product )
-    }
-    setOptionForProductMaster( recordValues ) {
-        // some dom manipulation
-        const options = this.generateOption( recordValues )
-        document.querySelector( '#idProductFields' ).innerHTML = ''
-        document.querySelector( '#idProductFields' ).innerHTML = options
-    }
-}
-class FormValidationImpl extends FormValidation {
-    constructor() {
-        super()
-    }
-    validateUpdateParams( updateParams ) {
-        const validIdProduct = this.validateIdProduct( updateParams )
-        const validWarehouseStock = this.validateWarehouseStock( updateParams )
-        const validStoreStock = this.validateStoreStock( updateParams )
-        const validIdStock = this.validateIdStock( updateParams )
-
-        if ( !validIdProduct.isValid ) return validIdProduct;
-        if ( !validWarehouseStock.isValid ) return validWarehouseStock;
-        if ( !validStoreStock.isValid ) return validStoreStock;
-        if ( !validIdStock.isValid ) return validIdStock;
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateDeleteParams( deleteParams ) {
-        if ( !deleteParams.stock_id || deleteParams.stock_id.length < 0 ) {
-            return this.validateResult( 'Stock Product doesnt found' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateInsertParams( insertParams ) {
-        const validIdProduct = this.validateIdProduct( insertParams )
-        const validWarehouseStock = this.validateWarehouseStock( insertParams )
-        const validStoreStock = this.validateStoreStock( insertParams )
-
-        if ( !validIdProduct.isValid ) return validIdProduct;
-        if ( !validWarehouseStock.isValid ) return validWarehouseStock;
-        if ( !validStoreStock.isValid ) return validStoreStock;
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateIdProduct( formData ) {
-        if ( !formData.product_id ) {
-            return this.validateResult( 'Product selected is not valid' )
-        }
-        if ( isNaN( formData.product_id ) ) {
-            return this.validateResult( 'Product Id is not valid' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateWarehouseStock( formData ) {
-        if ( !formData.warehouse_stock ) {
-            return this.validateResult( 'Warehouse stock is empty' )
-        }
-        if ( isNaN( formData.warehouse_stock ) ) {
-            return this.validateResult( 'Warehouse stock must be a number' )
-        }
-        if ( formData.warehouse_stock < 0 ) {
-            return this.validateResult( 'Warehouse stock must be zero or greater' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateStoreStock( formData ) {
-        if ( !formData.store_stock ) {
-            return this.validateResult( 'Store stock is empty' )
-        }
-        if ( isNaN( formData.store_stock ) ) {
-            return this.validateResult( 'Store stock must be a number' )
-        }
-        if ( formData.store_stock < 0 ) {
-            return this.validateResult( 'Store stock must be zero or greater' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateIdStock( formData ) {
-        if ( !formData.stock_id ) {
-            return this.validateResult( 'Stock is not valid' )
-        }
-        if ( isNaN( formData.stock_id ) ) {
-            return this.validateResult( 'Stock is not valid' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateResult( message = '', isValid = false ) {
-        return { isValid: isValid, message: message }
-    }
-}
-class ModalFormImpl extends ModalForm {
-    constructor() {
-        super()
-    }
-    setDeleteConfirmMessage( formValues ) {
-        const confirmMessage = `Area you sure to delete ${ formValues.product.product_id } - ${ formValues.product.product_desc } ?`
-        document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
-        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.stock_id
-    }
-    clearAddNewDataForm() {
-        const get = ( idElement ) => {
-            return document.querySelector( idElement )
-        }
-        get( '#warehouseStockFields' ).value = ''
-        get( '#storeStockFields' ).value = ''
-        get( '#idProductFields' ).value = ''
-    }
-}
 
 class ButtonEventImpl extends ButtonEvent {
     constructor() {
@@ -379,15 +231,165 @@ class AjaxImpl extends Ajax {
     }
 }
 
-const runScript = () => {
-    $( document ).ready( function () {
-        const modalForm = new ModalFormImpl()
-        new DatatableStockImpl().initiateDatatable()
-        new AjaxImpl().getOptionForProductMaster()
-        modalForm.registerOnHideModal()
-        modalForm.disabledBtnNewDataOnClick()
-        new ButtonEventImpl().bindEventWithAjax()
-    } )
-}
 
-runScript()
+class FormDataImpl extends FormData {
+    constructor() {
+        super()
+    }
+    getAddNewDataFormValues() {
+        const get = ( idElement ) => {
+            return document.querySelector( idElement ).value
+        }
+        let formValues = {
+            warehouse_stock: get( '#warehouseStockFields' ),
+            store_stock: get( '#storeStockFields' ),
+            product_id: get( '#idProductFields' )
+        }
+        return formValues
+    }
+    getDeleteFormValues() {
+        let formValues = {
+            stock_id: document.getElementById( 'delete_confirm_massage_id' ).value
+        }
+        return formValues
+    }
+    getUpdateFormValues() {
+        const get = ( idElement ) => {
+            return document.querySelector( idElement ).value
+        }
+        let formValues = {
+            stock_id: get( '#idStockHiddenFields' ),
+            warehouse_stock: get( '#warehouseStockUpdateFields' ),
+            store_stock: get( '#storeStockUpdateFields' ),
+            product_id: get( '#idProductUpdateFields' )
+        }
+        return formValues
+    }
+    generateOption( recordValues ) {
+        let options = ''
+        for ( const values of recordValues ) {
+            options += ` <option value=${ values.product_id }>${ values.product_desc }</option> `
+        }
+        return options
+    }
+    setUpdateFormValues( recordValues ) {
+        const set = ( idElement ) => {
+            return document.querySelector( idElement )
+        }
+        const setIfExistProductId = ( value ) => {
+            if ( !value ) return '';
+            return value.product_id
+        }
+        const setIfExistProductDesc = ( value ) => {
+            if ( !value ) return '';
+            return value.product_desc
+        }
+        set( '#idStockHiddenFields' ).value = recordValues.stock_id
+        set( '#warehouseStockUpdateFields' ).value = recordValues.warehouse_stock
+        set( '#storeStockUpdateFields' ).value = recordValues.store_stock
+        set( '#idProductUpdateFields' ).value = setIfExistProductId( recordValues.product )
+        set( '#productDescUpdateFields' ).value = setIfExistProductDesc( recordValues.product )
+    }
+    setOptionForProductMaster( recordValues ) {
+        // some dom manipulation
+        const options = this.generateOption( recordValues )
+        document.querySelector( '#idProductFields' ).innerHTML = ''
+        document.querySelector( '#idProductFields' ).innerHTML = options
+    }
+}
+class FormValidationImpl extends FormValidation {
+    constructor() {
+        super()
+    }
+    validateUpdateParams( updateParams ) {
+        const validIdProduct = this.validateIdProduct( updateParams )
+        const validWarehouseStock = this.validateWarehouseStock( updateParams )
+        const validStoreStock = this.validateStoreStock( updateParams )
+        const validIdStock = this.validateIdStock( updateParams )
+
+        if ( !validIdProduct.isValid ) return validIdProduct;
+        if ( !validWarehouseStock.isValid ) return validWarehouseStock;
+        if ( !validStoreStock.isValid ) return validStoreStock;
+        if ( !validIdStock.isValid ) return validIdStock;
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateDeleteParams( deleteParams ) {
+        if ( !deleteParams.stock_id || deleteParams.stock_id.length < 0 ) {
+            return this.validateResult( 'Stock Product doesnt found' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateInsertParams( insertParams ) {
+        const validIdProduct = this.validateIdProduct( insertParams )
+        const validWarehouseStock = this.validateWarehouseStock( insertParams )
+        const validStoreStock = this.validateStoreStock( insertParams )
+
+        if ( !validIdProduct.isValid ) return validIdProduct;
+        if ( !validWarehouseStock.isValid ) return validWarehouseStock;
+        if ( !validStoreStock.isValid ) return validStoreStock;
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateIdProduct( formData ) {
+        if ( !formData.product_id ) {
+            return this.validateResult( 'Product selected is not valid' )
+        }
+        if ( isNaN( formData.product_id ) ) {
+            return this.validateResult( 'Product Id is not valid' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateWarehouseStock( formData ) {
+        if ( !formData.warehouse_stock ) {
+            return this.validateResult( 'Warehouse stock is empty' )
+        }
+        if ( isNaN( formData.warehouse_stock ) ) {
+            return this.validateResult( 'Warehouse stock must be a number' )
+        }
+        if ( formData.warehouse_stock < 0 ) {
+            return this.validateResult( 'Warehouse stock must be zero or greater' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateStoreStock( formData ) {
+        if ( !formData.store_stock ) {
+            return this.validateResult( 'Store stock is empty' )
+        }
+        if ( isNaN( formData.store_stock ) ) {
+            return this.validateResult( 'Store stock must be a number' )
+        }
+        if ( formData.store_stock < 0 ) {
+            return this.validateResult( 'Store stock must be zero or greater' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateIdStock( formData ) {
+        if ( !formData.stock_id ) {
+            return this.validateResult( 'Stock is not valid' )
+        }
+        if ( isNaN( formData.stock_id ) ) {
+            return this.validateResult( 'Stock is not valid' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateResult( message = '', isValid = false ) {
+        return { isValid: isValid, message: message }
+    }
+}
+class ModalFormImpl extends ModalForm {
+    constructor() {
+        super()
+    }
+    setDeleteConfirmMessage( formValues ) {
+        const confirmMessage = `Area you sure to delete ${ formValues.product.product_id } - ${ formValues.product.product_desc } ?`
+        document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
+        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.stock_id
+    }
+    clearAddNewDataForm() {
+        const get = ( idElement ) => {
+            return document.querySelector( idElement )
+        }
+        get( '#warehouseStockFields' ).value = ''
+        get( '#storeStockFields' ).value = ''
+        get( '#idProductFields' ).value = ''
+    }
+}

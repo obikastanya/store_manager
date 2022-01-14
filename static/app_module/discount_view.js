@@ -1,3 +1,16 @@
+const runScript = () => {
+    $( document ).ready( function () {
+        new DatatableDiscountImpl().initiateDatatable()
+        new AjaxImpl().getOptionForDiscountTypeMaster()
+        new ButtonEventImpl().bindEventWithAjax()
+        const modalForm = new ModalFormImpl()
+        modalForm.registerOnHideModal()
+        modalForm.disabledBtnNewDataOnClick()
+    } )
+}
+
+runScript()
+
 class DatatableDiscountImpl extends BaseDatatable {
     constructor() {
         super()
@@ -48,153 +61,6 @@ class DatatableDiscountImpl extends BaseDatatable {
         datatableInstance.on( 'click', this.btnClassDeleteData, ( e ) => {
             new AjaxImpl().getSingleDataForDeleteActions( e.target.value )
         } )
-    }
-}
-
-class FormDataImpl extends FormData {
-    constructor() {
-        super()
-    }
-    getAddNewDataFormValues() {
-        const formData = {
-            discount: document.querySelector( '#discountFields' ).value,
-            discount_type: document.querySelector( '#discountTypeFields' ).value,
-            nominal: document.querySelector( '#discountNominalFields' ).value,
-        }
-        return formData
-    }
-    getDeleteFormValues() {
-        let formValues = {
-            discount_id: document.getElementById( 'delete_confirm_massage_id' ).value
-        }
-        return formValues
-    }
-    getUpdateFormValues() {
-        let formValues = {
-            discount_id: document.querySelector( '#idDiscountFields' ).value,
-            discount: document.querySelector( '#discountUpdateFields' ).value,
-            discount_type: document.querySelector( '#discountTypeUpdateFields' ).value,
-            nominal: document.querySelector( '#discountNominalUpdateFields' ).value,
-            active_status: this.getActiveStatusValue( '#activeStatusFields' )
-        }
-        return formValues
-    }
-    setUpdateFormValues( recordValues ) {
-        document.querySelector( '#idDiscountFields' ).value = recordValues.discount_id
-        document.querySelector( '#discountUpdateFields' ).value = recordValues.desc
-        document.querySelector( '#discountTypeUpdateFields' ).value = recordValues.discount_type.discount_type_id
-        document.querySelector( '#discountNominalUpdateFields' ).value = recordValues.discount_nominal
-        document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
-        document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
-    }
-    generateOption( recordValues ) {
-        let options = ''
-        for ( const values of recordValues ) {
-            options += ` <option value=${ values.discount_type_id }>${ values.discount_type }</option> `
-        }
-        return options
-    }
-    setOptionForDiscountTypeMaster( recordValues ) {
-        // some dom manipulation
-        for ( const id of [ '#discountTypeUpdateFields', '#discountTypeFields' ] ) {
-            const options = this.generateOption( recordValues )
-            document.querySelector( id ).innerHTML = ''
-            document.querySelector( id ).innerHTML = options
-        }
-    }
-}
-class FormValidationImpl extends FormValidation {
-    constructor() {
-        super()
-    }
-    validateUpdateParams( updateParams ) {
-        const validDiscountId = this.validateDiscountId( updateParams )
-        const validDiscountActiveStatus = this.validateActiveStatus( updateParams )
-        // reuse param insert validation because it has the save rules.
-        const sameValidationAsInsert = this.validateInsertParams( updateParams )
-        if ( !validDiscountId.isValid ) return validDiscountId;
-        if ( !validDiscountActiveStatus.isValid ) return validDiscountActiveStatus;
-        if ( !sameValidationAsInsert.isValid ) return sameValidationAsInsert;
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateDeleteParams( deleteParams ) {
-        if ( !deleteParams.discount_id || deleteParams.discount_id.length < 0 ) {
-            return this.validateResult( 'Discount Id doesnt found' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateInsertParams( insertParams ) {
-        const validDiscountName = this.validateDiscountName( insertParams )
-        const validDiscountType = this.validateDiscountType( insertParams )
-        const validNominal = this.validateNominal( insertParams )
-        if ( !validDiscountName.isValid ) return validDiscountName;
-        if ( !validDiscountType.isValid ) return validDiscountType;
-        if ( !validNominal.isValid ) return validNominal;
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateDiscountName( formData ) {
-        if ( !formData.discount ) {
-            return this.validateResult( 'Discount Name is empty' )
-        }
-        if ( formData.discount.length < 3 ) {
-            return this.validateResult( 'Discount Name too short' )
-        }
-        if ( formData.discount.length > 200 ) {
-            return this.validateResult( 'Discount Name too long' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateDiscountType( formData ) {
-        if ( !formData.discount_type ) {
-            return this.validateResult( 'Discount Type is invalid' )
-        }
-        if ( isNaN( formData.discount_type ) ) {
-            return this.validateResult( 'Cant Find Selected Discount Type' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateNominal( formData ) {
-        if ( !formData.nominal ) {
-            return this.validateResult( 'Cant insert data with empty nominal' )
-        }
-        if ( isNaN( formData.nominal ) ) {
-            return this.validateResult( 'Nominal must be a number' )
-        }
-        if ( formData.nominal < 1 ) {
-            return this.validateResult( 'Nominal must be greater than 0' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateDiscountId( formData ) {
-        if ( !formData.discount_id || formData.discount_id.length < 0 ) {
-            return this.validateResult( 'There is no discount id to update' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateActiveStatus( formData ) {
-        const isValidStatus = [ 'Y', 'N' ].includes( formData.active_status )
-        if ( !isValidStatus ) {
-            return this.validateResult( 'Active status value is invalid' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateResult( message = '', isValid = false ) {
-        return { isValid: isValid, message: message }
-    }
-}
-class ModalFormImpl extends ModalForm {
-    constructor() {
-        super()
-    }
-    setDeleteConfirmMessage( formValues ) {
-        const confirmMessage = `Area you sure to delete ${ formValues.discount_id } - ${ formValues.desc } ?`
-        document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
-        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.discount_id
-    }
-    clearAddNewDataForm() {
-        document.querySelector( '#discountFields' ).value = ''
-        document.querySelector( '#discountTypeFields' ).value = ''
-        document.querySelector( '#discountNominalFields' ).value = ''
     }
 }
 
@@ -363,15 +229,150 @@ class AjaxImpl extends Ajax {
     }
 }
 
-const runScript = () => {
-    $( document ).ready( function () {
-        new DatatableDiscountImpl().initiateDatatable()
-        new AjaxImpl().getOptionForDiscountTypeMaster()
-        new ButtonEventImpl().bindEventWithAjax()
-        const modalForm = new ModalFormImpl()
-        modalForm.registerOnHideModal()
-        modalForm.disabledBtnNewDataOnClick()
-    } )
+class FormDataImpl extends FormData {
+    constructor() {
+        super()
+    }
+    getAddNewDataFormValues() {
+        const formData = {
+            discount: document.querySelector( '#discountFields' ).value,
+            discount_type: document.querySelector( '#discountTypeFields' ).value,
+            nominal: document.querySelector( '#discountNominalFields' ).value,
+        }
+        return formData
+    }
+    getDeleteFormValues() {
+        let formValues = {
+            discount_id: document.getElementById( 'delete_confirm_massage_id' ).value
+        }
+        return formValues
+    }
+    getUpdateFormValues() {
+        let formValues = {
+            discount_id: document.querySelector( '#idDiscountFields' ).value,
+            discount: document.querySelector( '#discountUpdateFields' ).value,
+            discount_type: document.querySelector( '#discountTypeUpdateFields' ).value,
+            nominal: document.querySelector( '#discountNominalUpdateFields' ).value,
+            active_status: this.getActiveStatusValue( '#activeStatusFields' )
+        }
+        return formValues
+    }
+    setUpdateFormValues( recordValues ) {
+        document.querySelector( '#idDiscountFields' ).value = recordValues.discount_id
+        document.querySelector( '#discountUpdateFields' ).value = recordValues.desc
+        document.querySelector( '#discountTypeUpdateFields' ).value = recordValues.discount_type.discount_type_id
+        document.querySelector( '#discountNominalUpdateFields' ).value = recordValues.discount_nominal
+        document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
+        document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
+    }
+    generateOption( recordValues ) {
+        let options = ''
+        for ( const values of recordValues ) {
+            options += ` <option value=${ values.discount_type_id }>${ values.discount_type }</option> `
+        }
+        return options
+    }
+    setOptionForDiscountTypeMaster( recordValues ) {
+        // some dom manipulation
+        for ( const id of [ '#discountTypeUpdateFields', '#discountTypeFields' ] ) {
+            const options = this.generateOption( recordValues )
+            document.querySelector( id ).innerHTML = ''
+            document.querySelector( id ).innerHTML = options
+        }
+    }
+}
+class FormValidationImpl extends FormValidation {
+    constructor() {
+        super()
+    }
+    validateUpdateParams( updateParams ) {
+        const validDiscountId = this.validateDiscountId( updateParams )
+        const validDiscountActiveStatus = this.validateActiveStatus( updateParams )
+        // reuse param insert validation because it has the save rules.
+        const sameValidationAsInsert = this.validateInsertParams( updateParams )
+        if ( !validDiscountId.isValid ) return validDiscountId;
+        if ( !validDiscountActiveStatus.isValid ) return validDiscountActiveStatus;
+        if ( !sameValidationAsInsert.isValid ) return sameValidationAsInsert;
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateDeleteParams( deleteParams ) {
+        if ( !deleteParams.discount_id || deleteParams.discount_id.length < 0 ) {
+            return this.validateResult( 'Discount Id doesnt found' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateInsertParams( insertParams ) {
+        const validDiscountName = this.validateDiscountName( insertParams )
+        const validDiscountType = this.validateDiscountType( insertParams )
+        const validNominal = this.validateNominal( insertParams )
+        if ( !validDiscountName.isValid ) return validDiscountName;
+        if ( !validDiscountType.isValid ) return validDiscountType;
+        if ( !validNominal.isValid ) return validNominal;
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateDiscountName( formData ) {
+        if ( !formData.discount ) {
+            return this.validateResult( 'Discount Name is empty' )
+        }
+        if ( formData.discount.length < 3 ) {
+            return this.validateResult( 'Discount Name too short' )
+        }
+        if ( formData.discount.length > 200 ) {
+            return this.validateResult( 'Discount Name too long' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateDiscountType( formData ) {
+        if ( !formData.discount_type ) {
+            return this.validateResult( 'Discount Type is invalid' )
+        }
+        if ( isNaN( formData.discount_type ) ) {
+            return this.validateResult( 'Cant Find Selected Discount Type' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateNominal( formData ) {
+        if ( !formData.nominal ) {
+            return this.validateResult( 'Cant insert data with empty nominal' )
+        }
+        if ( isNaN( formData.nominal ) ) {
+            return this.validateResult( 'Nominal must be a number' )
+        }
+        if ( formData.nominal < 1 ) {
+            return this.validateResult( 'Nominal must be greater than 0' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateDiscountId( formData ) {
+        if ( !formData.discount_id || formData.discount_id.length < 0 ) {
+            return this.validateResult( 'There is no discount id to update' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateActiveStatus( formData ) {
+        const isValidStatus = [ 'Y', 'N' ].includes( formData.active_status )
+        if ( !isValidStatus ) {
+            return this.validateResult( 'Active status value is invalid' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateResult( message = '', isValid = false ) {
+        return { isValid: isValid, message: message }
+    }
+}
+class ModalFormImpl extends ModalForm {
+    constructor() {
+        super()
+    }
+    setDeleteConfirmMessage( formValues ) {
+        const confirmMessage = `Area you sure to delete ${ formValues.discount_id } - ${ formValues.desc } ?`
+        document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
+        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.discount_id
+    }
+    clearAddNewDataForm() {
+        document.querySelector( '#discountFields' ).value = ''
+        document.querySelector( '#discountTypeFields' ).value = ''
+        document.querySelector( '#discountNominalFields' ).value = ''
+    }
 }
 
-runScript()

@@ -1,3 +1,17 @@
+
+const runScript = () => {
+    $( document ).ready( function () {
+        const modalForm = new ModalFormImpl()
+        new DatatableCompanyImpl().initiateDatatable()
+        modalForm.registerOnHideModal()
+        modalForm.disabledBtnNewDataOnClick()
+        new ButtonEventImpl().bindEventWithAjax()
+    } )
+}
+
+runScript()
+
+
 class DatatableCompanyImpl extends BaseDatatable {
     constructor() {
         super()
@@ -42,102 +56,6 @@ class DatatableCompanyImpl extends BaseDatatable {
     }
 }
 
-class FormDataImpl extends FormData {
-    constructor() {
-        super()
-    }
-    getAddNewDataFormValues() {
-        let formValues = {
-            company: document.querySelector( '#companyFields' ).value
-        }
-        return formValues
-    }
-    getDeleteFormValues() {
-        let formValues = {
-            company_id: document.getElementById( 'delete_confirm_massage_id' ).value
-        }
-        return formValues
-    }
-    getUpdateFormValues() {
-        let formValues = {
-            company: document.querySelector( '#companyFieldsUpdate' ).value,
-            company_id: document.querySelector( '#idCompanyFields' ).value,
-            active_status: this.getActiveStatusValue( '#activeStatusFields' )
-        }
-        return formValues
-    }
-    setUpdateFormValues( recordValues ) {
-        document.querySelector( '#idCompanyFields' ).value = recordValues.company_id
-        document.querySelector( '#companyFieldsUpdate' ).value = recordValues.company
-        document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
-        document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
-    }
-}
-class FormValidationImpl extends FormValidation {
-    constructor() {
-        super()
-    }
-    validateUpdateParams( updateParams ) {
-        const validIdCompany = this.validateIdCompany( updateParams )
-        const validCompany = this.validateCompany( updateParams )
-        const validActiveStatus = this.validateActiveStatus( updateParams )
-
-        if ( !validIdCompany.isValid ) return validIdCompany;
-        if ( !validCompany.isValid ) return validCompany;
-        if ( !validActiveStatus.isValid ) return validActiveStatus;
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateDeleteParams( deleteParams ) {
-        if ( !deleteParams.company_id || deleteParams.company_id.length < 0 ) {
-            return this.validateResult( 'Company Id doesnt found' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateInsertParams( insertParams ) {
-        return this.validateCompany( insertParams )
-    }
-    validateCompany( formData ) {
-        if ( !formData.company ) {
-            return this.validateResult( 'Cant insert empty data' )
-        }
-        if ( formData.company.length < 3 ) {
-            return this.validateResult( 'Company Name too short' )
-        }
-        if ( formData.company.length > 200 ) {
-            return this.validateResult( 'Company Name too long' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateIdCompany( formData ) {
-        if ( !formData.company_id || formData.company_id.length < 0 ) {
-            return this.validateResult( 'There is no company id to update' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateActiveStatus( formData ) {
-        const isValidStatus = [ 'Y', 'N' ].includes( formData.active_status )
-        if ( !isValidStatus ) {
-            return this.validateResult( 'Active status value is invalid' )
-        }
-        return this.validateResult( 'Data is valid', true )
-    }
-    validateResult( message = '', isValid = false ) {
-        return { isValid: isValid, message: message }
-    }
-}
-class ModalFormImpl extends ModalForm {
-    constructor() {
-        super()
-    }
-    setDeleteConfirmMessage( formValues ) {
-        const confirmMessage = `Area you sure to delete ${ formValues.company_id } - ${ formValues.company } ?`
-        document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
-        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.company_id
-    }
-    clearAddNewDataForm() {
-        document.querySelector( '#companyFields' ).value = ''
-    }
-}
 
 class ButtonEventImpl extends ButtonEvent {
     constructor() {
@@ -293,14 +211,100 @@ class AjaxImpl extends Ajax {
     }
 }
 
-const runScript = () => {
-    $( document ).ready( function () {
-        const modalForm = new ModalFormImpl()
-        new DatatableCompanyImpl().initiateDatatable()
-        modalForm.registerOnHideModal()
-        modalForm.disabledBtnNewDataOnClick()
-        new ButtonEventImpl().bindEventWithAjax()
-    } )
-}
 
-runScript()
+class FormDataImpl extends FormData {
+    constructor() {
+        super()
+    }
+    getAddNewDataFormValues() {
+        let formValues = {
+            company: document.querySelector( '#companyFields' ).value
+        }
+        return formValues
+    }
+    getDeleteFormValues() {
+        let formValues = {
+            company_id: document.getElementById( 'delete_confirm_massage_id' ).value
+        }
+        return formValues
+    }
+    getUpdateFormValues() {
+        let formValues = {
+            company: document.querySelector( '#companyFieldsUpdate' ).value,
+            company_id: document.querySelector( '#idCompanyFields' ).value,
+            active_status: this.getActiveStatusValue( '#activeStatusFields' )
+        }
+        return formValues
+    }
+    setUpdateFormValues( recordValues ) {
+        document.querySelector( '#idCompanyFields' ).value = recordValues.company_id
+        document.querySelector( '#companyFieldsUpdate' ).value = recordValues.company
+        document.querySelector( '#activeStatusFields' ).checked = recordValues.active_status
+        document.querySelector( '#activeStatusFields' ).value = recordValues.active_status
+    }
+}
+class FormValidationImpl extends FormValidation {
+    constructor() {
+        super()
+    }
+    validateUpdateParams( updateParams ) {
+        const validIdCompany = this.validateIdCompany( updateParams )
+        const validCompany = this.validateCompany( updateParams )
+        const validActiveStatus = this.validateActiveStatus( updateParams )
+
+        if ( !validIdCompany.isValid ) return validIdCompany;
+        if ( !validCompany.isValid ) return validCompany;
+        if ( !validActiveStatus.isValid ) return validActiveStatus;
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateDeleteParams( deleteParams ) {
+        if ( !deleteParams.company_id || deleteParams.company_id.length < 0 ) {
+            return this.validateResult( 'Company Id doesnt found' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateInsertParams( insertParams ) {
+        return this.validateCompany( insertParams )
+    }
+    validateCompany( formData ) {
+        if ( !formData.company ) {
+            return this.validateResult( 'Cant insert empty data' )
+        }
+        if ( formData.company.length < 3 ) {
+            return this.validateResult( 'Company Name too short' )
+        }
+        if ( formData.company.length > 200 ) {
+            return this.validateResult( 'Company Name too long' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateIdCompany( formData ) {
+        if ( !formData.company_id || formData.company_id.length < 0 ) {
+            return this.validateResult( 'There is no company id to update' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateActiveStatus( formData ) {
+        const isValidStatus = [ 'Y', 'N' ].includes( formData.active_status )
+        if ( !isValidStatus ) {
+            return this.validateResult( 'Active status value is invalid' )
+        }
+        return this.validateResult( 'Data is valid', true )
+    }
+    validateResult( message = '', isValid = false ) {
+        return { isValid: isValid, message: message }
+    }
+}
+class ModalFormImpl extends ModalForm {
+    constructor() {
+        super()
+    }
+    setDeleteConfirmMessage( formValues ) {
+        const confirmMessage = `Area you sure to delete ${ formValues.company_id } - ${ formValues.company } ?`
+        document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
+        document.getElementById( 'delete_confirm_massage_id' ).value = formValues.company_id
+    }
+    clearAddNewDataForm() {
+        document.querySelector( '#companyFields' ).value = ''
+    }
+}

@@ -1,3 +1,12 @@
+const runScript = () => {
+    $( document ).ready( function () {
+        new DatatableDiscountTypeImpl().initiateDatatable()
+    } )
+}
+
+runScript()
+
+
 class DatatableDiscountTypeImpl extends BaseDatatable {
     constructor() {
         super()
@@ -44,10 +53,3 @@ class DatatableDiscountTypeImpl extends BaseDatatable {
 }
 
 
-const runScript = () => {
-    $( document ).ready( function () {
-        new DatatableDiscountTypeImpl().initiateDatatable()
-    } )
-}
-
-runScript()
