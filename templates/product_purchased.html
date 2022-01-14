@@ -2,7 +2,7 @@
 {% block css_script %}
 <link rel="stylesheet" href="/static/assets/select/selectize.bootstrap4.min.css">
 {% endblock %}
-{%block menu_title %}Product Sold{% endblock %}
+{%block menu_title %}Product Purchased{% endblock %}
 
 {% block main_content%}
 <!-- datatables product -->
@@ -23,25 +23,16 @@
                     </div>
                 </div>
                 <div class="row mb-2">
-                    <div class="col-sm-4"><label for="discountFields" class="form-label">Discount Applied</label>
+                    <div class="col-sm-4"><label for="supplierFields" class="form-label">Supplier</label>
                     </div>
                     <div class="col">
-                        <select class="form-control selectForm" id="discountFields" placeholder="Discount Applied">
+                        <select class="form-control selectForm" id="supplierFields" placeholder="Supplier">
                             <option value="">No item to select</option>
                         </select>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="row mb-2">
-                    <div class="col-sm-4"><label for="cashierFields" class="form-label">Cashier</label>
-                    </div>
-                    <div class="col">
-                        <select class="form-control selectForm" id="cashierFields" placeholder="Cashier">
-                            <option value="">No item to select</option>
-                        </select>
-                    </div>
-                </div>
                 <div class="row mb-2">
                     <div class="col-sm-4"><label for="transactionDateFields" class="form-label">Transaction Date</label>
                     </div>
@@ -61,18 +52,15 @@
 
 <div class="row mt-4 ml-3 mr-3">
     <div class="col-sm-12">
-        <table class="table table-bordered table-striped" id='product_sold_transaction_datatable_id' width='100%'>
+        <table class="table table-bordered table-striped" id='product_purchased_transaction_datatable_id' width='100%'>
             <thead>
                 <tr>
                     <th scope="col">No</th>
                     <th scope="col">Transaction Code</th>
-                    <th scope="col">Transaction Date</th>
-                    <th scope="col">Cashier</th>
+                    <th scope="col">Purchasing Date</th>
                     <th scope="col">Payment Method</th>
-                    <th scope="col">Total Price</th>
-                    <th scope="col">Tax</th>
-                    <th scope="col">Paid</th>
-                    <th scope="col">Change</th>
+                    <th scope="col">Nominal</th>
+                    <th scope="col">Supplier</th>
                     <th scope="col">Action</th>
                 </tr>
             </thead>
@@ -103,8 +91,6 @@
                             <th scope="col">Quantity</th>
                             <th scope="col">Price</th>
                             <th scope="col">Sub Total</th>
-                            <th scope="col">Cutt Off</th>
-                            <th scope="col">Discount Applied</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -255,5 +241,5 @@
 {% block custom_script %}
 <script src="/static/assets/select/selectize.min.js"></script>
 <script src="/static/app_module/base_view.js"></script>
-<script src="/static/app_module/product_sold_view.js"></script>
+<script src="/static/app_module/product_purchased_view.js"></script>
 {% endblock %}

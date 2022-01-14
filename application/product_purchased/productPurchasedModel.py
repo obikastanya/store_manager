@@ -37,4 +37,4 @@ class PurchasedTransactionDetailSchema(Schema):
     tpd_id=fields.Int(data_key='transaction_purchased_detail_id')
     product=fields.Nested('ProductSchema',only=('msp_id', 'msp_desc',))
     tpd_msp_price=fields.Int(data_key='purchased_price')
-    td_quantity=fields.Int(data_key='quantity')
+    tpd_quantity=fields.Int(data_key='quantity')
