@@ -8,13 +8,16 @@
         <meta name="description" content="">
         <meta name="author" content="">
         <title>Store Manager</title>
-        <link href="static/theme/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+        <!-- put jquery style at top, then it will replaced by sb admin style -->
+        <link rel="stylesheet" href="/static/assets/datatable-jquery/bootstrap5.min.css">
+        <link rel="stylesheet" href="/static/assets/datatable-jquery/dataTables.bootstrap5.min.css">
+
         <link rel="shortcut icon" type="image/png" href="static/assets/img/favicon_shopping_cart.png" />
+        <link href="static/theme/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
         <link href="/static/theme/css/font.css" rel="stylesheet">
         <link href="static/theme/css/sb-admin-2.min.css" rel="stylesheet">
         <!-- The link bellow importing css for bootstrap datatable-->
-        <link rel="stylesheet" href="/static/assets/datatable-jquery/bootstrap5.min.css">
-        <link rel="stylesheet" href="/static/assets/datatable-jquery/dataTables.bootstrap5.min.css">
+
         {% block css_script %} {% endblock %}
 
     </head>
