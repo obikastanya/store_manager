@@ -4,20 +4,10 @@ from application.master.indexMasterController import *
 from application.manage_discount.manageDiscountController import ManageDiscountController
 from application.product_sold.productSoldController import ProductSoldController
 from application.product_purchased.productPurchasedController import ProductPurchasedController
-
-def splitRouteByMethods(Controller):
-    if request.method == 'POST':
-        return Controller().insertNewData()
-    if request.method == 'GET':
-        return Controller().getData()
-    if request.method == 'PUT':
-        return Controller().updateData()
-    if request.method == 'DELETE':
-        return Controller().deleteData()
+from application.dashboard.dashboardController import DashboardController
 
 
 """Contain all api for the apps"""
-
 
 # Bellow is all route for master category product
 @app.route('/category_product_api', methods=['GET', 'POST', 'PUT', 'DELETE'])
@@ -52,61 +42,63 @@ def discountApiSearch():
     return DiscountController().searchSingleData()
 
 
+
+
 # bellow is all route for master discount
 @app.route('/discount_type_api', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def discountTypeApi():
     return splitRouteByMethods(DiscountTypeController)
-
 
 @app.post('/discount_type_api_search')
 def discountTypeApiSearch():
     return DiscountController().searchSingleData()
 
 
+
 @app.route('/employee_api', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def employeeApi():
     return splitRouteByMethods(EmployeeController)
-
 
 @app.post('/employee_api_search')
 def employeeApiSearch():
     return EmployeeController().searchSingleData()
 
 
+
+
 @app.route('/payment_method_api', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def paymentMethodApi():
     return splitRouteByMethods(PaymentMethodContoller)
-
 
 @app.post('/payment_method_api_search')
 def paymentMethodApiSearch():
     return PaymentMethodContoller().searchSingleData()
 
 
+
 @app.route('/product_api', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def productApi():
     return splitRouteByMethods(ProductController)
-
 
 @app.post('/product_api_search')
 def productApiSearch():
     return ProductController().searchSingleData()
 
 
+
 @app.route('/employee_status_api', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def employeeStatusApi():
     return splitRouteByMethods(EmployeeStatusController)
-
 
 @app.post('/employee_status_api_search')
 def employeeStatusApiSearch():
     return EmployeeStatusController().searchSingleData()
 
 
+
 @app.route('/stock_api', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def stockApi():
     return splitRouteByMethods(StockController)
-
 
 @app.post('/stock_api_search')
 def stockApiSearch():
@@ -117,10 +109,12 @@ def stockApiSearch():
 def supplierApi():
     return splitRouteByMethods(SupplierController)
 
-
 @app.post('/supplier_api_search')
 def supplierApiSearch():
     return SupplierController().searchSingleData()
+
+
+
 
 
 # Lov Api End Point
@@ -157,6 +151,10 @@ def discountLovApi():
 @app.get('/payment_method_lov_api')
 def paymentMethodLovApi():
     return PaymentMethodContoller().getLovData()
+
+
+
+
 
 # api for transaction menu
 # api for manageDiscount
@@ -199,3 +197,39 @@ def productPurchasedApi():
 @app.post('/product_purchased_api_search')
 def productPurchasedApiSearch():
     return ProductPurchasedController().searchDetailTransaction()
+
+@app.get('/dashboard_api')
+def dashboardApi():
+    summaryType=request.args.get('summarize_type')
+    controllerMethod=getControllerMethodBySummaryType(summaryType)
+    return controllerMethod()
+
+
+
+
+def splitRouteByMethods(Controller):
+    if request.method == 'POST':
+        return Controller().insertNewData()
+    if request.method == 'GET':
+        return Controller().getData()
+    if request.method == 'PUT':
+        return Controller().updateData()
+    if request.method == 'DELETE':
+        return Controller().deleteData()
+
+def getControllerMethodBySummaryType(summaryType):
+    dashboardInstance=DashboardController()
+    if summaryType=='summarize_total':
+        return dashboardInstance.getSummerizeOfTotal
+    if summaryType=='purchased_vs_sold':
+        return dashboardInstance.getSummerizeOfPurchasedVsSoldProduct
+    if summaryType=='sold_summary':
+        return dashboardInstance.getSummerizeOfSoldTransaction
+    if summaryType=='purchased_summary':
+        return dashboardInstance.getSummerizeOfPurchasedTransaction
+    if summaryType=='availability_store_summary':
+        return dashboardInstance.getSummerizeOfStoreAvailability
+    if summaryType=='availability_warehouse_summary':
+        return dashboardInstance.getSummerizeOfWarehouseAvailability
+    return dashboardInstance.requestIsNotRecognize
+
