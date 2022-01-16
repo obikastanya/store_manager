@@ -468,6 +468,7 @@ class FormDataImpl extends FormData {
                             <td>${ replaceEmpty( this.getCuttOff( record.detail_discount_applied ) ) }</td>
                             <td>${ replaceEmpty( this.getDiscountNames( record.detail_discount_applied ) ) }</td>
                         </tr>`
+
         return rowRecord
     }
 
@@ -489,7 +490,7 @@ class FormDataImpl extends FormData {
     getCuttOffTemplate( productRecord, defaultQuantity = 1 ) {
         return new FormDataImpl().getDiscountNamesForCashier( productRecord.discount_applied_on_product ).discount_nominal * defaultQuantity
     }
-    getCuttOff( discountApplied ) {
+    getCuttOff( discountApplied = [] ) {
         let cuttOff = 0
         for ( const discount of discountApplied ) {
             cuttOff += discount.cutt_off_nominal
@@ -497,6 +498,8 @@ class FormDataImpl extends FormData {
         return cuttOff
     }
     getDiscountNames( discountApplied ) {
+
+        if ( !discountApplied.discountApplied ) return "";
         let discountNames = []
         for ( const discount of discountApplied ) {
             discountNames.push( discount.discount_applied.discount_master.desc )
@@ -539,7 +542,7 @@ class AjaxImpl extends Ajax {
         }
         const payload = this.createPayload( 'POST', params )
         const onSuccess = ( response ) => {
-            if ( !response.data.length ) new Alert().failedAjax( response.msg );
+            if ( !response.data.length ) return new Alert().failedAjax( response.msg );
             new FormDataImpl().setDetailModalTables( response.data[ 0 ].detail_transaction )
             return
         }
