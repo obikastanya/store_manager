@@ -219,16 +219,19 @@ def splitRouteByMethods(Controller):
 
 def getControllerMethodBySummaryType(summaryType):
     dashboardInstance=DashboardController()
+    groupByCategory=request.args.get('group_by_category')
     if summaryType=='summarize_total':
         return dashboardInstance.getSummerizeOfTotal
 
     if summaryType=='purchased_vs_sold':
-        if request.args.get('group_by_category'):
+        if groupByCategory:
             return dashboardInstance.getSummerizeOfPurchasedVsSoldProductByCategory
         return dashboardInstance.getSummerizeOfPurchasedVsSoldProduct
 
     if summaryType=='sold_summary':
-        return dashboardInstance.getSummerizeOfSoldTransaction
+        if groupByCategory:
+            return dashboardInstance.getSummerizeOfSoldProductByCategory
+        return dashboardInstance.getSummerizeOfSoldProduct
 
     if summaryType=='purchased_summary':
         return dashboardInstance.getSummerizeOfPurchasedTransaction
@@ -238,6 +241,6 @@ def getControllerMethodBySummaryType(summaryType):
 
     if summaryType=='availability_warehouse_summary':
         return dashboardInstance.getSummerizeOfWarehouseAvailability
-        
+
     return dashboardInstance.requestIsNotRecognize
 
