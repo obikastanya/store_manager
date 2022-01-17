@@ -142,18 +142,18 @@ class LineChart {
     }
     getDummyData() {
         const dummyData = {
-            labels: [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ],
+            labels: [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Dec2" ],
             datasets: [
                 {
                     label: 'Product Sold',
-                    data: [ 0, 10000, 5000, 15000, 10000, 20000, 15000, 25000, 20000, 30000, 25000, 40000 ],
+                    data: [ 0, 10000, 5000, 15000, 10000, 20000, 15000, 25000, 20000, 30000, 25000, 40000, 49000 ],
                     fill: false,
                     borderColor: 'rgb(75, 192, 192)',
                     tension: 0.1
                 },
                 {
                     label: 'Purchased',
-                    data: [ 0, 1000, 3000, 1500, 14000, 2000, 1500, 2500, 23000, 30200, 25030, 46000 ],
+                    data: [ 0, 1000, 3000, 1500, 14000, 2000, 1500, 2500, 23000, 30200, 25030, 46000,49000 ],
                     fill: false,
                     borderColor: 'rgb(75, 102, 92)',
                     tension: 0.1
@@ -326,13 +326,13 @@ class BarChart {
     }
     getDummyData() {
         const dummyData = {
-            labels: [ "January", "February", "March", "April", "May", "June" ],
+            labels: [ "January", "February", "March", "April", "May", "June", "July" ],
             datasets: [ {
                 label: "Revenue",
                 backgroundColor: this.getBlue(),
                 hoverBackgroundColor: "#2e59d9",
                 borderColor: this.getBlue(),
-                data: [ 4215, 5312, 6251, 7841, 9821, 14984 ],
+                data: [ 4215, 5312, 6251, 7841, 9821, 14984, 4522 ],
             } ],
         }
         return dummyData

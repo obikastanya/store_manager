@@ -221,15 +221,23 @@ def getControllerMethodBySummaryType(summaryType):
     dashboardInstance=DashboardController()
     if summaryType=='summarize_total':
         return dashboardInstance.getSummerizeOfTotal
+
     if summaryType=='purchased_vs_sold':
+        if request.args.get('group_by_category'):
+            return dashboardInstance.getSummerizeOfPurchasedVsSoldProductByCategory
         return dashboardInstance.getSummerizeOfPurchasedVsSoldProduct
+
     if summaryType=='sold_summary':
         return dashboardInstance.getSummerizeOfSoldTransaction
+
     if summaryType=='purchased_summary':
         return dashboardInstance.getSummerizeOfPurchasedTransaction
+
     if summaryType=='availability_store_summary':
         return dashboardInstance.getSummerizeOfStoreAvailability
+
     if summaryType=='availability_warehouse_summary':
         return dashboardInstance.getSummerizeOfWarehouseAvailability
+        
     return dashboardInstance.requestIsNotRecognize
 

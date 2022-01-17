@@ -6,12 +6,13 @@ from datetime import datetime
 
 class DashboardController():
     def getSummerizeOfTotal(self):
-        try:
-            rawSummaryTotalData=Dashboard().getSummaryOfTotal({})
-            dictOfSummaryTotal=DashboardDataMapper.mapSummaryOfTotal(rawSummaryTotalData)
-            return Response.make(data=[dictOfSummaryTotal])
-        except:
-            return Response.make(False, "Something wrong while trying to complete the request.")
+        # try:
+        parameterFromRequest=ParameterHandler().getParameter()
+        rawSummaryTotalData=Dashboard().getSummaryOfTotal(parameterFromRequest)
+        dictOfSummaryTotal=DashboardDataMapper.mapSummaryOfTotal(rawSummaryTotalData)
+        return Response.make(data=[dictOfSummaryTotal])
+        # except:
+        #     return Response.make(False, "Something wrong while trying to complete the request.")
         
     def getSummerizeOfPurchasedVsSoldProduct(self):
         # try:
@@ -22,6 +23,17 @@ class DashboardController():
         return Response.make(data=dictOfSummaryPurchasedVsSold)
         # except:
             # return Response.make(False, "Something wrong while trying to complete the request.")
+
+    def getSummerizeOfPurchasedVsSoldProductByCategory(self):
+        # try:
+        rawSummaryPurchasedVsSold=DataHandler().getSummaryOfPurchasedVsSoldByCategory()
+        dictOfSummaryPurchasedVsSold=DashboardDataMapper.mapSummaryOfPurchasedVsSoldByCategory(rawSummaryPurchasedVsSold)
+        if not dictOfSummaryPurchasedVsSold:
+            return Response.make(False,"Data is not found")
+        return Response.make(data=dictOfSummaryPurchasedVsSold)
+        # except:
+            # return Response.make(False, "Something wrong while trying to complete the request.")
+        
     def getSummerizeOfSoldTransaction(self):
         return self.defaultFalse()
     def getSummerizeOfPurchasedTransaction(self):
@@ -60,28 +72,62 @@ class DashboardDataMapper:
             dictOfSummaryPuchasedVsSold.append(dictRecord)
         return dictOfSummaryPuchasedVsSold
 
+    @staticmethod
+    def mapSummaryOfPurchasedVsSoldByCategory(rawData):
+        dictOfSummaryPuchasedVsSold=[]
+        for record in rawData:
+            dictRecord={
+                'data_value':record[0],
+                'data_key':record[1]
+            }
+            dictOfSummaryPuchasedVsSold.append(dictRecord)
+        return dictOfSummaryPuchasedVsSold
+
 class DataHandler:
+    def getSummaryOfPurchasedVsSoldByCategory(self):
+        parameterFromRequest=ParameterHandler().getParameter()
+        isDateMonthExist=bool(parameterFromRequest.get('date_month'))
+        isDateYearExist=bool(parameterFromRequest.get('date_year'))
+
+        if isDateMonthExist and isDateYearExist:
+            return Dashboard().getSummaryOfPurchasedVsSoldGroupByCategoryInMonth(parameterFromRequest)
+        # if  years is the only param exist
+        return Dashboard().getSummaryOfPurchasedVsSoldGroupByCategoryInYear(parameterFromRequest)
+
     def getSummaryOfPurchasedVsSold(self):
         parameterFromRequest=ParameterHandler().getParameter()
-        if parameterFromRequest.get('date_month') and parameterFromRequest.get('date_year'):
-            numberOfDays=ParameterHandler().getNumberOfDateInMonth(parameterFromRequest.get('date_year'),parameterFromRequest.get('date_month'))
-            parameterFromRequest.update({'number_date_in_month':numberOfDays})
-            return Dashboard().getSummaryOfPurchasedVsSold(parameterFromRequest)
-        return []
+        isDateMonthExist=bool(parameterFromRequest.get('date_month'))
+        isDateYearExist=bool(parameterFromRequest.get('date_year'))
+
+        numberOfDays=ParameterHandler().getNumberOfDateInMonth(parameterFromRequest.get('date_year'),parameterFromRequest.get('date_month'))
+        parameterFromRequest.update({'number_date_in_month':numberOfDays})
+
+        # get data for  monthly or yearly statistic group by date
+        if isDateMonthExist and isDateYearExist :
+            return Dashboard().getSummaryOfPurchasedVsSoldInMonth(parameterFromRequest)
+        return Dashboard().getSummaryOfPurchasedVsSoldInYear(parameterFromRequest)
 
 class ParameterHandler:
     def getParameter(self):
         dictParameter={
         'date_month':request.args.get('date_month'),
-        'date_year':request.args.get('date_year'),
+        'date_year':self.getDateYear(),
         'summarize_type':request.args.get('summarize_type'),
         'group_by_category':request.args.get('group_by_category')
         }
         return dictParameter
 
+    def getDateYear(self):
+        if not request.args.get('date_year'):
+            return datetime.now().year
+        return request.args.get('date_year')
+
     def getNumberOfDateInMonth(self, year, month):
         currentYear=datetime.now().year
         currentMonth=datetime.now().month
+        
+        if not month:
+            month=datetime.now().month
 
         # check if the its current time
         if currentYear==int(year) and currentMonth==int(month):
@@ -89,4 +135,18 @@ class ParameterHandler:
 
         numberOfDays=monthrange(int(year),int(month))
         return numberOfDays[1]
+    
+    def getNumberOfDateInYear(self, year, month):
+        
+        currentYear=datetime.now().year
+        currentMonth=datetime.now().month
+
+        # check if the its current time
+        if not month:
+            month=datetime.now().month
+
+        if currentYear==int(year) and currentMonth==int(month):
+            return datetime.now().month
+        return 12
+    
     
