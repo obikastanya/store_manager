@@ -46,7 +46,7 @@ class DashboardController():
 
     def getSummerizeOfSoldProductByCategory(self):
         # try:
-        rawSummarySold=DataHandler().getSummaryOfPurchasedVsSoldByCategory()
+        rawSummarySold=DataHandler().getSummaryOfSoldByCategory()
         dictOfSummarySold=DashboardDataMapper.mapSummaryOfSoldByCategory(rawSummarySold)
         if not dictOfSummarySold:
             return Response.make(False,"Data is not found")
@@ -54,12 +54,45 @@ class DashboardController():
         # except:
             # return Response.make(False, "Something wrong while trying to complete the request.")
         
-    def getSummerizeOfPurchasedTransaction(self):
-        return self.defaultFalse()
+    def getSummerizeOfPurchasedProduct(self):
+        # try:
+        rawSummaryPurchased=DataHandler().getSummaryOfPurchased()
+        dictOfSummaryPurchased=DashboardDataMapper.mapSummaryOfPurchased(rawSummaryPurchased)
+        if not dictOfSummaryPurchased:
+            return Response.make(False,"Data is not found")
+        return Response.make(data=dictOfSummaryPurchased)
+        # except:
+            # return Response.make(False, "Something wrong while trying to complete the request.")
+
+    def getSummerizeOfPurchasedProductByCategory(self):
+        # try:
+        rawSummaryPurchased=DataHandler().getSummaryOfPurchasedByCategory()
+        dictOfSummaryPurchased=DashboardDataMapper.mapSummaryOfPurchasedByCategory(rawSummaryPurchased)
+        if not dictOfSummaryPurchased:
+            return Response.make(False,"Data is not found")
+        return Response.make(data=dictOfSummaryPurchased)
+        # except:
+            # return Response.make(False, "Something wrong while trying to complete the request.")
+        
     def getSummerizeOfStoreAvailability(self):
-        return self.defaultFalse()
+        # try:
+        rawSummaryAvailability=Dashboard().getSummaryOfAvailabilityStore()
+        dictOfSummaryAvailability=DashboardDataMapper.mapSummaryOfAvailability(rawSummaryAvailability)
+        if not dictOfSummaryAvailability:
+            return Response.make(False,"Data is not found")
+        return Response.make(data=dictOfSummaryAvailability)
+        # except:
+            # return Response.make(False, "Something wrong while trying to complete the request.")
+        
     def getSummerizeOfWarehouseAvailability(self):
-        return self.defaultFalse()
+        # try:
+        rawSummaryAvailability=Dashboard().getSummaryOfAvailabilityWarehouse()
+        dictOfSummaryAvailability=DashboardDataMapper.mapSummaryOfAvailability(rawSummaryAvailability)
+        if not dictOfSummaryAvailability:
+            return Response.make(False,"Data is not found")
+        return Response.make(data=dictOfSummaryAvailability)
+        # except:
+            # return Response.make(False, "Something wrong while trying to complete the request.")
 
     def requestIsNotRecognize(self):
         return Response.make(False,"Request is not recognized")
@@ -111,8 +144,28 @@ class DataHandler:
         if isDateMonthExist and isDateYearExist :
             return Dashboard().getSummaryOfSoldInMonth(parameterFromRequest)
         return Dashboard().getSummaryOfSoldInYear(parameterFromRequest)
- 
 
+    def getSummaryOfPurchasedByCategory(self):
+        parameterFromRequest=ParameterHandler().getParameter()
+        isDateMonthExist=bool(parameterFromRequest.get('date_month'))
+        isDateYearExist=bool(parameterFromRequest.get('date_year'))
+
+        if isDateMonthExist and isDateYearExist:
+            return Dashboard().getSummaryOfPurchasedGroupByCategoryInMonth(parameterFromRequest)
+        return Dashboard().getSummaryOfPurchasedGroupByCategoryInYear(parameterFromRequest)
+
+    def getSummaryOfPurchased(self):
+        parameterFromRequest=ParameterHandler().getParameter()
+        isDateMonthExist=bool(parameterFromRequest.get('date_month'))
+        isDateYearExist=bool(parameterFromRequest.get('date_year'))
+
+        numberOfDays=ParameterHandler().getNumberOfDateInMonth(parameterFromRequest.get('date_year'),parameterFromRequest.get('date_month'))
+        parameterFromRequest.update({'number_date_in_month':numberOfDays})
+
+        if isDateMonthExist and isDateYearExist :
+            return Dashboard().getSummaryOfPurchasedInMonth(parameterFromRequest)
+        return Dashboard().getSummaryOfPurchasedInYear(parameterFromRequest)
+ 
 class DashboardDataMapper:
     @staticmethod
     def mapSummaryOfTotal(rawData):
@@ -167,6 +220,38 @@ class DashboardDataMapper:
             }
             dictOfSummaryPuchasedVsSold.append(dictRecord)
         return dictOfSummaryPuchasedVsSold
+
+    @staticmethod
+    def mapSummaryOfPurchased(rawData):
+        dictOfSummaryPuchasedVsPurchased=[]
+        for record in rawData:
+            dictRecord={
+                'data_value':record[0],
+                'data_key':record[1]
+            }
+            dictOfSummaryPuchasedVsPurchased.append(dictRecord)
+        return dictOfSummaryPuchasedVsPurchased
+
+    @staticmethod
+    def mapSummaryOfPurchasedByCategory(rawData):
+        dictOfSummaryPuchasedVsPurchased=[]
+        for record in rawData:
+            dictRecord={
+                'data_value':record[0],
+                'data_key':record[1]
+            }
+            dictOfSummaryPuchasedVsPurchased.append(dictRecord)
+        return dictOfSummaryPuchasedVsPurchased
+    @staticmethod
+    def mapSummaryOfAvailability(rawData):
+        dictOfSummaryPuchasedVsPurchased=[]
+        for record in rawData:
+            dictRecord={
+                'data_value':record[0],
+                'data_key':record[1]
+            }
+            dictOfSummaryPuchasedVsPurchased.append(dictRecord)
+        return dictOfSummaryPuchasedVsPurchased
        
 class ParameterHandler:
     def getParameter(self):

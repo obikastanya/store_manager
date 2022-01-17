@@ -234,7 +234,9 @@ def getControllerMethodBySummaryType(summaryType):
         return dashboardInstance.getSummerizeOfSoldProduct
 
     if summaryType=='purchased_summary':
-        return dashboardInstance.getSummerizeOfPurchasedTransaction
+        if groupByCategory:
+            return dashboardInstance.getSummerizeOfPurchasedProductByCategory
+        return dashboardInstance.getSummerizeOfPurchasedProduct
 
     if summaryType=='availability_store_summary':
         return dashboardInstance.getSummerizeOfStoreAvailability

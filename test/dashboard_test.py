@@ -100,7 +100,7 @@ def testSelectPurchasedVsSoldGroupByCategory():
     return runTest(currentPayload)
 
 
-# wip
+
 @pytest.mark.dashboardTest
 def testSelectSoldGroupByDate():
     # expected result
@@ -154,82 +154,83 @@ def testSelectSoldGroupByCategory():
     currentPayload.update({'summarize_type':'sold_summary', 'group_by_category':True})
     return runTest(currentPayload)
 
-# @pytest.mark.dashboardTest
-# def testSelectPurchasedGroupByDate():
-#     # expected result
-#     # result={
-#     #     'januari':20,
-#     #     'februari':30,
-#     #     'sept':30,
-#     #     # ...
-#     # }
-#     # and 
-#     # result={
-#     #     '1':20,
-#     #     '2':30,
-#     #     '3':30,
-#     #     # ...
-#     # }
-#     currentPayload=payload.copy()
-#     currentPayload.update({'summarize_type':'purchased_summary', 'date_year':''})
-#     return runTest(currentPayload)
+# wip
+@pytest.mark.dashboardTest
+def testSelectPurchasedGroupByDate():
+    # expected result
+    # result={
+    #     'januari':20,
+    #     'februari':30,
+    #     'sept':30,
+    #     # ...
+    # }
+    # and 
+    # result={
+    #     '1':20,
+    #     '2':30,
+    #     '3':30,
+    #     # ...
+    # }
+    currentPayload=payload.copy()
+    currentPayload.update({'summarize_type':'purchased_summary'})
+    return runTest(currentPayload)
 
-# @pytest.mark.dashboardTest
-# def testSelectPurchasedGroupByMonth():
-#     # expected result
-#     # result={
-#     #     'januari':20,
-#     #     'februari':30,
-#     #     'sept':30,
-#     #     # ...
-#     # }
-#     # and 
-#     # result={
-#     #     '1':20,
-#     #     '2':30,
-#     #     '3':30,
-#     #     # ...
-#     # }
-#     currentPayload=payload.copy()
-#     currentPayload.update({'summarize_type':'purchased_summary'})
-#     return runTest(currentPayload)
+@pytest.mark.dashboardTest
+def testSelectPurchasedGroupByMonth():
+    # expected result
+    # result={
+    #     'januari':20,
+    #     'februari':30,
+    #     'sept':30,
+    #     # ...
+    # }
+    # and 
+    # result={
+    #     '1':20,
+    #     '2':30,
+    #     '3':30,
+    #     # ...
+    # }
+    currentPayload=payload.copy()
+    currentPayload.update({'summarize_type':'purchased_summary','date_month':''})
+    return runTest(currentPayload)
 
-# @pytest.mark.dashboardTest
-# def testSelectPurchasedGroupByCategory():
-#     # expected result
-#     # result={
-#     #     'cosmetic':20,
-#     #     'food':30,
-#     #       ...
-#     # }
-#     currentPayload=payload.copy()
-#     currentPayload.update({'summarize_type':'purchased_summary', 'group_by_category':True})
-#     return runTest(currentPayload)
+@pytest.mark.dashboardTest
+def testSelectPurchasedGroupByCategory():
+    # expected result
+    # result={
+    #     'cosmetic':20,
+    #     'food':30,
+    #       ...
+    # }
+    currentPayload=payload.copy()
+    currentPayload.update({'summarize_type':'purchased_summary', 'group_by_category':True})
+    return runTest(currentPayload)
 
 
-# @pytest.mark.dashboardTest
-# def testSelectAvailabiityStoreGroupByCategory():
-#     # expected result
-#     # result={
-#     #     'cosmetic':20,
-#     #     'food':30,
-#     #       ...
-#     # }
-#     currentPayload=payload.copy()
-#     currentPayload.update({'summarize_type':'availability_store_summary', 'group_by_category':True})
-#     return runTest(currentPayload)
+@pytest.mark.dashboardTest
+def testSelectAvailabiityStoreGroupByCategory():
+    # expected result
+    # result={
+    #     'cosmetic':20,
+    #     'food':30,
+    #       ...
+    # }
+    currentPayload=payload.copy()
+    currentPayload.update({'summarize_type':'availability_store_summary'})
+    return runTest(currentPayload)
 
-# @pytest.mark.dashboardTest
-# def testSelectAvailabiityWarehouseByCategory():
-#     # expected result
-#     # result={
-#     #     'cosmetic':20,
-#     #     'food':30,
-#     #       ...
-#     # }
-#     currentPayload=payload.copy()
-#     currentPayload.update({'summarize_type':'availability_warehouse_summary', 'group_by_category':True})
-#     return runTest(currentPayload)
+@pytest.mark.dashboardTest
+def testSelectAvailabiityWarehouseByCategory():
+    # expected result
+    # result={
+    #     'cosmetic':20,
+    #     'food':30,
+    #       ...
+    # }
+    currentPayload=payload.copy()
+    currentPayload.update({'summarize_type':'availability_warehouse_summary'})
+    return runTest(currentPayload)
 
 def runTest(testPayload):
     response=requests.get(host+endpoint, params=testPayload)

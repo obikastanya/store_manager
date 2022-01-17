@@ -193,7 +193,7 @@ class Dashboard:
 		group by msc_desc
         """
         return db.session.execute(query,param).all()
-        
+
     def getSummaryOfSoldGroupByCategoryInYear(self, param):
         query="""
         select
@@ -211,3 +211,113 @@ class Dashboard:
 		group by msc_desc
         """
         return db.session.execute(query,param).all()
+
+
+    # wip
+    def getSummaryOfPurchasedInMonth(self, param):
+        query="""
+        select  
+        num as date_purchased, 
+        coalesce(total_transaction_purchased,0) as total_transaction_purchased
+        from (
+            select generate_series(1, :number_date_in_month) 
+            as num
+        ) as date_number 
+        left join (
+            select 
+            extract(day from tp_date) as purchased_date, 
+            count(tp_id) as total_transaction_purchased 
+            from transaction_purchased_head 
+            where extract(year from tp_date)= :date_year
+			and extract(month from tp_date)= :date_month
+            group by extract(day from tp_date)
+        ) as transaction_purchased
+        on date_number.num =transaction_purchased.purchased_date
+        """
+        return db.session.execute(query,param).all()
+
+    def getSummaryOfPurchasedInYear(self, param):
+        query="""
+		select  
+        num as date_purchased, 
+        coalesce(total_transaction_purchased,0) as total_transaction_purchased
+        from (
+            select generate_series(1,  :number_date_in_month ) 
+            as num
+        ) as date_number 
+        left join (
+            select 
+            extract(month from tp_date) as purchased_date, 
+            count(tp_id) as total_transaction_purchased 
+            from transaction_purchased_head 
+            where extract(year from tp_date)= :date_year
+            group by extract(month from tp_date)
+        ) as transaction_purchased
+        on date_number.num =transaction_purchased.purchased_date
+        """
+        return db.session.execute(query,param).all()
+
+    def getSummaryOfPurchasedGroupByCategoryInMonth(self, param):
+        query="""
+        select
+        count(th_id), 
+        msc_desc from ms_product
+        join ms_category
+        on msp_msc_id = msc_id 
+        join
+        (
+        select th_id,td_msp_id from transaction_sold_head 
+        join transaction_sold_detail
+        on th_id=td_th_id and extract(year from th_date)= :date_year
+        and extract(month from th_date)= :date_month
+        ) as transaction_sold
+        on transaction_sold.td_msp_id =msp_id
+		group by msc_desc
+        """
+        return db.session.execute(query,param).all()
+        
+    def getSummaryOfPurchasedGroupByCategoryInYear(self, param):
+        query="""
+        select
+        count(th_id), 
+        msc_desc from ms_product
+        join ms_category
+        on msp_msc_id = msc_id 
+        join
+        (
+        select th_id,td_msp_id from transaction_sold_head 
+        join transaction_sold_detail
+        on th_id=td_th_id and extract(year from th_date)= :date_year
+        ) as transaction_sold
+        on transaction_sold.td_msp_id =msp_id
+		group by msc_desc
+        """
+        return db.session.execute(query,param).all()
+    
+    def getSummaryOfAvailabilityStore(self):
+        query="""
+        select 
+		msc_desc,
+		sum(coalesce( mss_store_stock,0)) as total_product_in_store
+        from ms_stock
+		join ms_product
+		on mss_msp_id=msp_id
+		join ms_category
+		on msp_msc_id=msc_id
+		group by msc_desc
+        """
+        return db.session.execute(query).all()
+
+    def getSummaryOfAvailabilityWarehouse(self):
+        query="""
+        select 
+		msc_desc,
+		sum(coalesce(mss_warehouse_stock,0)) as total_product_in_warehouse
+        from ms_stock
+		join ms_product
+		on mss_msp_id=msp_id
+		join ms_category
+		on msp_msc_id=msc_id
+		group by msc_desc
+        """
+        return db.session.execute(query).all()
