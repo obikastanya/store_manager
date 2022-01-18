@@ -116,13 +116,15 @@ class DataHandler:
         isDateMonthExist=bool(parameterFromRequest.get('date_month'))
         isDateYearExist=bool(parameterFromRequest.get('date_year'))
 
-        numberOfDays=ParameterHandler().getNumberOfDateInMonth(parameterFromRequest.get('date_year'),parameterFromRequest.get('date_month'))
-        parameterFromRequest.update({'number_date_in_month':numberOfDays})
-
-        # get data for  monthly or yearly statistic group by date
         if isDateMonthExist and isDateYearExist :
+            numberOfDays=ParameterHandler().getNumberOfDateInMonth(parameterFromRequest.get('date_year'),parameterFromRequest.get('date_month'))
+            parameterFromRequest.update({'number_date_in_month':numberOfDays})
             return Dashboard().getSummaryOfPurchasedVsSoldInMonth(parameterFromRequest)
-        return Dashboard().getSummaryOfPurchasedVsSoldInYear(parameterFromRequest)
+        else:
+            numberOfDays=ParameterHandler().getNumberOfDateInYear(parameterFromRequest.get('date_year'),parameterFromRequest.get('date_month'))
+            parameterFromRequest.update({'number_date_in_month':numberOfDays})
+            
+            return Dashboard().getSummaryOfPurchasedVsSoldInYear(parameterFromRequest)
 
     def getSummaryOfSoldByCategory(self):
         parameterFromRequest=ParameterHandler().getParameter()
@@ -138,12 +140,14 @@ class DataHandler:
         isDateMonthExist=bool(parameterFromRequest.get('date_month'))
         isDateYearExist=bool(parameterFromRequest.get('date_year'))
 
-        numberOfDays=ParameterHandler().getNumberOfDateInMonth(parameterFromRequest.get('date_year'),parameterFromRequest.get('date_month'))
-        parameterFromRequest.update({'number_date_in_month':numberOfDays})
-
         if isDateMonthExist and isDateYearExist :
+            numberOfDays=ParameterHandler().getNumberOfDateInMonth(parameterFromRequest.get('date_year'),parameterFromRequest.get('date_month'))
+            parameterFromRequest.update({'number_date_in_month':numberOfDays})
             return Dashboard().getSummaryOfSoldInMonth(parameterFromRequest)
-        return Dashboard().getSummaryOfSoldInYear(parameterFromRequest)
+        else:
+            numberOfDays=ParameterHandler().getNumberOfDateInYear(parameterFromRequest.get('date_year'),parameterFromRequest.get('date_month'))
+            parameterFromRequest.update({'number_date_in_month':numberOfDays})
+            return Dashboard().getSummaryOfSoldInYear(parameterFromRequest)
 
     def getSummaryOfPurchasedByCategory(self):
         parameterFromRequest=ParameterHandler().getParameter()
@@ -159,12 +163,14 @@ class DataHandler:
         isDateMonthExist=bool(parameterFromRequest.get('date_month'))
         isDateYearExist=bool(parameterFromRequest.get('date_year'))
 
-        numberOfDays=ParameterHandler().getNumberOfDateInMonth(parameterFromRequest.get('date_year'),parameterFromRequest.get('date_month'))
-        parameterFromRequest.update({'number_date_in_month':numberOfDays})
-
         if isDateMonthExist and isDateYearExist :
+            numberOfDays=ParameterHandler().getNumberOfDateInMonth(parameterFromRequest.get('date_year'),parameterFromRequest.get('date_month'))
+            parameterFromRequest.update({'number_date_in_month':numberOfDays})
             return Dashboard().getSummaryOfPurchasedInMonth(parameterFromRequest)
-        return Dashboard().getSummaryOfPurchasedInYear(parameterFromRequest)
+        else:
+            numberOfDays=ParameterHandler().getNumberOfDateInYear(parameterFromRequest.get('date_year'),parameterFromRequest.get('date_month'))
+            parameterFromRequest.update({'number_date_in_month':numberOfDays})
+            return Dashboard().getSummaryOfPurchasedInYear(parameterFromRequest)
  
 class DashboardDataMapper:
     @staticmethod

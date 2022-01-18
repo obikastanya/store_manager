@@ -1,7 +1,9 @@
 $( document ).ready( function () {
-    new DashboardViews().loadDefaultCharts()
-    new DashboardViews().loadBadgeData()
-    new DashboardViews().addListenerWhenCardButtonClicked()
+    const dashboard = new DashboardViews()
+    dashboard.loadDefaultCharts()
+    dashboard.loadBadgeData()
+    dashboard.addListenerWhenCardButtonClicked()
+    dashboard.addListenerWhenFilterChanged()
 } )
 
 
@@ -28,31 +30,43 @@ class DashboardViews {
         let availabilityProductCardBtn = document.querySelector( "#availability_product_card_btn" )
         availabilityProductCardBtn.addEventListener( 'click', new DashboardViews().showAvailabilityChartSummary )
     }
-    setCanvasLabel( areaTittle, pieTittle ) {
-        document.querySelector( '#area_canvas_title' ).innerHTML = areaTittle
-        document.querySelector( '#pie_canvas_title' ).innerHTML = pieTittle
+    addListenerWhenFilterChanged() {
+        let monthField = document.querySelector( "#monthFields" )
+        monthField.addEventListener( 'change', new DashboardViews().refreshChartWhenFilterChanged )
+
+        let yearField = document.querySelector( "#yearFields" )
+        yearField.addEventListener( 'change', new DashboardViews().refreshChartWhenFilterChanged )
 
     }
     showPurchasedVsSoldChartSummary() {
-        new DashboardViews().setCanvasLabel( 'Purchased vs Sold Product', 'Composition of Product Sold' )
-        new DashboardViews().adjustLabelsClassHeight( 4 )
-        new DashboardViews().setAreaChartLabels( false )
+        const dashboard = new DashboardViews()
+        const paramFilter = dashboard.getChartFilter()
+        dashboard.setCanvasLabel( 'Purchased vs Sold Product', 'Composition of Product Sold' )
+        dashboard.setActiveChart( 'purchased_vs_sold' )
+        dashboard.adjustLabelsClassHeight( 4 )
+        dashboard.setAreaChartLabels( false )
+        dashboard.refreshAllCanvas()
+
         const createLineCharts = ( response ) => {
             new LineChart().initiate( "myAreaChart", response )
         }
         const createPieCharts = ( response ) => {
             new DonutChart().initiate( "myPieChart", response )
             new DashboardViews().setPieChartLabels( response.data )
-
         }
-        new DashboardViews().refreshAllCanvas()
-        new AjaxActions().getSoldVsPurchasedSummary().then( createLineCharts )
-        new AjaxActions().getSoldVsPurchasedSummaryGroupByCategory().then( createPieCharts )
+
+        new AjaxActions().getSoldVsPurchasedSummary( paramFilter ).then( createLineCharts )
+        new AjaxActions().getSoldVsPurchasedSummaryGroupByCategory( paramFilter ).then( createPieCharts )
     }
     showPurchasedChartSummary() {
-        new DashboardViews().setCanvasLabel( 'Purchased Product Transaction', 'Composition of Purchased Transaction' )
-        new DashboardViews().adjustLabelsClassHeight( 4 )
-        new DashboardViews().setAreaChartLabels( false )
+        const dashboard = new DashboardViews()
+        const paramFilter = dashboard.getChartFilter()
+        dashboard.setActiveChart( 'purchased_summary' )
+        dashboard.setCanvasLabel( 'Purchased Product Transaction', 'Composition of Purchased Transaction' )
+        dashboard.adjustLabelsClassHeight( 4 )
+        dashboard.setAreaChartLabels( false )
+        dashboard.refreshAllCanvas()
+
         const createLineCharts = ( response ) => {
             new BarChartRed().initiate( "myAreaChart", response )
         }
@@ -60,15 +74,20 @@ class DashboardViews {
             new PieChart().initiate( "myPieChart", response )
             new DashboardViews().setPieChartLabels( response.data )
         }
-        new DashboardViews().refreshAllCanvas()
-        new AjaxActions().getProductPurchasedSummary().then( createLineCharts )
-        new AjaxActions().getProductPurchasedSummaryGroupByCategory().then( createPieCharts )
 
+
+        new AjaxActions().getProductPurchasedSummary( paramFilter ).then( createLineCharts )
+        new AjaxActions().getProductPurchasedSummaryGroupByCategory( paramFilter ).then( createPieCharts )
     }
     showSoldChartSummary() {
-        new DashboardViews().setCanvasLabel( 'Sold Product Transaction', 'Composition of Sold Transaction' )
-        new DashboardViews().adjustLabelsClassHeight( 4 )
-        new DashboardViews().setAreaChartLabels( false )
+        const dashboard = new DashboardViews()
+        const paramFilter = dashboard.getChartFilter()
+        dashboard.setActiveChart( 'sold_summary' )
+        dashboard.setCanvasLabel( 'Sold Product Transaction', 'Composition of Sold Transaction' )
+        dashboard.adjustLabelsClassHeight( 4 )
+        dashboard.setAreaChartLabels( false )
+        dashboard.refreshAllCanvas()
+
         const createBarCharts = ( response ) => {
             new BarChart().initiate( "myAreaChart", response )
         }
@@ -76,13 +95,19 @@ class DashboardViews {
             new PieChart().initiate( "myPieChart", response )
             new DashboardViews().setPieChartLabels( response.data )
         }
-        new DashboardViews().refreshAllCanvas()
-        new AjaxActions().getProductSoldSummary().then( createBarCharts )
-        new AjaxActions().getProductSoldSummaryGroupByCategory().then( createPieCharts )
+
+
+        new AjaxActions().getProductSoldSummary( paramFilter ).then( createBarCharts )
+        new AjaxActions().getProductSoldSummaryGroupByCategory( paramFilter ).then( createPieCharts )
     }
     showAvailabilityChartSummary() {
-        new DashboardViews().setCanvasLabel( 'Availability Product Store', 'Availability Product Warehouse' )
-        new DashboardViews().adjustLabelsClassHeight( 2 )
+        const dashboard = new DashboardViews()
+        const paramFilter = dashboard.getChartFilter()
+        dashboard.setActiveChart( 'availability_store_summary' )
+        dashboard.setCanvasLabel( 'Availability Product Store', 'Availability Product Warehouse' )
+        dashboard.adjustLabelsClassHeight( 2 )
+        dashboard.refreshAllCanvas()
+
         const createBigPieCharts = ( response ) => {
             new PieChart().initiate( "myAreaChart", response )
             new DashboardViews().setAreaChartLabels( response.data )
@@ -91,9 +116,18 @@ class DashboardViews {
             new PieChart().initiate( "myPieChart", response )
             new DashboardViews().setPieChartLabels( response.data )
         }
-        new DashboardViews().refreshAllCanvas()
-        new AjaxActions().getProductAvailabilityStoreSummary().then( createBigPieCharts )
-        new AjaxActions().getProductAvailabilityWarehouseSummary().then( createPieCharts )
+        new AjaxActions().getProductAvailabilityStoreSummary( paramFilter ).then( createBigPieCharts )
+        new AjaxActions().getProductAvailabilityWarehouseSummary( paramFilter ).then( createPieCharts )
+    }
+    getChartFilter() {
+        const getDataFromId = ( idElement ) => {
+            return document.querySelector( idElement ).value
+        }
+        const dataFilter = {
+            date_month: getDataFromId( '#monthFields' ),
+            date_year: getDataFromId( '#yearFields' )
+        }
+        return dataFilter
     }
     setCardValues( record ) {
         document.querySelector( "#cash_out_card" ).innerHTML = `${ new DashboardViews().formatTotalCash( record.total_cash_out ) } Cash Out`
@@ -102,6 +136,10 @@ class DashboardViews {
         document.querySelector( "#transaction_purchased_card" ).innerHTML = `${ record.total_transaction_product_purchased } Transaction`
         document.querySelector( "#availability_product_card" ).innerHTML = `${ record.total_product_in_store } Product`
     }
+    setActiveChart( activeChart ) {
+        document.querySelector( "#activeChart" ).value = activeChart
+    }
+
     formatTotalCash( totalCash ) {
         let removedZeroPrecision = totalCash.split( "." )[ 0 ]
         if ( removedZeroPrecision.length > 4 ) {
@@ -147,6 +185,10 @@ class DashboardViews {
         var canvasContainer = document.querySelector( `.${ containerClass }` );
         canvasContainer.innerHTML = `<canvas id='${ canvasId }'></canvas>`
     }
+    setCanvasLabel( areaTittle, pieTittle ) {
+        document.querySelector( '#area_canvas_title' ).innerHTML = areaTittle
+        document.querySelector( '#pie_canvas_title' ).innerHTML = pieTittle
+    }
     adjustLabelsClassHeight( marginNumber ) {
 
         let containerOfAreaLabels = document.querySelector( "#area_chart_labels" )
@@ -161,43 +203,52 @@ class DashboardViews {
         containerOfAreaLabels.classList.add( 'mt-4' )
         return
     }
+    refreshChartWhenFilterChanged() {
+        const activeChart = document.querySelector( '#activeChart' ).value
+        const dashboard = new DashboardViews()
+        if ( activeChart == 'purchased_vs_sold' ) return dashboard.showPurchasedVsSoldChartSummary();
+        if ( activeChart == 'sold_summary' ) return dashboard.showSoldChartSummary();
+        if ( activeChart == 'purchased_summary' ) return dashboard.showPurchasedChartSummary();
+        if ( activeChart == 'availability_store_summary' ) return dashboard.showAvailabilityChartSummary();
+    }
+
 }
 
 class AjaxActions {
-    getSoldVsPurchasedSummary() {
-        const payload = this.createPayload( { summarize_type: 'purchased_vs_sold', date_month: 1, date_year: 2022 } )
+    getSoldVsPurchasedSummary( protoPayload ) {
+        const payload = this.createPayload( { ...{ summarize_type: 'purchased_vs_sold' }, ...protoPayload } )
         return this.sendAjax( '/dashboard_api', payload )
     }
-    getShortSummaryOfAll() {
-        const payload = this.createPayload( { summarize_type: 'summarize_total' } )
+    getShortSummaryOfAll( protoPayload ) {
+        const payload = this.createPayload( { ...{ summarize_type: 'summarize_total' }, ...protoPayload } )
         return this.sendAjax( '/dashboard_api', payload )
     }
-    getSoldVsPurchasedSummaryGroupByCategory() {
-        const payload = this.createPayload( { summarize_type: 'purchased_vs_sold', date_month: 1, date_year: 2022, group_by_category: true } )
+    getSoldVsPurchasedSummaryGroupByCategory( protoPayload ) {
+        const payload = this.createPayload( { ...{ summarize_type: 'purchased_vs_sold', group_by_category: true }, ...protoPayload } )
         return this.sendAjax( '/dashboard_api', payload )
     }
-    getProductSoldSummary() {
-        const payload = this.createPayload( { summarize_type: 'sold_summary', date_month: 1, date_year: 2022 } )
+    getProductSoldSummary( protoPayload ) {
+        const payload = this.createPayload( { ...{ summarize_type: 'sold_summary' }, ...protoPayload } )
         return this.sendAjax( '/dashboard_api', payload )
     }
-    getProductSoldSummaryGroupByCategory() {
-        const payload = this.createPayload( { summarize_type: 'sold_summary', date_month: 1, date_year: 2022, group_by_category: true } )
+    getProductSoldSummaryGroupByCategory( protoPayload ) {
+        const payload = this.createPayload( { ...{ summarize_type: 'sold_summary', group_by_category: true }, ...protoPayload } )
         return this.sendAjax( '/dashboard_api', payload )
     }
-    getProductPurchasedSummary() {
-        const payload = this.createPayload( { summarize_type: 'purchased_summary', date_month: 1, date_year: 2022 } )
+    getProductPurchasedSummary( protoPayload ) {
+        const payload = this.createPayload( { ...{ summarize_type: 'purchased_summary' }, ...protoPayload } )
         return this.sendAjax( '/dashboard_api', payload )
     }
-    getProductPurchasedSummaryGroupByCategory() {
-        const payload = this.createPayload( { summarize_type: 'purchased_summary', date_month: 1, date_year: 2022, group_by_category: true } )
+    getProductPurchasedSummaryGroupByCategory( protoPayload ) {
+        const payload = this.createPayload( { ...{ summarize_type: 'purchased_summary', group_by_category: true }, ...protoPayload } )
         return this.sendAjax( '/dashboard_api', payload )
     }
-    getProductAvailabilityStoreSummary() {
-        const payload = this.createPayload( { summarize_type: 'availability_store_summary' } )
+    getProductAvailabilityStoreSummary( protoPayload ) {
+        const payload = this.createPayload( { ...{ summarize_type: 'availability_store_summary' }, ...protoPayload } )
         return this.sendAjax( '/dashboard_api', payload )
     }
-    getProductAvailabilityWarehouseSummary() {
-        const payload = this.createPayload( { summarize_type: 'availability_warehouse_summary' } )
+    getProductAvailabilityWarehouseSummary( protoPayload ) {
+        const payload = this.createPayload( { ...{ summarize_type: 'availability_warehouse_summary' }, ...protoPayload } )
         return this.sendAjax( '/dashboard_api', payload )
     }
 
