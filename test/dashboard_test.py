@@ -1,4 +1,5 @@
 from typing import Tuple
+from itsdangerous import json
 import pytest
 import requests
 from datetime import date
@@ -233,7 +234,7 @@ def testSelectAvailabiityWarehouseByCategory():
     return runTest(currentPayload)
 
 def runTest(testPayload):
-    response=requests.get(host+endpoint, params=testPayload)
+    response=requests.post(host+endpoint, json=testPayload)
     jsonResponse=response.json()
     assert jsonResponse.get('status')==True
     

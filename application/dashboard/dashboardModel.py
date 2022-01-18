@@ -98,8 +98,9 @@ class Dashboard:
     def getSummaryOfPurchasedVsSoldGroupByCategoryInMonth(self, param):
         query="""
         select
-        sum(coalesce(td_on_sale_price,0)* coalesce(td_quantity,0)), 
-        msc_desc from ms_product
+        msc_desc,
+        sum(coalesce(td_on_sale_price,0)* coalesce(td_quantity,0))
+        from ms_product
         join ms_category
         on msp_msc_id = msc_id 
         join
@@ -117,8 +118,9 @@ class Dashboard:
     def getSummaryOfPurchasedVsSoldGroupByCategoryInYear(self, param):
         query="""
         select
-        sum(coalesce(td_on_sale_price,0)* coalesce(td_quantity,0)), 
-        msc_desc from ms_product
+        msc_desc,
+        sum(coalesce(td_on_sale_price,0)* coalesce(td_quantity,0))
+        from ms_product
         join ms_category
         on msp_msc_id = msc_id 
         join
@@ -178,8 +180,9 @@ class Dashboard:
     def getSummaryOfSoldGroupByCategoryInMonth(self, param):
         query="""
         select
-        count(th_id), 
-        msc_desc from ms_product
+        msc_desc,
+        count(th_id) 
+        from ms_product
         join ms_category
         on msp_msc_id = msc_id 
         join
@@ -197,8 +200,9 @@ class Dashboard:
     def getSummaryOfSoldGroupByCategoryInYear(self, param):
         query="""
         select
-        count(th_id), 
-        msc_desc from ms_product
+        msc_desc,
+        count(th_id)
+        from ms_product
         join ms_category
         on msp_msc_id = msc_id 
         join
@@ -260,18 +264,19 @@ class Dashboard:
     def getSummaryOfPurchasedGroupByCategoryInMonth(self, param):
         query="""
         select
-        count(th_id), 
-        msc_desc from ms_product
+        msc_desc,
+        count(tp_id)
+        from ms_product
         join ms_category
         on msp_msc_id = msc_id 
         join
         (
-        select th_id,td_msp_id from transaction_sold_head 
-        join transaction_sold_detail
-        on th_id=td_th_id and extract(year from th_date)= :date_year
-        and extract(month from th_date)= :date_month
-        ) as transaction_sold
-        on transaction_sold.td_msp_id =msp_id
+        select tp_id,tpd_msp_id from transaction_purchased_head 
+        join transaction_purchased_detail
+        on tp_id=tpd_tp_id and extract(year from tp_date)= :date_year
+        and extract(month from tp_date)= :date_month
+        ) as transaction_purchased
+        on transaction_purchased.tpd_msp_id =msp_id
 		group by msc_desc
         """
         return db.session.execute(query,param).all()
@@ -279,17 +284,18 @@ class Dashboard:
     def getSummaryOfPurchasedGroupByCategoryInYear(self, param):
         query="""
         select
-        count(th_id), 
-        msc_desc from ms_product
+        msc_desc,
+        count(tp_id)
+        from ms_product
         join ms_category
         on msp_msc_id = msc_id 
         join
         (
-        select th_id,td_msp_id from transaction_sold_head 
-        join transaction_sold_detail
-        on th_id=td_th_id and extract(year from th_date)= :date_year
-        ) as transaction_sold
-        on transaction_sold.td_msp_id =msp_id
+        select tp_id,tpd_msp_id from transaction_purchased_head 
+        join transaction_purchased_detail
+        on tp_id=tpd_tp_id and extract(year from tp_date)= :date_year
+        ) as transaction_purchased
+        on transaction_purchased.tpd_msp_id =msp_id
 		group by msc_desc
         """
         return db.session.execute(query,param).all()

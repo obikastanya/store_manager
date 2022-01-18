@@ -198,9 +198,9 @@ def productPurchasedApi():
 def productPurchasedApiSearch():
     return ProductPurchasedController().searchDetailTransaction()
 
-@app.get('/dashboard_api')
+@app.post('/dashboard_api')
 def dashboardApi():
-    summaryType=request.args.get('summarize_type')
+    summaryType=request.json.get('summarize_type')
     controllerMethod=getControllerMethodBySummaryType(summaryType)
     return controllerMethod()
 
@@ -219,7 +219,7 @@ def splitRouteByMethods(Controller):
 
 def getControllerMethodBySummaryType(summaryType):
     dashboardInstance=DashboardController()
-    groupByCategory=request.args.get('group_by_category')
+    groupByCategory=request.json.get('group_by_category')
     if summaryType=='summarize_total':
         return dashboardInstance.getSummerizeOfTotal
 

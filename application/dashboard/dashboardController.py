@@ -194,8 +194,8 @@ class DashboardDataMapper:
         dictOfSummaryPuchasedVsSold=[]
         for record in rawData:
             dictRecord={
-                'data_value':record[0],
-                'data_key':record[1]
+                'data_value':record[1],
+                'data_key':record[0]
             }
             dictOfSummaryPuchasedVsSold.append(dictRecord)
         return dictOfSummaryPuchasedVsSold
@@ -204,8 +204,8 @@ class DashboardDataMapper:
         dictOfSummaryPuchasedVsSold=[]
         for record in rawData:
             dictRecord={
-                'data_value':record[0],
-                'data_key':record[1]
+                'data_value':record[1],
+                'data_key':record[0]
             }
             dictOfSummaryPuchasedVsSold.append(dictRecord)
         return dictOfSummaryPuchasedVsSold
@@ -215,8 +215,8 @@ class DashboardDataMapper:
         dictOfSummaryPuchasedVsSold=[]
         for record in rawData:
             dictRecord={
-                'data_value':record[0],
-                'data_key':record[1]
+                'data_value':record[1],
+                'data_key':record[0]
             }
             dictOfSummaryPuchasedVsSold.append(dictRecord)
         return dictOfSummaryPuchasedVsSold
@@ -226,8 +226,8 @@ class DashboardDataMapper:
         dictOfSummaryPuchasedVsPurchased=[]
         for record in rawData:
             dictRecord={
-                'data_value':record[0],
-                'data_key':record[1]
+                'data_value':record[1],
+                'data_key':record[0]
             }
             dictOfSummaryPuchasedVsPurchased.append(dictRecord)
         return dictOfSummaryPuchasedVsPurchased
@@ -237,8 +237,8 @@ class DashboardDataMapper:
         dictOfSummaryPuchasedVsPurchased=[]
         for record in rawData:
             dictRecord={
-                'data_value':record[0],
-                'data_key':record[1]
+                'data_value':record[1],
+                'data_key':record[0]
             }
             dictOfSummaryPuchasedVsPurchased.append(dictRecord)
         return dictOfSummaryPuchasedVsPurchased
@@ -247,8 +247,8 @@ class DashboardDataMapper:
         dictOfSummaryPuchasedVsPurchased=[]
         for record in rawData:
             dictRecord={
-                'data_value':record[0],
-                'data_key':record[1]
+                'data_value':record[1],
+                'data_key':record[0]
             }
             dictOfSummaryPuchasedVsPurchased.append(dictRecord)
         return dictOfSummaryPuchasedVsPurchased
@@ -256,17 +256,17 @@ class DashboardDataMapper:
 class ParameterHandler:
     def getParameter(self):
         dictParameter={
-        'date_month':request.args.get('date_month'),
+        'date_month':request.json.get('date_month'),
         'date_year':self.getDateYear(),
-        'summarize_type':request.args.get('summarize_type'),
-        'group_by_category':request.args.get('group_by_category')
+        'summarize_type':request.json.get('summarize_type'),
+        'group_by_category':request.json.get('group_by_category')
         }
         return dictParameter
 
     def getDateYear(self):
-        if not request.args.get('date_year'):
+        if not request.json.get('date_year'):
             return datetime.now().year
-        return request.args.get('date_year')
+        return request.json.get('date_year')
 
     def getNumberOfDateInMonth(self, year, month):
         currentYear=datetime.now().year
