@@ -1,5 +1,3 @@
-from typing import Tuple
-from itsdangerous import json
 import pytest
 import requests
 from datetime import date
