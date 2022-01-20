@@ -1,6 +1,8 @@
+import base64
 from datetime import datetime
 from ntpath import join
-from flask import request, send_file
+from tarfile import ENCODING
+from flask import jsonify, request, send_file
 from sqlalchemy import true
 from sqlalchemy.sql import extract
 import xlsxwriter
@@ -26,23 +28,19 @@ class ReportController:
         isValid=ValidationHandler().isParamValid(parameterFromRequest)
 
         if not isValid:
-            return Response.make(False,'Parameter sended is not valid, process has been canceled.'),500
+            return Response.make(False,'Parameter sended is not valid, process has been canceled.')
         rawDataPurchased=DataHandler().getPurchasedTransaction()
 
         if not rawDataPurchased:
-            return Response.make(False,"There is no data to export"),500
+            return Response.make(False,"There is no data to export")
 
-        fileName='purchased_transaction_exported_on_'+datetime.now().strftime('%d_%m_%Y')+'.xlsx'
         excelFile=ExcelWritter().createPurchasedExcel(rawDataPurchased)
+        binaryExcelFile=excelFile.read()
+        stringExcelFile =base64.b64encode(binaryExcelFile).decode("UTF-8")
 
-        return send_file(
-            path_or_file= excelFile,
-            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            as_attachment=True,
-            attachment_filename=fileName)
+        return {'status': True, 'msg':'','data': stringExcelFile }
         # except:
-        #     return Response.make(False, "Something wrong while trying to complete the request."),500
-        return self.defaultFalse()
+        #     return Response.make(False, "Something wrong while trying to complete the request.")
     def exportSoldTransaction(self):
         return self.defaultFalse()
         # try:

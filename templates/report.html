@@ -98,7 +98,19 @@
 {% endblock %}
 
 {% block custom_script %}
+<script src="/static/app_libary/base64decoder.js"></script>
 <script>
+    function downloadExcelSilently( blobExcelFile, filename ) {
+        const url = window.URL.createObjectURL( blobExcelFile );
+        const a = document.createElement( "a" );
+        a.style.display = "none";
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild( a );
+        a.click();
+        window.URL.revokeObjectURL( url );
+
+    }
     $( document ).ready( function () {
         const payload = {
             method: 'POST',
@@ -110,23 +122,17 @@
                 date_year: 2022
             } )
         }
-        const onsuccess = ( blob ) => {
-            const url = window.URL.createObjectURL( blob );
-            const a = document.createElement( "a" );
-            a.style.display = "none";
-            a.href = url;
-            // the filename you want
-            a.download = "todo-1.xlsx";
-            document.body.appendChild( a );
-            a.click();
-            window.URL.revokeObjectURL( url );
-            alert( "your file has downloaded!" );
-        }
         fetch( 'report_transaction_purchased', payload )
-            .then( response => response.blob() )
-            .then( onsuccess ).catch( ( err ) => {
-                console.log( err.json() )
+            .then( response => response.json() ).then( resp => {
+                const convertedExcelToBuffer = base64DecToArr( resp.data ).buffer;
+                const excelInBlob = new Blob( [ convertedExcelToBuffer ] )
+                downloadExcelSilently( excelInBlob, 'index.xlsx' )
+
             } )
+
+
     } )
+
+
 </script>
 {% endblock %}
