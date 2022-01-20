@@ -3,6 +3,7 @@ from datetime import datetime
 from ntpath import join
 from tarfile import ENCODING
 from flask import jsonify, request, send_file
+from itsdangerous import exc
 from sqlalchemy import true
 from sqlalchemy.sql import extract
 import xlsxwriter
@@ -210,10 +211,11 @@ class ExcelWritter:
                 {'record':record,'index':rowLoopNumber-3})
 
             for productLoopNumber,detail in enumerate(record.detail_transaction):
+                if (productLoopNumber>=1):
+                    self.writeEmptyCell(excel)
 
-                self.writeDetailOfPurchasedTransaction(
-                    {'worksheet':worksheet, 'cursorPosition':cursorPosition+productLoopNumber, 'format':format.get('cellFormat')},
-                    {'record':detail})
+                excel={'worksheet':worksheet, 'cursorPosition':cursorPosition+productLoopNumber, 'format':format.get('cellFormat')}
+                self.writeDetailOfPurchasedTransaction(excel,{'record':detail})
 
             # save last cursor position to variable cursorPosition
             lastCursorPosition+=len(record.detail_transaction)-1
@@ -226,13 +228,19 @@ class ExcelWritter:
         cursorPosition=excel.get('cursorPosition')
         record=records.get('record')
         format=excel.get('format')
-
         worksheet.write(cursorPosition,0,records.get('index'),format )
         worksheet.write(cursorPosition,1, record.tp_id,format)
         worksheet.write(cursorPosition,2, record.tp_date.strftime('%d/%m/%Y'),format)
         worksheet.write(cursorPosition,3, record.payment_method.mspm_desc,format)
         worksheet.write(cursorPosition,4, record.tp_nominal,format)
         worksheet.write(cursorPosition,5, record.supplier.mssp_desc,format)
+        
+    def writeEmptyCell(self,excel):
+        worksheet=excel.get('worksheet')
+        cursorPosition=excel.get('cursorPosition')
+        format=excel.get('format')
+        for column in range(5):
+            worksheet.write(cursorPosition+1, column, '',format)
             
     def writeDetailOfPurchasedTransaction(self,excel,records):
         worksheet=excel.get('worksheet')
