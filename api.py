@@ -5,6 +5,7 @@ from application.manage_discount.manageDiscountController import ManageDiscountC
 from application.product_sold.productSoldController import ProductSoldController
 from application.product_purchased.productPurchasedController import ProductPurchasedController
 from application.dashboard.dashboardController import DashboardController
+from application.report.reportController import ReportController
 
 
 """Contain all api for the apps"""
@@ -204,8 +205,13 @@ def dashboardApi():
     controllerMethod=getControllerMethodBySummaryType(summaryType)
     return controllerMethod()
 
+@app.post('/report_transaction_purchased')
+def reportTransactionPurchasedApi():
+    return ReportController().exportPurchasedTransaction()
 
-
+@app.post('/report_transaction_sold')
+def reportTransactionSoldApi():
+    return ReportController().exportSoldTransaction()
 
 def splitRouteByMethods(Controller):
     if request.method == 'POST':

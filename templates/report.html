@@ -34,7 +34,7 @@
                         </div>
                         <div class="col">
                             <select class="form-control selectForm" id="monthFields" placeholder="Month" value="">
-                                <option value=""></option>
+                                <option value="">---</option>
                                 <option value="1">January</option>
                                 <option value="2">February</option>
                                 <option value="3">March</option>
@@ -69,6 +69,17 @@
                             </select>
                         </div>
                     </div>
+                    <div class="row mb-2">
+                        <div class="col-sm-4">
+                            <label for="transactionDateFields" class="form-label">Transaction</label>
+                        </div>
+                        <div class="col">
+                            <select class="form-control selectForm" id="cashierFields" placeholder="Product">
+                                <option value="sold_product">Product Sold</option>
+                                <option value="purchased_product">Product Purchased</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-md-1"></div>
             </div>
@@ -87,4 +98,35 @@
 {% endblock %}
 
 {% block custom_script %}
+<script>
+    $( document ).ready( function () {
+        const payload = {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify( {
+                date_month: 2,
+                date_year: 2022
+            } )
+        }
+        const onsuccess = ( blob ) => {
+            const url = window.URL.createObjectURL( blob );
+            const a = document.createElement( "a" );
+            a.style.display = "none";
+            a.href = url;
+            // the filename you want
+            a.download = "todo-1.xlsx";
+            document.body.appendChild( a );
+            a.click();
+            window.URL.revokeObjectURL( url );
+            alert( "your file has downloaded!" );
+        }
+        fetch( 'report_transaction_purchased', payload )
+            .then( response => response.blob() )
+            .then( onsuccess ).catch( ( err ) => {
+                console.log( err.json() )
+            } )
+    } )
+</script>
 {% endblock %}
