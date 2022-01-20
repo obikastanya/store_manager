@@ -75,17 +75,19 @@ class ReportView {
 class AjaxAction {
     exportPurchasedProduct( transactionFilter ) {
         let payload = this.createPayload( transactionFilter )
-        console.log( payload )
         fetch( '/report_transaction_purchased', payload )
             .then( response => response.json() ).then( resp => {
                 if ( !resp.status ) {
-                    console.log( resp )
                     new Alert().showAlert( resp.msg )
                     return
                 }
+
                 const convertedExcelToBuffer = base64DecToArr( resp.data ).buffer;
                 const excelInBlob = new Blob( [ convertedExcelToBuffer ] )
-                new ReportView().downloadExcelSilently( excelInBlob, 'index.xlsx' )
+                const currentTime = new Date()
+                const generatedTime = `${ currentTime.getDate() }/${ currentTime.getMonth() + 1 }/${ currentTime.getFullYear() } ${ currentTime.getHours() }:${ currentTime.getMinutes() }`
+                const fileName = 'transaction_purchased_report_generate_on_' + generatedTime
+                new ReportView().downloadExcelSilently( excelInBlob, fileName + '.xlsx' )
             } )
     }
     getLovForSelectField() {
