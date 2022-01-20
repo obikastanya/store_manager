@@ -166,3 +166,8 @@ function strToUTF8Arr( sDOMStr ) {
     return aBytes;
 
 }
+
+
+// Ajax call is returning json with base64 string inside it, to get the file, we need to decode base64 as buffer and creating blob file.
+// But there is a problem when converting base64 from string with btoa and atob, the size is increased.
+// Mozilla advice people to use another approach, to use custom function to convert string base64 to buffer. This file is the implementation

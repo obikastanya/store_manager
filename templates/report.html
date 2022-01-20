@@ -1,6 +1,7 @@
 {% extends 'base_template.html'%}
 
 {% block css_script %}
+<link rel="stylesheet" href="/static/assets/select/selectize.bootstrap4.min.css">
 {% endblock %}
 
 {%block menu_title %}Export Excel{% endblock %}
@@ -16,10 +17,10 @@
                 <div class="col-md-7">
                     <div class="row mb-2">
                         <div class="col-sm-4">
-                            <label for="productFields" class="form-label">Year</label>
+                            <label for="yearField" class="form-label">Year</label>
                         </div>
                         <div class="col">
-                            <select class="form-control selectForm" id="yearFields" placeholder="Year" value="2022">
+                            <select class="form-control" id="yearField" placeholder="Year" value="2022">
                                 <option value="2022">2022</option>
                                 <option value="2021">2021</option>
                                 <option value="2020">2020</option>
@@ -30,11 +31,10 @@
                         </div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-sm-4"><label for="discountFields" class="form-label">Month</label>
+                        <div class="col-sm-4"><label for="monthField" class="form-label">Month</label>
                         </div>
                         <div class="col">
-                            <select class="form-control selectForm" id="monthFields" placeholder="Month" value="">
-                                <option value="">---</option>
+                            <select class="form-control" id="monthField" placeholder="Month" value="">
                                 <option value="1">January</option>
                                 <option value="2">February</option>
                                 <option value="3">March</option>
@@ -51,30 +51,32 @@
                         </div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-sm-4"><label for="cashierFields" class="form-label">Category Product</label>
+                        <div class="col-sm-4"><label for="categoryProductField" class="form-label">Category
+                                Product</label>
                         </div>
                         <div class="col">
-                            <select class="form-control selectForm" id="cashierFields" placeholder="Product">
+                            <select class="form-control selectForm" id="categoryProductField"
+                                placeholder="Category Product">
                                 <option value="">No item to select</option>
                             </select>
                         </div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-sm-4">
-                            <label for="transactionDateFields" class="form-label">Product</label>
+                            <label for="productField" class="form-label">Product</label>
                         </div>
                         <div class="col">
-                            <select class="form-control selectForm" id="cashierFields" placeholder="Product">
+                            <select class="form-control selectForm" id="productField" placeholder="Product">
                                 <option value="">No item to select</option>
                             </select>
                         </div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-sm-4">
-                            <label for="transactionDateFields" class="form-label">Transaction</label>
+                            <label for="transactionTypeField" class="form-label">Transaction</label>
                         </div>
                         <div class="col">
-                            <select class="form-control selectForm" id="cashierFields" placeholder="Product">
+                            <select class="form-control selectForm" id="transactionTypeField" placeholder="Product">
                                 <option value="sold_product">Product Sold</option>
                                 <option value="purchased_product">Product Purchased</option>
                             </select>
@@ -98,41 +100,7 @@
 {% endblock %}
 
 {% block custom_script %}
+<script src="/static/assets/select/selectize.min.js"></script>
 <script src="/static/app_libary/base64decoder.js"></script>
-<script>
-    function downloadExcelSilently( blobExcelFile, filename ) {
-        const url = window.URL.createObjectURL( blobExcelFile );
-        const a = document.createElement( "a" );
-        a.style.display = "none";
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild( a );
-        a.click();
-        window.URL.revokeObjectURL( url );
-
-    }
-    $( document ).ready( function () {
-        const payload = {
-            method: 'POST',
-            headers: {
-                'Content-type': 'application/json'
-            },
-            body: JSON.stringify( {
-                date_month: 2,
-                date_year: 2022
-            } )
-        }
-        fetch( 'report_transaction_purchased', payload )
-            .then( response => response.json() ).then( resp => {
-                const convertedExcelToBuffer = base64DecToArr( resp.data ).buffer;
-                const excelInBlob = new Blob( [ convertedExcelToBuffer ] )
-                downloadExcelSilently( excelInBlob, 'index.xlsx' )
-
-            } )
-
-
-    } )
-
-
-</script>
+<script src="/static/app_module/report.js"></script>
 {% endblock %}
