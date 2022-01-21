@@ -223,6 +223,8 @@ class ExcelWritter:
     def writeSoldData(self, worksheet,rawSoldData, format={}):
         lastCursorPosition=0
 
+        self.writeSoldExcelTitle({'sheet':worksheet,'format':format}, cursorPosition=0)
+        self.writeHeaderForExcelSold({'sheet':worksheet, 'format':format},cursorPosition=3)
         for rowLoopNumber,record in enumerate(rawSoldData, start=4):
             cursorPosition=lastCursorPosition+rowLoopNumber
             self.writeHeadExcelOfSoldTransaction(
@@ -394,6 +396,27 @@ class ExcelWritter:
         format=excel.get('format')
         title=[
             "Transaction Of Purchased Product",
+            "Generated on : "+datetime.now().strftime('%d/%m/%Y %H:%M')
+        ]
+        worksheet.write_column(cursorPosition, 0,title, format.get('titleFormat'))
+
+    def writeHeaderForExcelSold(self,excel,cursorPosition):
+        worksheet=excel.get('sheet')
+        format=excel.get('format')
+        headerExcelOfPurchasedReport=[
+        'No','Transaction ID','Sold Date',
+        'Cashier', 'Total Price To Paid','Tax','Paid', 
+        'Change', 'Product ID', 'Product', 'Quantity', 'Price', 
+        'Cutt Off', 'Discount ID', 'Discount'
+        ]
+        worksheet.write_row(cursorPosition, 0,headerExcelOfPurchasedReport, format.get('headFormat'))
+        worksheet.set_row(cursorPosition, 35)
+
+    def writeSoldExcelTitle(self,excel,cursorPosition):
+        worksheet=excel.get('sheet')
+        format=excel.get('format')
+        title=[
+            "Transaction Of Sold Product",
             "Generated on : "+datetime.now().strftime('%d/%m/%Y %H:%M')
         ]
         worksheet.write_column(cursorPosition, 0,title, format.get('titleFormat'))
