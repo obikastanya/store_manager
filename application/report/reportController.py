@@ -400,7 +400,7 @@ class ExcelWritter:
         worksheet=excel.get('worksheet')
         cursorPosition=excel.get('cursorPosition')
         format=excel.get('format')
-        for column in range(5):
+        for column in range(6):
             worksheet.write(cursorPosition+1, column, '',format)
 
     def writeEmptyCellSold(self,excel):
