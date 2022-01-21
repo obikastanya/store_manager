@@ -1,13 +1,11 @@
-Sometimes its hard to reconfig database when are going to production, 
-keeping trigger and functions inside project make it simpler and easier to access them.
-
-#CREATE FUNCTION TRIGGER COMAND
+-- #CREATE FUNCTION TRIGGER COMAND
     create or replace function after_insert_detail_transaction_sold()
     returns trigger
     language plpgsql
     as $$
 	declare
 		current_stock integer =0;
+		warehouse_stock integer=0;
 		new_stock integer :=0;
     Begin
 	
@@ -22,13 +20,45 @@ keeping trigger and functions inside project make it simpler and easier to acces
 	end if;
     update  ms_stock set mss_store_stock = new_stock where mss_msp_id=new.td_msp_id;
 	
+	-- 	check if store is empty
+	select mss_store_stock, mss_warehouse_stock  into current_stock, warehouse_stock from ms_stock where mss_msp_id=new.td_msp_id;
+	if current_stock <5 and warehouse_stock >=15 then
+		update  ms_stock set mss_store_stock = current_stock + 15, mss_warehouse_stock = warehouse_stock - 15 where mss_msp_id=new.td_msp_id;
+	else
+		update  ms_stock set mss_store_stock = current_stock + warehouse_stock, mss_warehouse_stock = 0 where mss_msp_id=new.td_msp_id;
+	end if;
     return new;
     end;
     $$
 
-#CREATE TRIGGER COMAND
+
+-- #CREATE TRIGGER COMAND
 
     create trigger after_insert_detail_transaction_sold_trigger
     before insert on transaction_sold_detail
     for each row 
         execute procedure after_insert_detail_transaction_sold();	
+
+
+-- # CREATE FUNCTION COMAND
+
+    create or replace function after_insert_detail_transaction_purchased()
+    returns Trigger
+    language plpgsql
+    as $$
+    declare
+            current_stock integer =0;
+            new_stock integer :=0;
+        Begin
+        
+        select mss_warehouse_stock  into current_stock from ms_stock where mss_msp_id=new.tpd_msp_id;
+        new_stock= current_stock + new.tpd_quantity;
+        update  ms_stock set mss_warehouse_stock = new_stock where mss_msp_id=new.tpd_msp_id;
+        return new;
+        end;
+    $$
+  
+-- # CREATE TRIGGER COMAND
+    create trigger after_insert_detail_transaction_purchased_trigger
+    after insert on transaction_purchased_detail for each row
+    execute procedure after_insert_detail_transaction_purchased()
