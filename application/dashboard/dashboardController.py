@@ -97,9 +97,6 @@ class DashboardController():
     def requestIsNotRecognize(self):
         return Response.make(False,"Request is not recognized")
 
-    def defaultFalse(self):
-        return Response.make(False)
-
 class DataHandler:
     def getSummaryOfPurchasedVsSoldByCategory(self):
         parameterFromRequest=ParameterHandler().getParameter()

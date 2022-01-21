@@ -7,8 +7,6 @@ from application.utilities.response import Response
 from sqlalchemy import func
 
 class ProductSoldController:
-    def defaultFalse(self):
-        return {'status':False,'msg':'default false msg'}
         
     def getData(self):
         try:
@@ -29,7 +27,7 @@ class ProductSoldController:
             DataHandler().insertNewData(dataFromRequest)
 
             return Response.statusAndMsg(msg='Data successfully added' )
-        except:
+        except Exception as e:
             return Response.statusAndMsg(False,'Insert data failed' )
     def deleteTransaction(self):
         try:
@@ -373,7 +371,7 @@ class ParameterHandler:
         totalCuttOff=0
         for product in productSold:
             totalPriceBeforeCuttOff =totalPriceBeforeCuttOff + (product.get('product_price',0)*product.get('quantity',0))
-            totalCuttOff +=self.getCuttOffPriceItem(product.get('discount_applied'))
+            totalCuttOff +=self.getCuttOffPriceItem(product.get('discount_applied'))*product.get('quantity',0)
         totalPrice=totalPriceBeforeCuttOff - totalCuttOff
         # prevent if discount is bigger than total price
         if totalPrice<0:
