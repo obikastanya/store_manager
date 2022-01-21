@@ -1,19 +1,23 @@
 from flask import render_template, request
+import jwt
 from app import app
-from application.auth.authController import Auth
+from application.auth.authController import Auth, AuthToken
 
+authToken=AuthToken()
 @app.post('/login')
 def loginAuth():
-    try:    
-        return Auth().checkAccess()
-    except:
-        msg="Login Failed"
-        return render_template('login.html', msg=msg)
+    # try:    
+    return Auth().checkAccess()
+    # except:
+    #     msg="Login Failed"
+    #     return render_template('login.html', msg=msg)
 
 
 """Contain all route that return html as responses"""
 @app.get('/')
-def dashboardPage():
+@authToken.authenticate
+def dashboardPage(**kwargs):
+    print('dashboard  ', kwargs)
     return render_template('dashboard.html')
 
 @app.get('/product-sold')
