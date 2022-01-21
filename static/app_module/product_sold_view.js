@@ -474,7 +474,6 @@ class FormDataImpl extends FormData {
                             <td>${ replaceEmpty( this.getCuttOff( record.detail_discount_applied ) ) }</td>
                             <td>${ replaceEmpty( this.getDiscountNames( record.detail_discount_applied ) ) }</td>
                         </tr>`
-
         return rowRecord
     }
 
@@ -504,10 +503,10 @@ class FormDataImpl extends FormData {
         return cuttOff
     }
     getDiscountNames( discountApplied ) {
-
-        if ( !discountApplied.discountApplied ) return "";
+        if ( !discountApplied ) return "";
         let discountNames = []
         for ( const discount of discountApplied ) {
+            if ( !discount.discount_applied ) continue;
             discountNames.push( discount.discount_applied.discount_master.desc )
         }
         return discountNames.join( ", " )
