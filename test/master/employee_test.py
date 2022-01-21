@@ -21,7 +21,6 @@ def testSelectEmployeeWithKeywordAndOrder():
         }
     response=requests.get(host+'/employee_api', params=payload)
     jsonResponse=response.json()
-    print(jsonResponse)
     assert jsonResponse.get('status')==True
 
 

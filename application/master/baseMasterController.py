@@ -13,32 +13,31 @@ class MasterController:
 
     # All method bellow is a method whos being called by route function
     def getData(self):
-        # try:
-        data,totalRecords, totalRecordsFiltered=self.dataHandler.grabData()
-        return Response.datatable(data={'datas':data,'totalRecords':totalRecords,'totalRecordsFiltered':totalRecordsFiltered})
-        # except:
-        #     return Response.make(status=False,msg='Eror while trying to retrieve data' )
+        try:
+            data,totalRecords, totalRecordsFiltered=self.dataHandler.grabData()
+            return Response.datatable(data={'datas':data,'totalRecords':totalRecords,'totalRecordsFiltered':totalRecordsFiltered})
+        except:
+            return Response.make(status=False,msg='Eror while trying to retrieve data' )
 
     def insertNewData(self):
-        # try:
-        dataFromRequest=self.parameterHandler.getParamInsertFromRequests()
-        if not self.validationHandler.isParamInsertValid(dataFromRequest):
-            print('not valid param insert')
-            return Response.statusAndMsg(False,'Data is not valid, insert process has been canceled' )
-        self.dataHandler.insertNewData(dataFromRequest)
-        return Response.statusAndMsg(msg='Data successfully added' )
-        # except:
-        #     return Response.statusAndMsg(False,'Insert data failed' )
+        try:
+            dataFromRequest=self.parameterHandler.getParamInsertFromRequests()
+            if not self.validationHandler.isParamInsertValid(dataFromRequest):
+                return Response.statusAndMsg(False,'Data is not valid, insert process has been canceled' )
+            self.dataHandler.insertNewData(dataFromRequest)
+            return Response.statusAndMsg(msg='Data successfully added' )
+        except:
+            return Response.statusAndMsg(False,'Insert data failed' )
 
     def updateData(self):
-        # try:
-        dataFromRequest=self.parameterHandler.getUpdateValuesFromRequests()
-        if not self.validationHandler.isParamUpdateValid(dataFromRequest):
-            return Response.statusAndMsg(False,'Data is not valid, update process has been canceled' )
-        self.dataHandler.updateData(dataFromRequest)
-        return Response.statusAndMsg(msg='Data successfully updated' )
-        # except:
-        #     return Response.statusAndMsg(False,'Update data failed' )
+        try:
+            dataFromRequest=self.parameterHandler.getUpdateValuesFromRequests()
+            if not self.validationHandler.isParamUpdateValid(dataFromRequest):
+                return Response.statusAndMsg(False,'Data is not valid, update process has been canceled' )
+            self.dataHandler.updateData(dataFromRequest)
+            return Response.statusAndMsg(msg='Data successfully updated' )
+        except:
+            return Response.statusAndMsg(False,'Update data failed' )
 
     def deleteData(self):
         try:
@@ -51,16 +50,16 @@ class MasterController:
             return Response.statusAndMsg(False,'Data failed to removed' )
 
     def searchSingleData(self):
-        # try:
-        paramFromRequest=self.parameterHandler.getIdFromRequest()
-        if not self.validationHandler.isParamSearchValid(paramFromRequest):
-            return Response.make(False,'Data ID is not valid, process has been canceled' )
-        singleData=self.dataHandler.grabSingleData(paramFromRequest)
-        if not self.dataHandler.isDataExist(singleData):
-            return Response.make(False,'Data is not found' )
-        return Response.make(msg='Data Found', data=singleData)
-        # except:
-        #     return Response.make(False,'Cant find data' )
+        try:
+            paramFromRequest=self.parameterHandler.getIdFromRequest()
+            if not self.validationHandler.isParamSearchValid(paramFromRequest):
+                return Response.make(False,'Data ID is not valid, process has been canceled' )
+            singleData=self.dataHandler.grabSingleData(paramFromRequest)
+            if not self.dataHandler.isDataExist(singleData):
+                return Response.make(False,'Data is not found' )
+            return Response.make(msg='Data Found', data=singleData)
+        except:
+            return Response.make(False,'Cant find data' )
 
 
 
@@ -83,7 +82,6 @@ class DataHandler:
 
     def grabSingleData(self, paramFromRequest):
         groupOfObjectResult=self.grabOne(paramFromRequest)
-        print(groupOfObjectResult.__dict__)
         return self.Schema(many=True).dump([groupOfObjectResult])
 
     def grabData(self):
@@ -103,8 +101,6 @@ class DataHandler:
             listData= self.grabDataWithOrderby(datatableConfig)
         else:
             listData= self.grabDataDefault(datatableConfig)
-        print('-------------------------------------------------')
-        print(listData)
         return listData,totalRecords, totalRecordsFiltered
 
     def grabDataDefault(self, datatableConfig):
@@ -121,7 +117,6 @@ class DataHandler:
     def grabDataWithKeyword(self,datatableConfig):
         searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
         groupOfObjectResult=self.Model.query.filter(searchKeyWord).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
-        print(groupOfObjectResult.__dict__)
         return self.Schema(many=True).dump(groupOfObjectResult)
     
     def grabDataWithOrderby(self, datatableConfig):

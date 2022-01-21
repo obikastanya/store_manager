@@ -18,44 +18,45 @@ class ReportController:
 
     def exportPurchasedTransaction(self):
         # returning binary file if operation is success, and json instead  if an error is occur
-        # try:
-        parameterFromRequest=ParameterHandler().getParameter()
-        isValid=ValidationHandler().isParamValid(parameterFromRequest)
+        try:
+            parameterFromRequest=ParameterHandler().getParameter()
+            isValid=ValidationHandler().isParamValid(parameterFromRequest)
 
-        if not isValid:
-            return Response.make(False,'Parameter sended is not valid, process has been canceled.')
-        rawDataPurchased=DataHandler().getPurchasedTransaction()
+            if not isValid:
+                return Response.make(False,'Parameter sended is not valid, process has been canceled.')
+            rawDataPurchased=DataHandler().getPurchasedTransaction()
 
-        if not rawDataPurchased:
-            return Response.make(False,"There is no data to export")
+            if not rawDataPurchased:
+                return Response.make(False,"There is no data to export")
 
-        # convert excel to base64 string so we could include them inside json
-        excelFile=ExcelWritter().createPurchasedExcel(rawDataPurchased)
-        binaryExcelFile=excelFile.read()
-        stringExcelFile =base64.b64encode(binaryExcelFile).decode("UTF-8")
+            # convert excel to base64 string so we could include them inside json
+            excelFile=ExcelWritter().createPurchasedExcel(rawDataPurchased)
+            binaryExcelFile=excelFile.read()
+            stringExcelFile =base64.b64encode(binaryExcelFile).decode("UTF-8")
 
-        return {'status': True, 'msg':'','data': stringExcelFile }
-        # except:
-        #     return Response.make(False, "Something wrong while trying to complete the request.")
+            return {'status': True, 'msg':'','data': stringExcelFile }
+        except:
+            return Response.make(False, "Something wrong while trying to complete the request.")
+
     def exportSoldTransaction(self):
-        # try:
-        parameterFromRequest=ParameterHandler().getParameter()
-        isValid=ValidationHandler().isParamValid(parameterFromRequest)
+        try:
+            parameterFromRequest=ParameterHandler().getParameter()
+            isValid=ValidationHandler().isParamValid(parameterFromRequest)
 
-        if not isValid:
-            return Response.make(False,'Parameter sended is not valid, process has been canceled.')
-        rawDataSold=DataHandler().getSoldTransaction()
+            if not isValid:
+                return Response.make(False,'Parameter sended is not valid, process has been canceled.')
+            rawDataSold=DataHandler().getSoldTransaction()
 
-        if not rawDataSold:
-            return Response.make(False,"There is no data to export")
+            if not rawDataSold:
+                return Response.make(False,"There is no data to export")
 
-        excelFile=ExcelWritter().createSoldExcel(rawDataSold)
-        binaryExcelFile=excelFile.read()
-        stringExcelFile =base64.b64encode(binaryExcelFile).decode("UTF-8")
+            excelFile=ExcelWritter().createSoldExcel(rawDataSold)
+            binaryExcelFile=excelFile.read()
+            stringExcelFile =base64.b64encode(binaryExcelFile).decode("UTF-8")
 
-        return {'status': True, 'msg':'','data': stringExcelFile }
-        # except:
-        #     return Response.make(False, "Something wrong while trying to complete the request.")
+            return {'status': True, 'msg':'','data': stringExcelFile }
+        except:
+            return Response.make(False, "Something wrong while trying to complete the request.")
 
 class DataHandler:
     def getSoldTransaction(self):

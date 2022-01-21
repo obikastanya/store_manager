@@ -11,23 +11,26 @@ class ProductSoldController:
         return {'status':False,'msg':'default false msg'}
         
     def getData(self):
-        # try:
-        data,totalRecords, totalRecordsFiltered=DataHandler().grabData()
-        resp= Response.datatable(data={'datas':data,'totalRecords':totalRecords,'totalRecordsFiltered':totalRecordsFiltered})
-        return resp
-        # except:
-        #     return Response.make(status=False,msg='Eror while trying to retrieve data' )
+        try:
+            data,totalRecords, totalRecordsFiltered=DataHandler().grabData()
+            resp= Response.datatable(data={
+                'datas':data,
+                'totalRecords':totalRecords,
+                'totalRecordsFiltered':totalRecordsFiltered})
+            return resp
+        except:
+            return Response.make(status=False,msg='Eror while trying to retrieve data' )
 
     def insertNewTransaction(self):
-        # try:
-        dataFromRequest=ParameterHandler().getParamInsertFromRequests()
-        if not ValidationHandler().isParamInsertValid(dataFromRequest):
-            return Response.statusAndMsg(False,'Data is not valid, insert process has been canceled' )
-        DataHandler().insertNewData(dataFromRequest)
+        try:
+            dataFromRequest=ParameterHandler().getParamInsertFromRequests()
+            if not ValidationHandler().isParamInsertValid(dataFromRequest):
+                return Response.statusAndMsg(False,'Data is not valid, insert process has been canceled' )
+            DataHandler().insertNewData(dataFromRequest)
 
-        return Response.statusAndMsg(msg='Data successfully added' )
-        # except:
-        #     return Response.statusAndMsg(False,'Insert data failed' )
+            return Response.statusAndMsg(msg='Data successfully added' )
+        except:
+            return Response.statusAndMsg(False,'Insert data failed' )
     def deleteTransaction(self):
         try:
             dataFromRequest=ParameterHandler().getIdFromRequest()

@@ -12,11 +12,11 @@ class DiscountController(MasterController):
         self.parameterHandler=ParameterHandlerImpl()
     
     def getLovData(self):
-        # try:
-        data=self.dataHandler.grabLovData()
-        return Response.make(msg='Data found',data=data)
-        # except:
-        #     return Response.make(status=False,msg='Eror while trying to retrieve data' )
+        try:
+            data=self.dataHandler.grabLovData()
+            return Response.make(msg='Data found',data=data)
+        except:
+            return Response.make(status=False,msg='Eror while trying to retrieve data' )
 
 class DataHandlerImpl(DataHandler):
     def __init__(self):

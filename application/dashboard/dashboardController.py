@@ -6,93 +6,93 @@ from datetime import datetime
 
 class DashboardController():
     def getSummerizeOfTotal(self):
-        # try:
-        parameterFromRequest=ParameterHandler().getParameter()
-        rawSummaryTotalData=Dashboard().getSummaryOfTotal(parameterFromRequest)
-        dictOfSummaryTotal=DashboardDataMapper.mapSummaryOfTotal(rawSummaryTotalData)
-        return Response.make(data=[dictOfSummaryTotal])
-        # except:
-        #     return Response.make(False, "Something wrong while trying to complete the request.")
+        try:
+            parameterFromRequest=ParameterHandler().getParameter()
+            rawSummaryTotalData=Dashboard().getSummaryOfTotal(parameterFromRequest)
+            dictOfSummaryTotal=DashboardDataMapper.mapSummaryOfTotal(rawSummaryTotalData)
+            return Response.make(data=[dictOfSummaryTotal])
+        except:
+            return Response.make(False, "Something wrong while trying to complete the request.")
         
     def getSummerizeOfPurchasedVsSoldProduct(self):
-        # try:
-        rawSummaryPurchasedVsSold=DataHandler().getSummaryOfPurchasedVsSold()
-        dictOfSummaryPurchasedVsSold=DashboardDataMapper.mapSummaryOfPurchasedVsSold(rawSummaryPurchasedVsSold)
-        if not dictOfSummaryPurchasedVsSold:
-            return Response.make(False,"Data is not found")
-        return Response.make(data=dictOfSummaryPurchasedVsSold)
-        # except:
-            # return Response.make(False, "Something wrong while trying to complete the request.")
+        try:
+            rawSummaryPurchasedVsSold=DataHandler().getSummaryOfPurchasedVsSold()
+            dictOfSummaryPurchasedVsSold=DashboardDataMapper.mapSummaryOfPurchasedVsSold(rawSummaryPurchasedVsSold)
+            if not dictOfSummaryPurchasedVsSold:
+                return Response.make(False,"Data is not found")
+            return Response.make(data=dictOfSummaryPurchasedVsSold)
+        except:
+            return Response.make(False, "Something wrong while trying to complete the request.")
 
     def getSummerizeOfPurchasedVsSoldProductByCategory(self):
-        # try:
-        rawSummaryPurchasedVsSold=DataHandler().getSummaryOfPurchasedVsSoldByCategory()
-        dictOfSummaryPurchasedVsSold=DashboardDataMapper.mapSummaryOfPurchasedVsSoldByCategory(rawSummaryPurchasedVsSold)
-        if not dictOfSummaryPurchasedVsSold:
-            return Response.make(False,"Data is not found")
-        return Response.make(data=dictOfSummaryPurchasedVsSold)
-        # except:
-            # return Response.make(False, "Something wrong while trying to complete the request.")
+        try:
+            rawSummaryPurchasedVsSold=DataHandler().getSummaryOfPurchasedVsSoldByCategory()
+            dictOfSummaryPurchasedVsSold=DashboardDataMapper.mapSummaryOfPurchasedVsSoldByCategory(rawSummaryPurchasedVsSold)
+            if not dictOfSummaryPurchasedVsSold:
+                return Response.make(False,"Data is not found")
+            return Response.make(data=dictOfSummaryPurchasedVsSold)
+        except:
+            return Response.make(False, "Something wrong while trying to complete the request.")
         
     def getSummerizeOfSoldProduct(self):
-        # try:
-        rawSummarySold=DataHandler().getSummaryOfSold()
-        dictOfSummarySold=DashboardDataMapper.mapSummaryOfSold(rawSummarySold)
-        if not dictOfSummarySold:
-            return Response.make(False,"Data is not found")
-        return Response.make(data=dictOfSummarySold)
-        # except:
-            # return Response.make(False, "Something wrong while trying to complete the request.")
+        try:
+            rawSummarySold=DataHandler().getSummaryOfSold()
+            dictOfSummarySold=DashboardDataMapper.mapSummaryOfSold(rawSummarySold)
+            if not dictOfSummarySold:
+                return Response.make(False,"Data is not found")
+            return Response.make(data=dictOfSummarySold)
+        except:
+            return Response.make(False, "Something wrong while trying to complete the request.")
 
     def getSummerizeOfSoldProductByCategory(self):
-        # try:
-        rawSummarySold=DataHandler().getSummaryOfSoldByCategory()
-        dictOfSummarySold=DashboardDataMapper.mapSummaryOfSoldByCategory(rawSummarySold)
-        if not dictOfSummarySold:
-            return Response.make(False,"Data is not found")
-        return Response.make(data=dictOfSummarySold)
-        # except:
-            # return Response.make(False, "Something wrong while trying to complete the request.")
+        try:
+            rawSummarySold=DataHandler().getSummaryOfSoldByCategory()
+            dictOfSummarySold=DashboardDataMapper.mapSummaryOfSoldByCategory(rawSummarySold)
+            if not dictOfSummarySold:
+                return Response.make(False,"Data is not found")
+            return Response.make(data=dictOfSummarySold)
+        except:
+            return Response.make(False, "Something wrong while trying to complete the request.")
         
     def getSummerizeOfPurchasedProduct(self):
-        # try:
-        rawSummaryPurchased=DataHandler().getSummaryOfPurchased()
-        dictOfSummaryPurchased=DashboardDataMapper.mapSummaryOfPurchased(rawSummaryPurchased)
-        if not dictOfSummaryPurchased:
-            return Response.make(False,"Data is not found")
-        return Response.make(data=dictOfSummaryPurchased)
-        # except:
-            # return Response.make(False, "Something wrong while trying to complete the request.")
+        try:
+            rawSummaryPurchased=DataHandler().getSummaryOfPurchased()
+            dictOfSummaryPurchased=DashboardDataMapper.mapSummaryOfPurchased(rawSummaryPurchased)
+            if not dictOfSummaryPurchased:
+                return Response.make(False,"Data is not found")
+            return Response.make(data=dictOfSummaryPurchased)
+        except:
+            return Response.make(False, "Something wrong while trying to complete the request.")
 
     def getSummerizeOfPurchasedProductByCategory(self):
-        # try:
-        rawSummaryPurchased=DataHandler().getSummaryOfPurchasedByCategory()
-        dictOfSummaryPurchased=DashboardDataMapper.mapSummaryOfPurchasedByCategory(rawSummaryPurchased)
-        if not dictOfSummaryPurchased:
-            return Response.make(False,"Data is not found")
-        return Response.make(data=dictOfSummaryPurchased)
-        # except:
-            # return Response.make(False, "Something wrong while trying to complete the request.")
+        try:
+            rawSummaryPurchased=DataHandler().getSummaryOfPurchasedByCategory()
+            dictOfSummaryPurchased=DashboardDataMapper.mapSummaryOfPurchasedByCategory(rawSummaryPurchased)
+            if not dictOfSummaryPurchased:
+                return Response.make(False,"Data is not found")
+            return Response.make(data=dictOfSummaryPurchased)
+        except:
+            return Response.make(False, "Something wrong while trying to complete the request.")
         
     def getSummerizeOfStoreAvailability(self):
-        # try:
-        rawSummaryAvailability=Dashboard().getSummaryOfAvailabilityStore()
-        dictOfSummaryAvailability=DashboardDataMapper.mapSummaryOfAvailability(rawSummaryAvailability)
-        if not dictOfSummaryAvailability:
-            return Response.make(False,"Data is not found")
-        return Response.make(data=dictOfSummaryAvailability)
-        # except:
-            # return Response.make(False, "Something wrong while trying to complete the request.")
+        try:
+            rawSummaryAvailability=Dashboard().getSummaryOfAvailabilityStore()
+            dictOfSummaryAvailability=DashboardDataMapper.mapSummaryOfAvailability(rawSummaryAvailability)
+            if not dictOfSummaryAvailability:
+                return Response.make(False,"Data is not found")
+            return Response.make(data=dictOfSummaryAvailability)
+        except:
+            return Response.make(False, "Something wrong while trying to complete the request.")
         
     def getSummerizeOfWarehouseAvailability(self):
-        # try:
-        rawSummaryAvailability=Dashboard().getSummaryOfAvailabilityWarehouse()
-        dictOfSummaryAvailability=DashboardDataMapper.mapSummaryOfAvailability(rawSummaryAvailability)
-        if not dictOfSummaryAvailability:
-            return Response.make(False,"Data is not found")
-        return Response.make(data=dictOfSummaryAvailability)
-        # except:
-            # return Response.make(False, "Something wrong while trying to complete the request.")
+        try:
+            rawSummaryAvailability=Dashboard().getSummaryOfAvailabilityWarehouse()
+            dictOfSummaryAvailability=DashboardDataMapper.mapSummaryOfAvailability(rawSummaryAvailability)
+            if not dictOfSummaryAvailability:
+                return Response.make(False,"Data is not found")
+            return Response.make(data=dictOfSummaryAvailability)
+        except:
+            return Response.make(False, "Something wrong while trying to complete the request.")
 
     def requestIsNotRecognize(self):
         return Response.make(False,"Request is not recognized")

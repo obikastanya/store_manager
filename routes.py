@@ -23,7 +23,6 @@ def loginPage():
 @app.get('/')
 @authToken.authenticate
 def dashboardPage(**kwargs):
-    print(kwargs)
     return render_template('dashboard.html', user=kwargs)
 
 @app.get('/product-sold')

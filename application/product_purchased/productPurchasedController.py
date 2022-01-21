@@ -8,52 +8,49 @@ from application.utilities.response import Response
 from sqlalchemy import func
 
 class ProductPurchasedController:
-    def defaultFalse(self):
-        return {'status':False,'msg':'default false msg'}
         
     def getData(self):
-        # return self.defaultFalse()
-        # try:
-        data,totalRecords, totalRecordsFiltered=DataHandler().grabData()
-        resp= Response.datatable(data={'datas':data,'totalRecords':totalRecords,'totalRecordsFiltered':totalRecordsFiltered})
-        return resp
-        # except:
-        #     return Response.make(status=False,msg='Eror while trying to retrieve data' )
+        try:
+            data,totalRecords, totalRecordsFiltered=DataHandler().grabData()
+            resp= Response.datatable(data={'datas':data,'totalRecords':totalRecords,'totalRecordsFiltered':totalRecordsFiltered})
+            return resp
+        except:
+            return Response.make(status=False,msg='Eror while trying to retrieve data' )
 
     def insertNewTransaction(self):
-        # try:
-        dataFromRequest=ParameterHandler().getParamInsertFromRequests()
-        if not ValidationHandler().isParamInsertValid(dataFromRequest):
-            return Response.statusAndMsg(False,'Data is not valid, insert process has been canceled' )
-        DataHandler().insertNewData(dataFromRequest)
+        try:
+            dataFromRequest=ParameterHandler().getParamInsertFromRequests()
+            if not ValidationHandler().isParamInsertValid(dataFromRequest):
+                return Response.statusAndMsg(False,'Data is not valid, insert process has been canceled' )
+            DataHandler().insertNewData(dataFromRequest)
 
-        return Response.statusAndMsg(msg='Data successfully added' )
-        # except:
-        #     return Response.statusAndMsg(False,'Insert data failed' )
+            return Response.statusAndMsg(msg='Data successfully added' )
+        except:
+            return Response.statusAndMsg(False,'Insert data failed' )
 
     def deleteTransaction(self):
-        # try:
-        dataFromRequest=ParameterHandler().getIdFromRequest()
-        if not ValidationHandler().isParamDeleteValid(dataFromRequest):
-            return Response.statusAndMsg(False,'Data Id is not valid, delete process has been canceled' )
-        DataHandler().deleteData(dataFromRequest)
-        return Response.statusAndMsg(msg='Data has been deleted' )
-        # except:
-        #     return Response.statusAndMsg(False,'Delete data failed' )
+        try:
+            dataFromRequest=ParameterHandler().getIdFromRequest()
+            if not ValidationHandler().isParamDeleteValid(dataFromRequest):
+                return Response.statusAndMsg(False,'Data Id is not valid, delete process has been canceled' )
+            DataHandler().deleteData(dataFromRequest)
+            return Response.statusAndMsg(msg='Data has been deleted' )
+        except:
+            return Response.statusAndMsg(False,'Delete data failed' )
     def filterTransaction(self):
         return self.getData()
 
     def searchDetailTransaction(self):
-        # try:
-        paramFromRequest=ParameterHandler().getIdFromRequest()
-        if not ValidationHandler().isParamSearchValid(paramFromRequest):
-            return Response.make(False,'Data ID is not valid, process has been canceled' )
-        singleData=DataHandler().grabSingleData(paramFromRequest)
-        if not DataHandler().isDataExist(singleData):
-            return Response.make(False,'Data is not found' )
-        return Response.make(msg='Data Found', data=singleData)
-        # except:
-        #     return Response.make(False,'Cant find data' )
+        try:
+            paramFromRequest=ParameterHandler().getIdFromRequest()
+            if not ValidationHandler().isParamSearchValid(paramFromRequest):
+                return Response.make(False,'Data ID is not valid, process has been canceled' )
+            singleData=DataHandler().grabSingleData(paramFromRequest)
+            if not DataHandler().isDataExist(singleData):
+                return Response.make(False,'Data is not found' )
+            return Response.make(msg='Data Found', data=singleData)
+        except:
+            return Response.make(False,'Cant find data' )
 
 
 
