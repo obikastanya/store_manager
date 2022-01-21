@@ -10,7 +10,7 @@ import xlsxwriter
 from io import BytesIO
 
 from application.product_purchased.productPurchasedModel import PurchasedTransactionDetail, PurchasedTransactionHead
-from application.product_sold.productSoldModel import SoldTransactionHead
+from application.product_sold.productSoldModel import SoldTransactionDetail, SoldTransactionHead
 from application.master.product.productModel import Product
 from application.master.category_product.categoryProductModel import CategoryProduct
 from application.utilities.response import Response
@@ -25,7 +25,7 @@ class ReportController:
         # returning binary file if operation is success, and json instead  if an error is occur
 
         # try:
-        parameterFromRequest=ParameterHandler().getPurchasedParameter()
+        parameterFromRequest=ParameterHandler().getParameter()
         isValid=ValidationHandler().isParamValid(parameterFromRequest)
 
         if not isValid:
@@ -35,6 +35,7 @@ class ReportController:
         if not rawDataPurchased:
             return Response.make(False,"There is no data to export")
 
+        # convert excel to base64 string so we could include them inside json
         excelFile=ExcelWritter().createPurchasedExcel(rawDataPurchased)
         binaryExcelFile=excelFile.read()
         stringExcelFile =base64.b64encode(binaryExcelFile).decode("UTF-8")
@@ -43,38 +44,39 @@ class ReportController:
         # except:
         #     return Response.make(False, "Something wrong while trying to complete the request.")
     def exportSoldTransaction(self):
-        return self.defaultFalse()
         # try:
-        parameterFromRequest=ParameterHandler().getSoldParameter()
-        isValid=ValidationHandler().isParamSoldValid(parameterFromRequest)
+        parameterFromRequest=ParameterHandler().getParameter()
+        isValid=ValidationHandler().isParamValid(parameterFromRequest)
 
         if not isValid:
-            return Response.make('Parameter sended is not valid, process has been canceled.')
-        rawDataSold=DataHandler().getSoldTransaction(parameterFromRequest)
+            return Response.make(False,'Parameter sended is not valid, process has been canceled.')
+        rawDataSold=DataHandler().getSoldTransaction()
 
-        isExist=DataHandler().isExist(rawDataSold)
-        if not isExist:
+        if not rawDataSold:
             return Response.make(False,"There is no data to export")
 
         excelFile=ExcelWritter().createSoldExcel(rawDataSold)
-        return Response.make(data=excelFile)
+        # # binaryExcelFile=excelFile.read()
+        # stringExcelFile =base64.b64encode(binaryExcelFile).decode("UTF-8")
+
+        # return {'status': True, 'msg':'','data': stringExcelFile }
         # except:
         #     return Response.make(False, "Something wrong while trying to complete the request.")
+        return self.defaultFalse()
 
 class DataHandler:
     def getSoldTransaction(self):
-        pass
+        filterStatement=self.getFilterStatementForSoldTransaction()
+        joinedObject=SoldTransactionHead.query.join(SoldTransactionDetail).join(Product).join(CategoryProduct)
+        return joinedObject.filter(*filterStatement).all()
 
     def getPurchasedTransaction(self):
         filterStatement=self.getFilterStatementForPurchasedTransaction()
         joinedObject=PurchasedTransactionHead.query.join(PurchasedTransactionDetail).join(Product).join(CategoryProduct)
         return joinedObject.filter(*filterStatement).all()
 
-    def isExist(self):
-
-        pass
     def getFilterStatementForPurchasedTransaction(self):
-        parameterFromRequest=ParameterHandler().getPurchasedParameter()
+        parameterFromRequest=ParameterHandler().getParameter()
         groupOfFilterStatement=[]
 
         if parameterFromRequest.get('date_year'):
@@ -94,11 +96,30 @@ class DataHandler:
             groupOfFilterStatement.append(*tempFilterStatement)
         return tuple(groupOfFilterStatement)
 
-class ParameterHandler:
-    def getSoldParameter(self):
-        pass
+    def getFilterStatementForSoldTransaction(self):
+        parameterFromRequest=ParameterHandler().getParameter()
+        groupOfFilterStatement=[]
 
-    def getPurchasedParameter(self):
+        if parameterFromRequest.get('date_year'):
+            tempFilterStatement=(extract('year',SoldTransactionHead.th_date)==parameterFromRequest.get('date_year'),)
+            groupOfFilterStatement.append(*tempFilterStatement)
+
+        if parameterFromRequest.get('date_month'):
+            tempFilterStatement=(extract('month',SoldTransactionHead.th_date)==parameterFromRequest.get('date_month'),)
+            groupOfFilterStatement.append(*tempFilterStatement)
+
+        if parameterFromRequest.get('product_id'):
+            tempFilterStatement=(Product.msp_id==parameterFromRequest.get('product_id'),)
+            groupOfFilterStatement.append(*tempFilterStatement)
+
+        if parameterFromRequest.get('category_product_id'):
+            tempFilterStatement=(CategoryProduct.msc_id==parameterFromRequest.get('category_product_id'),)
+            groupOfFilterStatement.append(*tempFilterStatement)
+        return tuple(groupOfFilterStatement)
+
+class ParameterHandler:
+
+    def getParameter(self):
         paramFromRequest={
             'date_year':request.json.get('date_year'),
             'date_month':request.json.get('date_month'),
@@ -164,11 +185,6 @@ class ValidationHandler:
             return False
         return True
     
-    def isParamPurchasedValid(self):
-        pass
-
-    def isParamSoldValid(self):
-        pass
 
     def isNumber(self,value):
         try:
@@ -179,8 +195,18 @@ class ValidationHandler:
     
     
 class ExcelWritter:
-    def createSoldExcel(self):
-        pass
+    def createSoldExcel(self, rawSoldData):
+        # bufferOutput=BytesIO
+
+        workbook=xlsxwriter.Workbook('test/excel/sold.xlsx')
+        excelFormat=self.getExcelFormat(workbook)
+        worksheet=workbook.add_worksheet()
+        self.writeSoldData(worksheet,rawSoldData,excelFormat)
+        workbook.close()
+
+        # bufferOutput.seek(0)
+        # return bufferOutput
+
     def createPurchasedExcel(self, rawPuchasedData):
         # we need to write excel inside memory, because server is not allowing apps to write a file inside folders;
         bufferOutput=BytesIO()
@@ -193,7 +219,85 @@ class ExcelWritter:
 
         bufferOutput.seek(0)
         return bufferOutput
+    
+    def writeSoldData(self, worksheet,rawSoldData, format={}):
+        lastCursorPosition=0
+
+        for rowLoopNumber,record in enumerate(rawSoldData, start=4):
+            cursorPosition=lastCursorPosition+rowLoopNumber
+            self.writeHeadExcelOfSoldTransaction(
+                {'sheet':worksheet,'cursorPosition':cursorPosition,'format':format.get('cellFormat')},
+                {'record':record,'index':rowLoopNumber-3})
+            
+            for productLoopNumber,detail in enumerate(record.detail_transaction):
+                excel={'worksheet':worksheet, 'cursorPosition':cursorPosition+productLoopNumber, 'format':format.get('cellFormat')}
+                
+                
+                self.writeDetailExcelOfSoldTransaction(excel,{'record':detail})
+            
+                if detail.detail_discount_applied:
+                    for discountLoopNumber,discountApplied in enumerate(detail.detail_discount_applied):
+                        excel={'worksheet':worksheet, 'cursorPosition':cursorPosition+productLoopNumber+discountLoopNumber, 'format':format.get('cellFormat')}
+                        if (discountLoopNumber>=1):
+                            self.writeEmptyCellSoldDetail(excel)
+
+                        self.writeDiscountAppliedOnSoldTransaction(excel,{'record':discountApplied})
+                    lastCursorPosition+=len(detail.detail_discount_applied)-1
+                    
+                else:
+                    worksheet.write_row(cursorPosition+productLoopNumber,12,["","",""],format.get('cellFormat'))
+                    
+            lastCursorPosition+=len(record.detail_transaction)-1
+            
+            # write border for empty space on head transaction data
+            
+            if (rowLoopNumber+lastCursorPosition !=cursorPosition ):
+                for row in range(cursorPosition,rowLoopNumber+lastCursorPosition):
+                    excel={'worksheet':worksheet, 'cursorPosition':row, 'format':format.get('cellFormat')}
+                    self.writeEmptyCellSold(excel)
+        worksheet.set_column(1, 14, 20)
+
+            
+    def writeHeadExcelOfSoldTransaction(self, excel, records):
+        worksheet=excel.get('sheet')
+        cursorPosition=excel.get('cursorPosition')
+        record=records.get('record')
+        format=excel.get('format')
+
+        worksheet.write(cursorPosition,0,records.get('index'),format)
+        worksheet.write(cursorPosition,1, record.th_id,format)
+        worksheet.write(cursorPosition,2, record.th_date.strftime('%d/%m/%Y'),format)
+        worksheet.write(cursorPosition,3, record.employee_transaction.mse_name,format)
+        worksheet.write(cursorPosition,4, record.th_total_price,format)
+        worksheet.write(cursorPosition,5, record.th_tax,format)
+        worksheet.write(cursorPosition,6, record.th_paid,format)
+        worksheet.write(cursorPosition,7, record.th_change,format)
+    
+    def writeDetailExcelOfSoldTransaction(self,excel,records):
+        worksheet=excel.get('worksheet')
+        cursorPosition=excel.get('cursorPosition')
+        detail=records.get('record')
+        format=excel.get('format')
         
+        worksheet.write(cursorPosition, 8,detail.product.msp_id,format)
+        worksheet.write(cursorPosition, 9,detail.product.msp_desc,format)
+        worksheet.write(cursorPosition, 10,detail.td_quantity,format)
+        worksheet.write(cursorPosition, 11,detail.td_on_sale_price,format)
+    
+    def writeDiscountAppliedOnSoldTransaction(self,excel,records):
+        worksheet=excel.get('worksheet')
+        cursorPosition=excel.get('cursorPosition')
+        discount=records.get('record')
+        format=excel.get('format')
+        discountId,discountName="",""
+
+        if discount.discount_applied:
+            discountId= discount.discount_applied.discount_master.msd_id
+            discountName= discount.discount_applied.discount_master.msd_desc
+
+        worksheet.write(cursorPosition, 12,discount.tdda_cutt_off_nominal,format)
+        worksheet.write(cursorPosition, 13,discountId,format)
+        worksheet.write(cursorPosition, 14,discountName,format)
 
     def writePurchasedData(self, worksheet,rawPuchasedData, format={}):
         lastCursorPosition=0
@@ -220,7 +324,7 @@ class ExcelWritter:
             # save last cursor position to variable cursorPosition
             lastCursorPosition+=len(record.detail_transaction)-1
         
-        # set default with of column
+        # set default width of column
         worksheet.set_column(1, 11, 25)
 
     def writeHeadOfPurchasedTransaction(self,excel,records):
@@ -241,6 +345,24 @@ class ExcelWritter:
         format=excel.get('format')
         for column in range(5):
             worksheet.write(cursorPosition+1, column, '',format)
+
+    def writeEmptyCellSold(self,excel):
+        worksheet=excel.get('worksheet')
+        cursorPosition=excel.get('cursorPosition')
+        format=excel.get('format')
+        for column in range(8):
+            worksheet.write(cursorPosition+1, column, '',format)
+
+    def writeEmptyCellSoldDetail(self,excel):
+        worksheet=excel.get('worksheet')
+        cursorPosition=excel.get('cursorPosition')
+        format=excel.get('format')
+
+        for column in range(8,12):
+            worksheet.write(cursorPosition, column, '',format)
+            
+    def setBorderForSoldExcel():
+        pass
             
     def writeDetailOfPurchasedTransaction(self,excel,records):
         worksheet=excel.get('worksheet')

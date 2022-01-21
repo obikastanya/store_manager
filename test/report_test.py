@@ -14,7 +14,7 @@ payload={
     # 'product_id':2,
     # 'category_id':3
 }
-@pytest.mark.report
+@pytest.mark.reportS
 def testSelectPurchasedTransaction():
     response=requests.post(host+'/report_transaction_purchased', json=payload)
     responseJson=response.json()
@@ -22,7 +22,7 @@ def testSelectPurchasedTransaction():
 
 @pytest.mark.report
 def testSelectSoldTransaction():
-    response=requests.post(host+'/report_transaction_sold')
+    response=requests.post(host+'/report_transaction_sold', json=payload)
     responseJson=response.json()
     assert responseJson.get('status')==True
 
