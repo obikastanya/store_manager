@@ -11,10 +11,13 @@ class ReportView {
     }
     exportData() {
         let transactionFilter = new ReportView().getDataFromAForm()
-        console.log( transactionFilter )
         if ( transactionFilter.transaction_type == "purchased_product" ) {
             return new AjaxAction().exportPurchasedProduct( transactionFilter )
         }
+        if ( transactionFilter.transaction_type == "sold_product" ) {
+            return new AjaxAction().exportSoldProduct( transactionFilter )
+        }
+        return new Alert().showWarning( "Transaction is not selected" )
 
     }
     getDataFromAForm() {
@@ -32,8 +35,6 @@ class ReportView {
         if ( !value ) return value;
         if ( isNaN( value ) ) return value;
         return parseInt( value )
-
-
     }
     downloadExcelSilently( blobExcelFile, filename ) {
         const url = window.URL.createObjectURL( blobExcelFile );
@@ -73,22 +74,47 @@ class ReportView {
 }
 
 class AjaxAction {
+    exportSoldProduct( transactionFilter ) {
+        let payload = this.createPayload( transactionFilter )
+        const onSuccessCallback = ( resp ) => {
+            if ( !resp.status ) {
+                new Alert().showAlert( resp.msg )
+                return
+            }
+
+            const convertedExcelToBuffer = base64DecToArr( resp.data ).buffer;
+            const excelInBlob = new Blob( [ convertedExcelToBuffer ] )
+            const currentTime = new Date()
+            const generatedTime = `${ currentTime.getDate() }/${ currentTime.getMonth() + 1 }/${ currentTime.getFullYear() } ${ currentTime.getHours() }:${ currentTime.getMinutes() }`
+            const fileName = 'transaction_sold_report_generate_on_' + generatedTime
+            new ReportView().downloadExcelSilently( excelInBlob, fileName + '.xlsx' )
+        }
+
+        fetch( '/report_transaction_sold', payload )
+            .then( response => response.json() )
+            .then( onSuccessCallback )
+            .catch( ( err ) => { console.log( err ) } )
+    }
     exportPurchasedProduct( transactionFilter ) {
         let payload = this.createPayload( transactionFilter )
-        fetch( '/report_transaction_purchased', payload )
-            .then( response => response.json() ).then( resp => {
-                if ( !resp.status ) {
-                    new Alert().showAlert( resp.msg )
-                    return
-                }
+        const onSuccessCallback = ( resp ) => {
+            if ( !resp.status ) {
+                new Alert().showAlert( resp.msg )
+                return
+            }
 
-                const convertedExcelToBuffer = base64DecToArr( resp.data ).buffer;
-                const excelInBlob = new Blob( [ convertedExcelToBuffer ] )
-                const currentTime = new Date()
-                const generatedTime = `${ currentTime.getDate() }/${ currentTime.getMonth() + 1 }/${ currentTime.getFullYear() } ${ currentTime.getHours() }:${ currentTime.getMinutes() }`
-                const fileName = 'transaction_purchased_report_generate_on_' + generatedTime
-                new ReportView().downloadExcelSilently( excelInBlob, fileName + '.xlsx' )
-            } )
+            const convertedExcelToBuffer = base64DecToArr( resp.data ).buffer;
+            const excelInBlob = new Blob( [ convertedExcelToBuffer ] )
+            const currentTime = new Date()
+            const generatedTime = `${ currentTime.getDate() }/${ currentTime.getMonth() + 1 }/${ currentTime.getFullYear() } ${ currentTime.getHours() }:${ currentTime.getMinutes() }`
+            const fileName = 'transaction_purchased_report_generate_on_' + generatedTime
+            new ReportView().downloadExcelSilently( excelInBlob, fileName + '.xlsx' )
+        }
+
+        fetch( '/report_transaction_purchased', payload )
+            .then( response => response.json() )
+            .then( onSuccessCallback )
+            .catch( ( err ) => { console.log( err ) } )
     }
     getLovForSelectField() {
         const callLovAjax = async () => {
