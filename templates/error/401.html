@@ -1,0 +1,12 @@
+{% extends 'error/base_error.html'%}
+
+{% block error_content %}
+<div class="text-center mt-5">
+    <div class="error mx-auto" data-text="401">401</div>
+    <p class="lead text-gray-800 mb-5">Unauthorized</p>
+    <p class="text-gray-500 mb-0">
+        Request has not been completed because it
+        lacks valid authentication credentials.
+    </p>
+</div>
+{% endblock %}

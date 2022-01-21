@@ -100,3 +100,22 @@ def supplierPage(**kwargs):
 @authToken.authenticate
 def logoutPage(**kwargs):
     return Auth().logOut()
+
+
+
+# error handler
+@app.errorhandler(400)
+def badRequestError(e):
+    return render_template('error/400.html'),400
+
+@app.errorhandler(401)
+def unAuthorizedError(e):
+    return render_template('error/401.html'),401
+
+@app.errorhandler(403)
+def forbiddenError(e):
+    return render_template('error/401.html'),403
+
+# @app.errorhandler(404)
+# def notFoundError(e):
+#     return render_template('error/400.html'),404
