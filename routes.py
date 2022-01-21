@@ -1,5 +1,15 @@
-from flask import render_template
+from flask import render_template, request
 from app import app
+from application.auth.authController import Auth
+
+@app.post('/login')
+def loginAuth():
+    try:    
+        return Auth().checkAccess()
+    except:
+        msg="Login Failed"
+        return render_template('login.html', msg=msg)
+
 
 """Contain all route that return html as responses"""
 @app.get('/')
@@ -61,3 +71,6 @@ def stockPage():
 def supplierPage():
     return render_template('master/supplier.html')
     
+@app.get('/login')
+def loginPage():
+    return render_template('login.html')
