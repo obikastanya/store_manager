@@ -116,12 +116,12 @@
                             <li class="nav-item dropdown no-arrow">
                                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <!-- {% if user %} -->
-                                    <span class="mr-2 d-none d-lg-inline text-gray-600 small">Obi Kastanya</span>
-                                    <!-- {% else %} -->
-                                    <!-- <span class="mr-2 d-none d-lg-inline text-gray-600 small">Obi aja</span> -->
-                                    <!-- <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span> -->
-                                    <!-- {% endif %} -->
+                                    {% if user %}
+                                    <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{user.firstName}}
+                                        {{user.lastName}}</span>
+                                    {% else %}
+                                    <span class="mr-2 d-none d-lg-inline text-gray-600 small">Anonymous User</span>
+                                    {% endif %}
                                     <img class="img-profile rounded-circle" src="static/theme/img/undraw_profile.svg">
                                 </a>
                                 <!-- Dropdown - User Information -->
