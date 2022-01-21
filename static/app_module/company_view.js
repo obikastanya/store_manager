@@ -5,7 +5,10 @@ const runScript = () => {
         new DatatableCompanyImpl().initiateDatatable()
         modalForm.registerOnHideModal()
         modalForm.disabledBtnNewDataOnClick()
-        new ButtonEventImpl().bindEventWithAjax()
+
+        const btnEvent = new ButtonEventImpl()
+        btnEvent.bindEventWithAjax()
+        btnEvent.setMasterAsActiveMenu()
     } )
 }
 

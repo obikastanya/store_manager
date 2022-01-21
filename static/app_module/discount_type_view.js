@@ -1,6 +1,8 @@
 const runScript = () => {
     $( document ).ready( function () {
         new DatatableDiscountTypeImpl().initiateDatatable()
+        const btnEvent = new ButtonEventImpl()
+        btnEvent.setMasterAsActiveMenu()
     } )
 }
 

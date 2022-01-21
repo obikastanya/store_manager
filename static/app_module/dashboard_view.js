@@ -4,10 +4,14 @@ $( document ).ready( function () {
     dashboard.loadBadgeData()
     dashboard.addListenerWhenCardButtonClicked()
     dashboard.addListenerWhenFilterChanged()
+    dashboard.setAsActiveMenu()
 } )
 
 
 class DashboardViews {
+    setAsActiveMenu() {
+        document.querySelector( '#dashboard_side_link' ).classList.add( 'active' )
+    }
     loadDefaultCharts() {
         this.showPurchasedVsSoldChartSummary()
     }

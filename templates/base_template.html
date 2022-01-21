@@ -32,38 +32,38 @@
                     <div class="sidebar-brand-text mx-3">Store Manager</div>
                 </a>
                 <hr class="sidebar-divider my-0">
-                <li class="nav-item active">
+                <li class="nav-item" id="dashboard_side_link">
                     <a class="nav-link" href="/">
                         <i class="fas fa-fw fa-chart-pie"></i>
                         <span>Dashboard</span></a>
                 </li>
                 <hr class="sidebar-divider">
                 <div class="sidebar-heading">Store Menu</div>
-                <li class="nav-item">
+                <li class="nav-item" id="sold_product_side_link">
                     <a class="nav-link collapsed" href="/product-sold">
                         <i class="fas fa-fw fa-cart-arrow-down"></i>
                         <span>Product Sold</span>
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" id="purchased_product_side_link">
                     <a class="nav-link collapsed" href="/product-purchased">
                         <i class="fas fa-fw fa-box-open"></i>
                         <span>Product Purchased</span>
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" id="manage_discount_side_link">
                     <a class="nav-link collapsed" href="/manage-discount">
                         <i class="fas fa-fw fa-money-bill-wave-alt"></i>
                         <span>Manage Discount</span>
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" id="report_side_link">
                     <a class="nav-link collapsed" href="/report">
                         <i class="fas fa-fw fa-file-csv"></i>
                         <span>Export Excel</span>
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" id="master_side_link">
                     <a class="nav-link collapsed" href="/master" data-toggle="collapse" data-target="#collapsePages"
                         aria-expanded="true" aria-controls="collapsePages">
                         <i class="fas fa-fw fa-folder"></i>
@@ -170,7 +170,7 @@
                     <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                        <a class="btn btn-primary" href="login.html">Logout</a>
+                        <a class="btn btn-primary" href="/logout">Logout</a>
                     </div>
                 </div>
             </div>

@@ -5,6 +5,9 @@ class Auth:
     def __init__(self):
         self.__hashPassword=b'$2b$12$1o91McKXCeCdErqTU48ZN./lEVoSnVSW1el6exEJUXsgl48xXafqe'
         self.__username='SECRET USERNAME'
+        
+    def logOut(self):
+        pass
 
     def checkAccess(self):
         if self.checkPassword() and self.checkUsername():

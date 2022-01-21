@@ -1,13 +1,16 @@
 $( document ).ready( function () {
     new AjaxAction().getLovForSelectField()
     new ReportView().addEventListenerToBtnExport()
+    new ReportView().setAsActiveMenu()
 } )
 
 class ReportView {
     addEventListenerToBtnExport() {
         const buttonExport = document.querySelector( '.btn-export' )
         buttonExport.addEventListener( 'click', this.exportData )
-
+    }
+    setAsActiveMenu() {
+        document.querySelector( '#report_side_link' ).classList.add( 'active' )
     }
     exportData() {
         let transactionFilter = new ReportView().getDataFromAForm()

@@ -2,8 +2,10 @@ const runScript = () => {
     $( document ).ready( function () {
         const modalForm = new ModalFormImpl()
         const datatable = new DatatableProductPurchasedImpl()
+        const btnEvent = new ButtonEventImpl()
         new AjaxImpl().getLovForSelectField()
-        new ButtonEventImpl().bindEventWithAjax()
+        btnEvent.bindEventWithAjax()
+        btnEvent.setAsActiveMenu()
         datatable.initiateDatatable()
         datatable.initiateDatatableForTransactionChart()
         modalForm.bindEventToFormFilterAndNewTransaction()
@@ -171,7 +173,9 @@ class ButtonEventImpl extends ButtonEvent {
     constructor() {
         super()
     }
-
+    setAsActiveMenu() {
+        document.querySelector( '#purchased_product_side_link' ).classList.add( 'active' )
+    }
     bindEventWithAjax() {
         const buttonDelete = document.querySelector( this.btnDeleteId )
         buttonDelete.addEventListener( 'click', this.deleteData )

@@ -6,7 +6,10 @@ const runScript = () => {
         new AjaxImpl().getOptionForEmployeeStatusMaster()
         modalForm.registerOnHideModal()
         modalForm.disabledBtnNewDataOnClick()
-        new ButtonEventImpl().bindEventWithAjax()
+
+        const btnEvent = new ButtonEventImpl()
+        btnEvent.bindEventWithAjax()
+        btnEvent.setMasterAsActiveMenu()
     } )
 }
 

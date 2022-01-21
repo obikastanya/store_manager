@@ -2,10 +2,13 @@ const runScript = () => {
     $( document ).ready( function () {
         new DatatableDiscountImpl().initiateDatatable()
         new AjaxImpl().getOptionForDiscountTypeMaster()
-        new ButtonEventImpl().bindEventWithAjax()
         const modalForm = new ModalFormImpl()
         modalForm.registerOnHideModal()
         modalForm.disabledBtnNewDataOnClick()
+
+        const btnEvent = new ButtonEventImpl()
+        btnEvent.bindEventWithAjax()
+        btnEvent.setMasterAsActiveMenu()
     } )
 }
 

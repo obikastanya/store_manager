@@ -1,11 +1,15 @@
 const runScript = () => {
     $( document ).ready( function () {
         const modalForm = new ModalFormImpl()
+        const btnEvent = new ButtonEventImpl()
         new DatatableDiscountAppliedImpl().initiateDatatable()
         new AjaxImpl().getLovForSelectField()
         modalForm.registerOnHideModal()
         modalForm.disabledBtnNewDataOnClick()
-        new ButtonEventImpl().bindEventWithAjax()
+
+        btnEvent.bindEventWithAjax()
+        btnEvent.setAsActiveMenu()
+
     } )
 }
 
@@ -84,6 +88,10 @@ class DatatableDiscountAppliedImpl extends BaseDatatable {
 class ButtonEventImpl extends ButtonEvent {
     constructor() {
         super()
+    }
+
+    setAsActiveMenu() {
+        document.querySelector( '#manage_discount_side_link' ).classList.add( 'active' )
     }
     saveNewData() {
         const insertParams = new FormDataImpl().getAddNewDataFormValues()

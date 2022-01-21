@@ -84,6 +84,10 @@ class BaseDatatable extends DatatableTools {
 
 /**Class to manage event in button inside modal pop up, its about final action such as save data, remove, etc */
 class ButtonEvent extends ButtonSelector {
+
+    setMasterAsActiveMenu() {
+        document.querySelector( '#master_side_link' ).classList.add( 'active' )
+    }
     bindEventWithAjax() {
         const buttonSaveNewData = document.querySelector( this.saveNewRecord )
         const buttonSaveChanges = document.querySelector( this.btnSaveUpdatedRecord )

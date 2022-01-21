@@ -74,3 +74,8 @@ def supplierPage():
 @app.get('/login')
 def loginPage():
     return render_template('login.html')
+
+@app.get('/logout')
+def logoutPage():
+    Auth().logOut()
+    return render_template('login.html')
