@@ -1,9 +1,6 @@
 import base64
 from datetime import datetime
-from ntpath import join
-from tarfile import ENCODING
-from flask import jsonify, request, send_file
-from itsdangerous import exc
+from flask import request
 from sqlalchemy import true
 from sqlalchemy.sql import extract
 import xlsxwriter
@@ -18,12 +15,9 @@ from application.utilities.response import Response
 
 
 class ReportController:
-    def defaultFalse(self):
-        return {'status':False, 'msg':'','data':None}
 
     def exportPurchasedTransaction(self):
         # returning binary file if operation is success, and json instead  if an error is occur
-
         # try:
         parameterFromRequest=ParameterHandler().getParameter()
         isValid=ValidationHandler().isParamValid(parameterFromRequest)
@@ -56,13 +50,12 @@ class ReportController:
             return Response.make(False,"There is no data to export")
 
         excelFile=ExcelWritter().createSoldExcel(rawDataSold)
-        # # binaryExcelFile=excelFile.read()
-        # stringExcelFile =base64.b64encode(binaryExcelFile).decode("UTF-8")
+        binaryExcelFile=excelFile.read()
+        stringExcelFile =base64.b64encode(binaryExcelFile).decode("UTF-8")
 
-        # return {'status': True, 'msg':'','data': stringExcelFile }
+        return {'status': True, 'msg':'','data': stringExcelFile }
         # except:
         #     return Response.make(False, "Something wrong while trying to complete the request.")
-        return self.defaultFalse()
 
 class DataHandler:
     def getSoldTransaction(self):
@@ -185,7 +178,6 @@ class ValidationHandler:
             return False
         return True
     
-
     def isNumber(self,value):
         try:
             int(value)
@@ -196,16 +188,16 @@ class ValidationHandler:
     
 class ExcelWritter:
     def createSoldExcel(self, rawSoldData):
-        # bufferOutput=BytesIO
+        bufferOutput=BytesIO()
 
-        workbook=xlsxwriter.Workbook('test/excel/sold.xlsx')
+        workbook=xlsxwriter.Workbook(bufferOutput)
         excelFormat=self.getExcelFormat(workbook)
         worksheet=workbook.add_worksheet()
         self.writeSoldData(worksheet,rawSoldData,excelFormat)
         workbook.close()
 
-        # bufferOutput.seek(0)
-        # return bufferOutput
+        bufferOutput.seek(0)
+        return bufferOutput
 
     def createPurchasedExcel(self, rawPuchasedData):
         # we need to write excel inside memory, because server is not allowing apps to write a file inside folders;
@@ -259,7 +251,34 @@ class ExcelWritter:
                     self.writeEmptyCellSold(excel)
         worksheet.set_column(1, 14, 20)
 
-            
+    def writePurchasedData(self, worksheet,rawPuchasedData, format={}):
+        lastCursorPosition=0
+
+        self.writePurchasedExcelTitle({'sheet':worksheet,'format':format}, cursorPosition=0)
+        self.writeHeaderForExcelPurchased({'sheet':worksheet, 'format':format},cursorPosition=3)
+
+
+        for rowLoopNumber,record in enumerate(rawPuchasedData, start=4):
+            # set cursor to last Cursor
+            cursorPosition=lastCursorPosition+rowLoopNumber
+
+            self.writeHeadOfPurchasedTransaction(
+                {'worksheet':worksheet, 'cursorPosition':cursorPosition, 'format':format.get('cellFormat')},
+                {'record':record,'index':rowLoopNumber-3})
+
+            for productLoopNumber,detail in enumerate(record.detail_transaction):
+                if (productLoopNumber>=1):
+                    self.writeEmptyCell(excel)
+
+                excel={'worksheet':worksheet, 'cursorPosition':cursorPosition+productLoopNumber, 'format':format.get('cellFormat')}
+                self.writeDetailOfPurchasedTransaction(excel,{'record':detail})
+
+            # save last cursor position to variable cursorPosition
+            lastCursorPosition+=len(record.detail_transaction)-1
+        
+        # set default width of column
+        worksheet.set_column(1, 11, 25)
+  
     def writeHeadExcelOfSoldTransaction(self, excel, records):
         worksheet=excel.get('sheet')
         cursorPosition=excel.get('cursorPosition')
@@ -301,34 +320,6 @@ class ExcelWritter:
         worksheet.write(cursorPosition, 13,discountId,format)
         worksheet.write(cursorPosition, 14,discountName,format)
 
-    def writePurchasedData(self, worksheet,rawPuchasedData, format={}):
-        lastCursorPosition=0
-
-        self.writePurchasedExcelTitle({'sheet':worksheet,'format':format}, cursorPosition=0)
-        self.writeHeaderForExcelPurchased({'sheet':worksheet, 'format':format},cursorPosition=3)
-
-
-        for rowLoopNumber,record in enumerate(rawPuchasedData, start=4):
-            # set cursor to last Cursor
-            cursorPosition=lastCursorPosition+rowLoopNumber
-
-            self.writeHeadOfPurchasedTransaction(
-                {'worksheet':worksheet, 'cursorPosition':cursorPosition, 'format':format.get('cellFormat')},
-                {'record':record,'index':rowLoopNumber-3})
-
-            for productLoopNumber,detail in enumerate(record.detail_transaction):
-                if (productLoopNumber>=1):
-                    self.writeEmptyCell(excel)
-
-                excel={'worksheet':worksheet, 'cursorPosition':cursorPosition+productLoopNumber, 'format':format.get('cellFormat')}
-                self.writeDetailOfPurchasedTransaction(excel,{'record':detail})
-
-            # save last cursor position to variable cursorPosition
-            lastCursorPosition+=len(record.detail_transaction)-1
-        
-        # set default width of column
-        worksheet.set_column(1, 11, 25)
-
     def writeHeadOfPurchasedTransaction(self,excel,records):
         worksheet=excel.get('worksheet')
         cursorPosition=excel.get('cursorPosition')
@@ -341,19 +332,6 @@ class ExcelWritter:
         worksheet.write(cursorPosition,4, record.tp_nominal,format)
         worksheet.write(cursorPosition,5, record.supplier.mssp_desc,format)
         
-    def writeEmptyCell(self,excel):
-        worksheet=excel.get('worksheet')
-        cursorPosition=excel.get('cursorPosition')
-        format=excel.get('format')
-        for column in range(5):
-            worksheet.write(cursorPosition+1, column, '',format)
-
-    def writeEmptyCellSold(self,excel):
-        worksheet=excel.get('worksheet')
-        cursorPosition=excel.get('cursorPosition')
-        format=excel.get('format')
-        for column in range(8):
-            worksheet.write(cursorPosition+1, column, '',format)
 
     def writeEmptyCellSoldDetail(self,excel):
         worksheet=excel.get('worksheet')
@@ -362,9 +340,6 @@ class ExcelWritter:
 
         for column in range(8,12):
             worksheet.write(cursorPosition, column, '',format)
-            
-    def setBorderForSoldExcel():
-        pass
             
     def writeDetailOfPurchasedTransaction(self,excel,records):
         worksheet=excel.get('worksheet')
@@ -420,6 +395,20 @@ class ExcelWritter:
             "Generated on : "+datetime.now().strftime('%d/%m/%Y %H:%M')
         ]
         worksheet.write_column(cursorPosition, 0,title, format.get('titleFormat'))
+
+    def writeEmptyCell(self,excel):
+        worksheet=excel.get('worksheet')
+        cursorPosition=excel.get('cursorPosition')
+        format=excel.get('format')
+        for column in range(5):
+            worksheet.write(cursorPosition+1, column, '',format)
+
+    def writeEmptyCellSold(self,excel):
+        worksheet=excel.get('worksheet')
+        cursorPosition=excel.get('cursorPosition')
+        format=excel.get('format')
+        for column in range(8):
+            worksheet.write(cursorPosition+1, column, '',format)
 
     def getExcelFormat(self,workbook):
         headFormat = workbook.add_format({'border': 1,'bold':True, 'font_color': 'white', 'bg_color':'#4bacc6'})
