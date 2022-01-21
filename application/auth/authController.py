@@ -89,7 +89,7 @@ class AuthToken:
                 return Response.make(False,'Forbidden access')
 
             try:
-                jwt.decode(token, JWT_SECRETKEY)
+                jwt.decode(token, JWT_SECRETKEY, algorithms='HS256')
                 user=User()
                 kwargs=user.__dict__
             except jwt.ExpiredSignatureError:

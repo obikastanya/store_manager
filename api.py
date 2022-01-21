@@ -17,39 +17,39 @@ fourCommonMethods=['GET', 'POST', 'PUT', 'DELETE']
 
 @app.route('/category_product_api', methods=fourCommonMethods)
 @authToken.middleware
-def categoryProductApi():
+def categoryProductApi(**kwargs):
     return splitRouteByMethods(CategoryProductController)
 
 
 @app.post('/category_product_api_search')
 @authToken.middleware
-def categoryProductApiSearch():
+def categoryProductApiSearch(**kwargs):
     return CategoryProductController().searchSingleData()
 
 
 # Bellow is all route for master company
 @app.route('/company_api', methods=fourCommonMethods)
 @authToken.middleware
-def companyApi():
+def companyApi(**kwargs):
     return splitRouteByMethods(CompanyController)
 
 
 @app.post('/company_api_search')
 @authToken.middleware
-def companyApiSearch():
+def companyApiSearch(**kwargs):
     return CompanyController().searchSingleData()
 
 
 # bellow is all route for master discount
 @app.route('/discount_api', methods=fourCommonMethods)
 @authToken.middleware
-def discountApi():
+def discountApi(**kwargs):
     return splitRouteByMethods(DiscountController)
 
 
 @app.post('/discount_api_search')
 @authToken.middleware
-def discountApiSearch():
+def discountApiSearch(**kwargs):
     return DiscountController().searchSingleData()
 
 
@@ -58,82 +58,82 @@ def discountApiSearch():
 # bellow is all route for master discount
 @app.route('/discount_type_api', methods=fourCommonMethods)
 @authToken.middleware
-def discountTypeApi():
+def discountTypeApi(**kwargs):
     return splitRouteByMethods(DiscountTypeController)
 
 @app.post('/discount_type_api_search')
 @authToken.middleware
-def discountTypeApiSearch():
+def discountTypeApiSearch(**kwargs):
     return DiscountController().searchSingleData()
 
 
 
 @app.route('/employee_api', methods=fourCommonMethods)
 @authToken.middleware
-def employeeApi():
+def employeeApi(**kwargs):
     return splitRouteByMethods(EmployeeController)
 
 @app.post('/employee_api_search')
 @authToken.middleware
-def employeeApiSearch():
+def employeeApiSearch(**kwargs):
     return EmployeeController().searchSingleData()
 
 
 
 @app.route('/payment_method_api', methods=fourCommonMethods)
 @authToken.middleware
-def paymentMethodApi():
+def paymentMethodApi(**kwargs):
     return splitRouteByMethods(PaymentMethodContoller)
 
 @app.post('/payment_method_api_search')
 @authToken.middleware
-def paymentMethodApiSearch():
+def paymentMethodApiSearch(**kwargs):
     return PaymentMethodContoller().searchSingleData()
 
 
 
 @app.route('/product_api', methods=fourCommonMethods)
 @authToken.middleware
-def productApi():
+def productApi(**kwargs):
     return splitRouteByMethods(ProductController)
 
 @app.post('/product_api_search')
 @authToken.middleware
-def productApiSearch():
+def productApiSearch(**kwargs):
     return ProductController().searchSingleData()
 
 
 @app.route('/employee_status_api', methods=fourCommonMethods)
 @authToken.middleware
-def employeeStatusApi():
+def employeeStatusApi(**kwargs):
     return splitRouteByMethods(EmployeeStatusController)
 
 @app.post('/employee_status_api_search')
 @authToken.middleware
-def employeeStatusApiSearch():
+def employeeStatusApiSearch(**kwargs):
     return EmployeeStatusController().searchSingleData()
 
 
 
 @app.route('/stock_api', methods=fourCommonMethods)
 @authToken.middleware
-def stockApi():
+def stockApi(**kwargs):
     return splitRouteByMethods(StockController)
 
 @app.post('/stock_api_search')
 @authToken.middleware
-def stockApiSearch():
+def stockApiSearch(**kwargs):
     return StockController().searchSingleData()
 
 
 @app.route('/supplier_api', methods=fourCommonMethods)
 @authToken.middleware
-def supplierApi():
+def supplierApi(**kwargs):
     return splitRouteByMethods(SupplierController)
 
 @app.post('/supplier_api_search')
 @authToken.middleware
-def supplierApiSearch():
+def supplierApiSearch(**kwargs):
     return SupplierController().searchSingleData()
 
 
@@ -143,44 +143,44 @@ def supplierApiSearch():
 # Lov Api End Point
 @app.get('/supplier_lov_api')
 @authToken.middleware
-def supplierLovApi():
+def supplierLovApi(**kwargs):
     return SupplierController().getLovData()
 
 
 @app.get('/employee_status_lov_api')
 @authToken.middleware
-def employeeStatusLovApi():
+def employeeStatusLovApi(**kwargs):
     return EmployeeStatusController().getLovData()
 
 @app.get('/employee_lov_api')
 @authToken.middleware
-def employeeLovApi():
+def employeeLovApi(**kwargs):
     return EmployeeController().getLovData()
 
 @app.get('/category_product_lov_api')
 @authToken.middleware
-def categoryProductLovApi():
+def categoryProductLovApi(**kwargs):
     return CategoryProductController().getLovData()
 
 
 @app.get('/company_lov_api')
 @authToken.middleware
-def companyLovApi():
+def companyLovApi(**kwargs):
     return CompanyController().getLovData()
 
 @app.get('/product_lov_api')
 @authToken.middleware
-def productLovApi():
+def productLovApi(**kwargs):
     return ProductController().getLovData()
 
 @app.get('/discount_lov_api')
 @authToken.middleware
-def discountLovApi():
+def discountLovApi(**kwargs):
     return DiscountController().getLovData()
 
 @app.get('/payment_method_lov_api')
 @authToken.middleware
-def paymentMethodLovApi():
+def paymentMethodLovApi(**kwargs):
     return PaymentMethodContoller().getLovData()
 
 
@@ -191,29 +191,29 @@ def paymentMethodLovApi():
 # api for manageDiscount
 @app.route('/manage_discount_api', methods=fourCommonMethods)
 @authToken.middleware
-def manageDiscountApi():
+def manageDiscountApi(**kwargs):
     return splitRouteByMethods(ManageDiscountController)
 
 
 @app.post('/manage_discount_api_search')
 @authToken.middleware
-def manageDiscountApiSearch():
+def manageDiscountApiSearch(**kwargs):
     return ManageDiscountController().searchSingleData()
 
 
 @app.post('/product_sold_api_search')
 @authToken.middleware
-def productSoldApiSearch():
+def productSoldApiSearch(**kwargs):
     return ProductSoldController().searchDetailTransaction()
 
 @app.post('/product_sold_api_filter')
 @authToken.middleware
-def productSoldApiFilter():
+def productSoldApiFilter(**kwargs):
     return ProductSoldController().filterTransaction()
 
 @app.route('/product_sold_api', methods=['GET','POST','DELETE'])
 @authToken.middleware
-def productSoldApi():
+def productSoldApi(**kwargs):
     if request.method=='GET':
         return ProductSoldController().getData()
     if request.method=='POST':
@@ -223,7 +223,7 @@ def productSoldApi():
 
 @app.route('/product_purchased_api', methods=['GET','POST','DELETE'])
 @authToken.middleware
-def productPurchasedApi():
+def productPurchasedApi(**kwargs):
     if request.method=='GET':
         return ProductPurchasedController().getData()
     if request.method=='POST':
@@ -233,24 +233,24 @@ def productPurchasedApi():
 
 @app.post('/product_purchased_api_search')
 @authToken.middleware
-def productPurchasedApiSearch():
+def productPurchasedApiSearch(**kwargs):
     return ProductPurchasedController().searchDetailTransaction()
 
 @app.post('/dashboard_api')
 @authToken.middleware
-def dashboardApi():
+def dashboardApi(**kwargs):
     summaryType=request.json.get('summarize_type')
     controllerMethod=getControllerMethodBySummaryType(summaryType)
     return controllerMethod()
 
 @app.post('/report_transaction_purchased')
 @authToken.middleware
-def reportTransactionPurchasedApi():
+def reportTransactionPurchasedApi(**kwargs):
     return ReportController().exportPurchasedTransaction()
 
 @app.post('/report_transaction_sold')
 @authToken.middleware
-def reportTransactionSoldApi():
+def reportTransactionSoldApi(**kwargs):
     return ReportController().exportSoldTransaction()
 
 def splitRouteByMethods(Controller):
