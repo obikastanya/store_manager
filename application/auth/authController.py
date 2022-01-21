@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from email import message
 from functools import wraps
 from bcrypt import checkpw
 import jwt
@@ -47,6 +48,7 @@ class Auth:
         resp=make_response(redirect('/login'))
         resp.delete_cookie('x-auth-token')
         return resp
+    
 
 
 class AuthToken:
@@ -65,7 +67,7 @@ class AuthToken:
         def decorated(**kwargs):
             token=request.cookies.get('x-auth-token')
             if not token:
-                return abort(403)
+                return redirect('/login')
 
             try:
                 # check if jwt is active
@@ -73,13 +75,27 @@ class AuthToken:
                 user=User()
                 kwargs=user.__dict__
             except jwt.ExpiredSignatureError:
-                return abort(401)
+                return redirect('/login')
             except jwt.InvalidTokenError:
                 return abort(400)
 
             return func(**kwargs)
         return decorated
+    
+    def noTokenRequired(self,func):
+        @wraps(func)
+        def decorated(**kwargs):
+            try:
+                token=request.cookies.get('x-auth-token')
+                jwt.decode(token,JWT_SECRETKEY,algorithms='HS256')
+                user=User()
+                kwargs=user.__dict__
+            except:
+                return func(**kwargs)
+            return redirect('/')
 
+            
+        return decorated
 
     def middleware(self, func):
         @wraps(func)

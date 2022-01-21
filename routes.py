@@ -16,6 +16,7 @@ def loginAuth(**kwargs):
         return render_template('login.html', msg=msg)
 
 @app.get('/login')
+@authToken.noTokenRequired
 def loginPage():
     return render_template('login.html')
 
@@ -116,6 +117,6 @@ def unAuthorizedError(e):
 def forbiddenError(e):
     return render_template('error/401.html'),403
 
-# @app.errorhandler(404)
-# def notFoundError(e):
-#     return render_template('error/400.html'),404
+@app.errorhandler(404)
+def notFoundError(e):
+    return render_template('error/404.html'),404
