@@ -141,6 +141,11 @@ def supplierApiSearch(**kwargs):
 
 
 # Lov Api End Point
+@app.get('/discount_type_lov_api')
+@authToken.middleware
+def discountTypeLovApi(**kwargs):
+    return DiscountTypeController().getLovData()
+
 @app.get('/supplier_lov_api')
 @authToken.middleware
 def supplierLovApi(**kwargs):

@@ -12,6 +12,14 @@ class DiscountTypeController(MasterController):
         self.dataHandler=DataHandlerImpl()
         self.validationHandler=ValidationHandlerImpl()
         self.parameterHandler=ParameterHandlerImpl()
+
+    def getLovData(self):
+        try:
+            data=self.dataHandler.grabLovData()
+            return Response.make(msg='Data found',data=data)
+        except:
+            return Response.make(status=False,msg='Eror while trying to retrieve data' )
+
     def insertNewData(self):
         return self.makeInvalidOperation()
     def updateData(self):
@@ -33,6 +41,10 @@ class DataHandlerImpl(DataHandler):
     def grabOne(self, paramFromRequest):
         return self.Model.query.filter_by(msdt_id=paramFromRequest.get('msdt_id')).first()
 
+    def grabLovData(self):
+        groupOfObjectResult=self.Model.query.filter(self.Model.msdt_active_status=="Y").all()
+        return self.Schema(many=True).dump(groupOfObjectResult)
+        
     def grabTotalRecords(self):
         return db.session.query(func.count(self.Model.msdt_id)).scalar()
 

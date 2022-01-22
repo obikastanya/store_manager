@@ -224,7 +224,7 @@ class AjaxImpl extends Ajax {
             onSuccess: onSuccess,
             onFail: ( err ) => { console.log( err ) }
         }
-        fetch( '/discount_type_api' )
+        fetch( '/discount_type_lov_api' )
             .then( response => response.json() )
             .then( onSuccess )
             .catch( ajaxCallback.onFail )
