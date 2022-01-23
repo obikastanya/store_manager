@@ -2,6 +2,7 @@ import re
 from flask import request
 from sqlalchemy import func
 from .employeeModel import db,Employee,EmployeeSchema
+from ..status_employee.employeeStatusModel import StatusEmployee
 from ..baseMasterController import MasterController, DataHandler, ParameterHandler, ValidationHandler
 from application.utilities.response import Response
 
@@ -39,20 +40,26 @@ class DataHandlerImpl(DataHandler):
         employee.mse_start_working=dataFromRequest.get('mse_start_working')
         employee.mse_end_working=dataFromRequest.get('mse_end_working')
         db.session.commit()
+
+    def getQuerySelect(self):
+        return self.Model.query.join(StatusEmployee)
+
+    def getDefaultFilter(self):
+        return StatusEmployee.msse_active_status=='Y'
     
     def grabLovData(self):
-        groupOfObjectResult=self.Model.query.filter(self.Model.mse_end_working==None).all()
+        groupOfObjectResult=self.getQuerySelect().filter(self.Model.mse_end_working==None, self.getQuerySelect()).all()
         return self.Schema(many=True).dump(groupOfObjectResult)
 
     def grabOne(self, paramFromRequest):
-        return self.Model.query.filter_by(mse_id=paramFromRequest.get('mse_id')).first()
+        return self.self.getQuerySelect().filter(Employee.mse_id==paramFromRequest.get('mse_id')).first()
 
     def grabTotalRecords(self):
-        return db.session.query(func.count(self.Model.mse_id)).scalar()
+        return db.session.query(func.count(self.Model.mse_id)).join(StatusEmployee).scalar()
 
     def grabTotalRecordsFiltered(self, datatableConfig):
         searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
-        return db.session.query(func.count(self.Model.mse_id)).filter(searchKeyWord ).scalar()
+        return db.session.query(func.count(self.Model.mse_id)).join(StatusEmployee).filter(searchKeyWord,self.getDefaultFilter() ).scalar()
 
     def getSearchKeywordStatement(self, datatableConfig):
         return self.Model.mse_name.like("%{}%".format(datatableConfig.get('searchKeyWord')))
