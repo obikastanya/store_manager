@@ -1,3 +1,4 @@
+from email.policy import default
 from flask import request
 from marshmallow.fields import Constant
 from sqlalchemy import func
@@ -6,6 +7,7 @@ from application.master.product.productModel import Product
 from ..baseMasterController import MasterController, DataHandler, ParameterHandler, ValidationHandler
 from ..stock.stockModel import db, Stock, StockSchema
 from ..product.productModel import Product
+from ..category_product.categoryProductModel import CategoryProduct
 
 
 class StockController(MasterController):
@@ -32,29 +34,51 @@ class DataHandlerImpl(DataHandler):
     def grabDataWithKeywordAndOrder(self,datatableConfig):
         orderStatement=self.getOrderStatement(datatableConfig)
         searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
-        groupOfObjectResult=db.session.query(self.Model).join(Product).filter(searchKeyWord).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        defaultFilter=self.getDefaultFilter()
+
+        query=self.getQuerySelect().filter(searchKeyWord,defaultFilter).order_by(orderStatement)
+        groupOfObjectResult=query.offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+
         return self.Schema(many=True).dump(groupOfObjectResult)
 
     
     def grabDataWithKeyword(self,datatableConfig):
         searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
-        groupOfObjectResult=db.session.query(self.Model).join(Product).filter(searchKeyWord).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        defaultFilter=self.getDefaultFilter()
+
+        query=self.getQuerySelect().filter(searchKeyWord, *defaultFilter)
+        groupOfObjectResult=query.offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+
         return self.Schema(many=True).dump(groupOfObjectResult)
     
     def grabDataWithOrderby(self, datatableConfig):
         orderStatement=self.getOrderStatement(datatableConfig)
-        groupOfObjectResult=db.session.query(self.Model).join(Product).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        defaultFilter=self.getDefaultFilter()
+
+        query=self.getQuerySelect().filter(*defaultFilter)
+        groupOfObjectResult=query.order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+
         return self.Schema(many=True).dump(groupOfObjectResult)
+    
+    def getQuerySelect(self):
+        return self.Model.query.join(Product).join(CategoryProduct)
+
+    def getDefaultFilter(self):
+        return (Product.msp_active_status=='Y',CategoryProduct.msc_active_status=='Y')
 
     def grabOne(self, paramFromRequest):
-        return self.Model.query.filter_by(mss_id=paramFromRequest.get('mss_id')).first()
+        return self.Model.query.filter(Stock.mss_id==paramFromRequest.get('mss_id')).first()
 
     def grabTotalRecords(self):
-        return db.session.query(func.count(self.Model.mss_id)).scalar()
+        defaultFilter=self.getDefaultFilter()
+        query=db.session.query(func.count(self.Model.mss_id)).join(Product).join(CategoryProduct).filter(*defaultFilter)
+        return query.scalar()
 
     def grabTotalRecordsFiltered(self, datatableConfig):
         searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
-        return db.session.query(func.count(self.Model.mss_id)).join(Product).filter(searchKeyWord ).scalar()
+        defaultFilter=self.getDefaultFilter()
+        query=db.session.query(func.count(self.Model.mss_id)).join(Product).join(CategoryProduct).filter(searchKeyWord,*defaultFilter )
+        return query.scalar()
 
     def getSearchKeywordStatement(self, datatableConfig):
         return Product.msp_desc.like("%{}%".format(datatableConfig.get('searchKeyWord')))

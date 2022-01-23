@@ -54,7 +54,7 @@ class DataHandlerImpl(DataHandler):
         return self.Schema(many=True).dump(groupOfObjectResult)
 
     def grabOne(self, paramFromRequest):
-        return self.self.getQuerySelect().filter(Employee.mse_id==paramFromRequest.get('mse_id')).first()
+        return self.getQuerySelect().filter(Employee.mse_id==paramFromRequest.get('mse_id')).first()
 
     def grabTotalRecords(self):
         defaultFilter=self.getDefaultFilter()
