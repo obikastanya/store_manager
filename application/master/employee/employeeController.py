@@ -1,3 +1,4 @@
+from email.policy import default
 import re
 from flask import request
 from sqlalchemy import func
@@ -45,21 +46,24 @@ class DataHandlerImpl(DataHandler):
         return self.Model.query.join(StatusEmployee)
 
     def getDefaultFilter(self):
-        return StatusEmployee.msse_active_status=='Y'
+        return (StatusEmployee.msse_active_status=='Y',)
     
     def grabLovData(self):
-        groupOfObjectResult=self.getQuerySelect().filter(self.Model.mse_end_working==None, self.getQuerySelect()).all()
+        defaultFilter=self.getDefaultFilter()
+        groupOfObjectResult=self.getQuerySelect().filter(self.Model.mse_end_working==None, *defaultFilter).all()
         return self.Schema(many=True).dump(groupOfObjectResult)
 
     def grabOne(self, paramFromRequest):
         return self.self.getQuerySelect().filter(Employee.mse_id==paramFromRequest.get('mse_id')).first()
 
     def grabTotalRecords(self):
-        return db.session.query(func.count(self.Model.mse_id)).join(StatusEmployee).scalar()
+        defaultFilter=self.getDefaultFilter()
+        return db.session.query(func.count(self.Model.mse_id)).join(StatusEmployee).filter(*defaultFilter).scalar()
 
     def grabTotalRecordsFiltered(self, datatableConfig):
         searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
-        return db.session.query(func.count(self.Model.mse_id)).join(StatusEmployee).filter(searchKeyWord,self.getDefaultFilter() ).scalar()
+        defaultFilter=self.getDefaultFilter()
+        return db.session.query(func.count(self.Model.mse_id)).join(StatusEmployee).filter(searchKeyWord,*defaultFilter ).scalar()
 
     def getSearchKeywordStatement(self, datatableConfig):
         return self.Model.mse_name.like("%{}%".format(datatableConfig.get('searchKeyWord')))

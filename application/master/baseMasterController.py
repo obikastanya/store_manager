@@ -105,27 +105,27 @@ class DataHandler:
 
     def grabDataDefault(self, datatableConfig):
         defaultFilter=self.getDefaultFilter()
-        groupOfObjectResult=self.getQuerySelect().filter(defaultFilter).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        groupOfObjectResult=self.getQuerySelect().filter(*defaultFilter).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
         return self.Schema(many=True).dump(groupOfObjectResult)
 
     def grabDataWithKeywordAndOrder(self,datatableConfig):
         orderStatement=self.getOrderStatement(datatableConfig)
         searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
         defaultFilter=self.getDefaultFilter()
-        groupOfObjectResult=self.getQuerySelect().filter(searchKeyWord ,defaultFilter ).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        groupOfObjectResult=self.getQuerySelect().filter(searchKeyWord ,*defaultFilter ).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
         return self.Schema(many=True).dump(groupOfObjectResult)
 
     
     def grabDataWithKeyword(self,datatableConfig):
         searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
         defaultFilter=self.getDefaultFilter()
-        groupOfObjectResult=self.getQuerySelect().filter(searchKeyWord , defaultFilter).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        groupOfObjectResult=self.getQuerySelect().filter(searchKeyWord , *defaultFilter).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
         return self.Schema(many=True).dump(groupOfObjectResult)
     
     def grabDataWithOrderby(self, datatableConfig):
         defaultFilter=self.getDefaultFilter()
         orderStatement=self.getOrderStatement(datatableConfig)
-        groupOfObjectResult=self.getQuerySelect().filter(defaultFilter).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        groupOfObjectResult=self.getQuerySelect().filter(*defaultFilter).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
         
         return self.Schema(many=True).dump(groupOfObjectResult)
 
@@ -133,7 +133,7 @@ class DataHandler:
         return self.Model.query
 
     def getDefaultFilter(self):
-        return True
+        return (True,)
 
     def isDataExist(self, queryResult):
         # first check if the array is not empty, then check if its contain empty dictionary

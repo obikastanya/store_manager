@@ -36,25 +36,28 @@ class DataHandlerImpl(DataHandler):
         db.session.commit()
 
     def grabLovData(self):
-        groupOfObjectResult=self.getQuerySelect().filter(self.Model.msd_active_status=='Y',self.getDefaultFilter() ).all()
+        defaultFilter=self.getDefaultFilter()
+        groupOfObjectResult=self.getQuerySelect().filter(self.Model.msd_active_status=='Y',*defaultFilter ).all()
         return self.Schema(many=True).dump(groupOfObjectResult)
 
     def getQuerySelect(self):
         return self.Model.query.join(DiscountType)
 
     def getDefaultFilter(self):
-        return DiscountType.msdt_active_status=='Y'
+        return (DiscountType.msdt_active_status=='Y',)
 
         
     def grabOne(self, paramFromRequest):
         return self.getQuerySelect().filter(self.Model.msd_id==paramFromRequest.get('msd_id')).first()
 
     def grabTotalRecords(self):
-        return db.session.query(func.count(self.Model.msd_id)).join(DiscountType).filter(self.getDefaultFilter()).scalar()
+        defaultFilter=self.getDefaultFilter()
+        return db.session.query(func.count(self.Model.msd_id)).join(DiscountType).filter(*defaultFilter).scalar()
 
     def grabTotalRecordsFiltered(self, datatableConfig):
         searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
-        return db.session.query(func.count(self.Model.msd_id)).join(DiscountType).filter(searchKeyWord,self.getDefaultFilter() ).scalar()
+        defaultFilter=self.getDefaultFilter()
+        return db.session.query(func.count(self.Model.msd_id)).join(DiscountType).filter(searchKeyWord,*defaultFilter ).scalar()
 
     def getSearchKeywordStatement(self, datatableConfig):
         return self.Model.msd_desc.like("%{}%".format(datatableConfig.get('searchKeyWord')))

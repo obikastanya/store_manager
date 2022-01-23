@@ -1,6 +1,9 @@
 from flask import request
 from sqlalchemy import func
 from .productModel import db,Product, ProductSchema
+from ..supplier.supplierModel import Supplier
+from ..category_product.categoryProductModel import CategoryProduct
+from ..company.companyModel import Company
 from ..baseMasterController import MasterController, DataHandler, ParameterHandler, ValidationHandler
 from application.utilities.response import Response
 
@@ -36,19 +39,28 @@ class DataHandlerImpl(DataHandler):
         product.msp_active_status=dataFromRequest.get('msp_active_status')
         db.session.commit()
 
+    def getQuerySelect(self):
+        return self.Model.query.join(CategoryProduct).join(Company).join(Supplier)
+
+    def getDefaultFilter(self):
+        return (CategoryProduct.msc_active_status=='Y', Company.mscp_active_status=='Y', Supplier.mssp_active_status=='Y')
+
     def grabLovData(self):
-        groupOfObjectResult=self.Model.query.filter(self.Model.msp_active_status=='Y').all()
+        groupOfObjectResult=self.getQuerySelect().filter(self.Model.msp_active_status=='Y', *self.getDefaultFilter()).all()
         return self.Schema(many=True).dump(groupOfObjectResult)
 
     def grabOne(self, paramFromRequest):
+
         return self.Model.query.filter_by(msp_id=paramFromRequest.get('msp_id')).first()
 
     def grabTotalRecords(self):
-        return db.session.query(func.count(self.Model.msp_id)).scalar()
+        query=db.session.query(func.count(self.Model.msp_id)).join(CategoryProduct).join(Company).join(Supplier)
+        return query.filter(*self.getDefaultFilter()).scalar()
 
     def grabTotalRecordsFiltered(self, datatableConfig):
         searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
-        return db.session.query(func.count(self.Model.msp_id)).filter(searchKeyWord ).scalar()
+        query=db.session.query(func.count(self.Model.msp_id)).join(CategoryProduct).join(Company).join(Supplier)
+        return query.filter(*(searchKeyWord), *self.getDefaultFilter(), ).scalar()
 
     def getSearchKeywordStatement(self, datatableConfig):
         return self.Model.msp_desc.like("%{}%".format(datatableConfig.get('searchKeyWord')))
