@@ -154,7 +154,7 @@ class DashboardViews {
     setPieChartLabels( rawData ) {
         let labels = ''
         let count = 0
-        let colorList = [ '#4e73df', '#1cc88a', '#36b9cc', '#F6C23E', '#FE777B', '#FF9F40', '#9C8BCD', '#9D5454', '#96CEB4', '#BAFFB4' ]
+        let colorList = [ '#4e73df', '#36b9cc', '#1cc88a', '#F6C23E', '#FE777B', '#FF9F40', '#9C8BCD', '#9D5454', '#96CEB4', '#BAFFB4' ]
         for ( let records of rawData ) {
             labels += `
                 <span class="mr-2">
@@ -171,7 +171,7 @@ class DashboardViews {
         }
         let labels = ''
         let count = 0
-        let colorList = [ '#4e73df', '#1cc88a', '#36b9cc', '#F6C23E', '#FE777B', '#FF9F40', '#9C8BCD', '#9D5454', '#96CEB4', '#BAFFB4' ]
+        let colorList = [ '#4e73df', '#36b9cc', '#1cc88a', '#F6C23E', '#FE777B', '#FF9F40', '#9C8BCD', '#9D5454', '#96CEB4', '#BAFFB4' ]
         for ( let records of rawData ) {
             labels += `
                 <span class="mr-2">
@@ -396,7 +396,7 @@ class PieChart {
     generateDataForChart( rawData ) {
         let dataConfig = {
             data: [],
-            backgroundColor: [ '#4e73df', '#1cc88a', '#36b9cc', '#F6C23E', '#FE777B', '#FF9F40', '#9C8BCD', '#9D5454', '#96CEB4', '#BAFFB4' ],
+            backgroundColor: [ '#4e73df', '#36b9cc', '#1cc88a', '#F6C23E', '#FE777B', '#FF9F40', '#9C8BCD', '#9D5454', '#96CEB4', '#BAFFB4' ],
             hoverBackgroundColor: [ '#2e59d9' ],
             hoverBorderColor: "rgba(234, 236, 244, 1)"
         }
@@ -463,7 +463,7 @@ class DonutChart extends PieChart {
     generateDataForChart( rawData ) {
         let dataConfig = {
             data: [],
-            backgroundColor: [ '#4e73df', '#1cc88a', '#36b9cc', '#F6C23E', '#FE777B', '#FF9F40', '#9C8BCD', '#9D5454', '#96CEB4', '#BAFFB4' ],
+            backgroundColor: [ '#9C8BCD', '#4e73df', '#36b9cc', '#F6C23E', '#FE777B', '#FF9F40', '#96CEB4', '#BAFFB4', '#9D5454', '#1cc88a', ],
             hoverBackgroundColor: [ '#2e59d9' ],
             hoverBorderColor: "rgba(234, 236, 244, 1)"
         }
