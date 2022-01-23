@@ -1,6 +1,7 @@
 from flask import request
 from sqlalchemy import func
 from .discountModel import db,Discount, DiscountSchema
+from ..discount_type.discountTypeModel import DiscountType
 from ..baseMasterController import MasterController, DataHandler, ParameterHandler, ValidationHandler
 from application.utilities.response import Response
 
@@ -35,18 +36,25 @@ class DataHandlerImpl(DataHandler):
         db.session.commit()
 
     def grabLovData(self):
-        groupOfObjectResult=self.Model.query.filter(self.Model.msd_active_status=='Y').all()
+        groupOfObjectResult=self.getQuerySelect().filter(self.Model.msd_active_status=='Y',self.getDefaultFilter() ).all()
         return self.Schema(many=True).dump(groupOfObjectResult)
+
+    def getQuerySelect(self):
+        return self.Model.query.join(DiscountType)
+
+    def getDefaultFilter(self):
+        return DiscountType.msdt_active_status=='Y'
+
         
     def grabOne(self, paramFromRequest):
-        return self.Model.query.filter_by(msd_id=paramFromRequest.get('msd_id')).first()
+        return self.getQuerySelect().filter(self.Model.msd_id==paramFromRequest.get('msd_id')).first()
 
     def grabTotalRecords(self):
-        return db.session.query(func.count(self.Model.msd_id)).scalar()
+        return db.session.query(func.count(self.Model.msd_id)).join(DiscountType).filter(self.getDefaultFilter()).scalar()
 
     def grabTotalRecordsFiltered(self, datatableConfig):
         searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
-        return db.session.query(func.count(self.Model.msd_id)).filter(searchKeyWord ).scalar()
+        return db.session.query(func.count(self.Model.msd_id)).join(DiscountType).filter(searchKeyWord,self.getDefaultFilter() ).scalar()
 
     def getSearchKeywordStatement(self, datatableConfig):
         return self.Model.msd_desc.like("%{}%".format(datatableConfig.get('searchKeyWord')))
@@ -169,6 +177,7 @@ class ValidationHandlerImpl(ValidationHandler):
         if not self.isNumber(dataFromRequest.get('msd_msdt_id')):
             return False
         return True
+
     def isDiscountIdValid(self,dataFromRequest):
         if not dataFromRequest.get('msd_id'):
             return False
@@ -184,6 +193,7 @@ class ValidationHandlerImpl(ValidationHandler):
         if len(dataFromRequest.get('msd_desc'))>200:
             return False
         return True
+
     def isDiscountNominalValid(self,dataFromRequest):
         if not dataFromRequest.get('msd_nominal'):
             return False
@@ -192,6 +202,7 @@ class ValidationHandlerImpl(ValidationHandler):
         if int(dataFromRequest.get('msd_nominal'))<1:
             return False
         return True
+
     def isNumber(self,value):
         # try to parse data to numeric, if work, 
         # then the data is a number.
@@ -200,6 +211,7 @@ class ValidationHandlerImpl(ValidationHandler):
         except:
             return False
         return True
+        
     def isValidActiveStatus(self,dataFromRequest):
         if dataFromRequest.get('msd_active_status') not in ['Y','N']:
             return False

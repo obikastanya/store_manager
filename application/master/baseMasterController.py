@@ -50,16 +50,16 @@ class MasterController:
             return Response.statusAndMsg(False,'Data failed to removed' )
 
     def searchSingleData(self):
-        try:
-            paramFromRequest=self.parameterHandler.getIdFromRequest()
-            if not self.validationHandler.isParamSearchValid(paramFromRequest):
-                return Response.make(False,'Data ID is not valid, process has been canceled' )
-            singleData=self.dataHandler.grabSingleData(paramFromRequest)
-            if not self.dataHandler.isDataExist(singleData):
-                return Response.make(False,'Data is not found' )
-            return Response.make(msg='Data Found', data=singleData)
-        except:
-            return Response.make(False,'Cant find data' )
+        # try:
+        paramFromRequest=self.parameterHandler.getIdFromRequest()
+        if not self.validationHandler.isParamSearchValid(paramFromRequest):
+            return Response.make(False,'Data ID is not valid, process has been canceled' )
+        singleData=self.dataHandler.grabSingleData(paramFromRequest)
+        if not self.dataHandler.isDataExist(singleData):
+            return Response.make(False,'Data is not found' )
+        return Response.make(msg='Data Found', data=singleData)
+        # except:
+        #     return Response.make(False,'Cant find data' )
 
 
 
@@ -104,26 +104,36 @@ class DataHandler:
         return listData,totalRecords, totalRecordsFiltered
 
     def grabDataDefault(self, datatableConfig):
-        groupOfObjectResult=self.Model.query.offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        defaultFilter=self.getDefaultFilter()
+        groupOfObjectResult=self.getQuerySelect().filter(defaultFilter).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
         return self.Schema(many=True).dump(groupOfObjectResult)
 
     def grabDataWithKeywordAndOrder(self,datatableConfig):
         orderStatement=self.getOrderStatement(datatableConfig)
         searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
-        groupOfObjectResult=self.Model.query.filter(searchKeyWord).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        defaultFilter=self.getDefaultFilter()
+        groupOfObjectResult=self.getQuerySelect().filter(searchKeyWord ,defaultFilter ).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
         return self.Schema(many=True).dump(groupOfObjectResult)
 
     
     def grabDataWithKeyword(self,datatableConfig):
         searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
-        groupOfObjectResult=self.Model.query.filter(searchKeyWord).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        defaultFilter=self.getDefaultFilter()
+        groupOfObjectResult=self.getQuerySelect().filter(searchKeyWord , defaultFilter).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
         return self.Schema(many=True).dump(groupOfObjectResult)
     
     def grabDataWithOrderby(self, datatableConfig):
+        defaultFilter=self.getDefaultFilter()
         orderStatement=self.getOrderStatement(datatableConfig)
-        groupOfObjectResult=self.Model.query.order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        groupOfObjectResult=self.getQuerySelect().filter(defaultFilter).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
         
         return self.Schema(many=True).dump(groupOfObjectResult)
+
+    def getQuerySelect(self):
+        return self.Model.query
+
+    def getDefaultFilter(self):
+        return True
 
     def isDataExist(self, queryResult):
         # first check if the array is not empty, then check if its contain empty dictionary
