@@ -1,6 +1,8 @@
 from flask import request
 from flask_sqlalchemy.model import Model
 from sqlalchemy import func
+
+from application.master.category_product.categoryProductModel import CategoryProduct
 from ..master.baseMasterController import MasterController, DataHandler, ParameterHandler, ValidationHandler
 from .manageDiscountModel import db, ManageDiscount, ManageDiscountSchema
 from ..master.product.productModel import Product
@@ -32,36 +34,65 @@ class DataHandlerImpl(DataHandler):
             'da_active_status')
         db.session.commit()
 
+    def getQuerySelect(self):
+        return self.Model.query.join(Product).join(Discount).join(DiscountType).join(CategoryProduct)
+
+    def getDefaultFilter(self):
+        return (
+            Product.msp_active_status=='Y',
+            Discount.msd_active_status=='Y',
+            DiscountType.msdt_active_status=='Y', 
+            CategoryProduct.msc_active_status=='Y',
+            )
+
     def grabDataWithKeywordAndOrder(self,datatableConfig):
         orderStatement=self.getOrderStatement(datatableConfig)
         searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
-        groupOfObjectResult=db.session.query(self.Model).join(Product).join(Discount).join(DiscountType).filter(searchKeyWord).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        defaultFilter=self.getDefaultFilter()
+        query=self.getQuerySelect().filter(searchKeyWord,*defaultFilter).order_by(orderStatement)
+
+        groupOfObjectResult=query.offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
         return self.Schema(many=True).dump(groupOfObjectResult)
 
     
     def grabDataWithKeyword(self,datatableConfig):
         searchKeyWord=self.getSearchKeywordStatement(datatableConfig)
-        groupOfObjectResult=db.session.query(self.Model).join(Product).filter(searchKeyWord).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        defaultFilter=self.getDefaultFilter()
+        query=self.getQuerySelect().filter(searchKeyWord,*defaultFilter)
+
+        groupOfObjectResult=query.offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+
         return self.Schema(many=True).dump(groupOfObjectResult)
     
     def grabDataWithOrderby(self, datatableConfig):
         orderStatement=self.getOrderStatement(datatableConfig)
-        groupOfObjectResult=db.session.query(self.Model).join(Product).join(Discount).join(DiscountType).order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
+        defaultFilter=self.getDefaultFilter()
+        query=self.getQuerySelect().filter(*defaultFilter)
+
+        groupOfObjectResult=query.order_by(orderStatement).offset(datatableConfig.get('offset')).limit(datatableConfig.get('limit')).all()
         return self.Schema(many=True).dump(groupOfObjectResult)
 
     def grabOne(self, paramFromRequest):
-        return self.Model.query.filter(
-            (self.Model.da_msp_id == paramFromRequest.get('da_msp_id'))
-            & (self.Model.da_msd_id == paramFromRequest.get('da_msd_id'))
-        ).first()
+        defaultFilter=self.getDefaultFilter()
+        query=self.getQuerySelect().filter(
+            self.Model.da_msp_id == paramFromRequest.get('da_msp_id'),
+            self.Model.da_msd_id == paramFromRequest.get('da_msd_id'),
+            *defaultFilter
+            )
+        return query.first()
 
     def grabTotalRecords(self):
-        return db.session.query(func.count(self.Model.da_msp_id)).scalar()
+        query=db.session.query(func.count(self.Model.da_msp_id)).join(Product).join(Discount).join(DiscountType).join(CategoryProduct)
+        defaultFilter=self.getDefaultFilter()
+        return query.filter(*defaultFilter).scalar()
 
     def grabTotalRecordsFiltered(self, datatableConfig):
         searchKeyWord = self.getSearchKeywordStatement(datatableConfig)
-        return db.session.query(func.count(
-            self.Model.da_msp_id)).filter(searchKeyWord).scalar()
+        defaultFilter=self.getDefaultFilter()
+        query=db.session.query(func.count(self.Model.da_msp_id)).join(Product).join(Discount).join(DiscountType).join(CategoryProduct)
+        query=query.filter(searchKeyWord, *defaultFilter)
+
+        return query.scalar()
 
     def getSearchKeywordStatement(self, datatableConfig):
         return Product.msp_desc.like("%{}%".format(
