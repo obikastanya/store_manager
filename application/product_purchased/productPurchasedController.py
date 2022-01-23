@@ -168,63 +168,42 @@ class DataHandler:
         orderStatement=None
         columnToOrder=datatableConfig.get('orderBy')
         orderDirection=datatableConfig.get('orderDirection')
-        if columnToOrder=='th_id':
+        if columnToOrder=='tp_id':
             orderStatement=self.getOrderByTransactionHeadId(orderDirection)
-        if columnToOrder=='th_date':
+        if columnToOrder=='tp_date':
             orderStatement=self.getOrderByTransactionDate(orderDirection)
-        if columnToOrder=='th_mse_id':
-            orderStatement=self.getOrderByCashier(orderDirection)
-        if columnToOrder=='th_mspm_id':
+        if columnToOrder=='tp_mspm_id':
             orderStatement=self.getOrderByPaymentMethod(orderDirection)
-        if columnToOrder=='th_total_price':
-            orderStatement=self.getOrderByTotalPrice(orderDirection)
-        if columnToOrder=='th_tax':
-            orderStatement=self.getOrderByTax(orderDirection)
-        if columnToOrder=='th_paid':
-            orderStatement=self.getOrderByPaid(orderDirection)
-        if columnToOrder=='th_change':
-            orderStatement=self.getOrderByChange(orderDirection)
+        if columnToOrder=='tp_nominal':
+            orderStatement=self.getOrderByNominal(orderDirection)
+        if columnToOrder=='tp_mssp_id':
+            orderStatement=self.getOrderBySupplier(orderDirection)
         return orderStatement
 
     def getOrderByTransactionHeadId(self,orderDirection):
         if orderDirection=='desc':
-            return SoldTransactionHead.th_id.desc()
-        return SoldTransactionHead.th_id.asc()
+            return PurchasedTransactionHead.tp_id.desc()
+        return PurchasedTransactionHead.tp_id.asc()
 
     def getOrderByTransactionDate(self, orderDirection):
         if orderDirection=='desc':
-            return SoldTransactionHead.th_date.desc()
-        return SoldTransactionHead.th_date.asc()
-
-    def getOrderByCashier(self, orderDirection):
-        if orderDirection=='desc':
-            return Employee.mse_name.desc()
-        return Employee.mse_name.asc()
+            return PurchasedTransactionHead.tp_date.desc()
+        return PurchasedTransactionHead.tp_date.asc()
 
     def getOrderByPaymentMethod(self, orderDirection):
         if orderDirection=='desc':
             return PaymentMethod.mspm_desc.desc()
         return PaymentMethod.mspm_desc.asc()
 
-    def getOrderByTotalPrice(self,orderDirection):
+    def getOrderByNominal(self,orderDirection):
         if orderDirection=='desc':
-            return SoldTransactionHead.th_total_price.desc()
-        return SoldTransactionHead.th_total_price.asc()
+            return PurchasedTransactionHead.tp_nominal.desc()
+        return PurchasedTransactionHead.tp_nominal.asc()
 
-    def getOrderByTax(self, orderDirection):
+    def getOrderBySupplier(self,orderDirection):
         if orderDirection=='desc':
-            return SoldTransactionHead.th_tax.desc()
-        return SoldTransactionHead.th_tax.asc()
-
-    def getOrderByPaid(self, orderDirection):
-        if orderDirection=='desc':
-            return SoldTransactionHead.th_paid.desc()
-        return SoldTransactionHead.th_paid.asc()
-
-    def getOrderByChange(self,orderDirection):
-        if orderDirection=='desc':
-            return SoldTransactionHead.th_change.desc()
-        return SoldTransactionHead.th_change.asc()
+            return Supplier.mssp_desc.desc()
+        return Supplier.mssp_desc.asc()
 
     def isDataExist(self, queryResult):
         # first check if the array is not empty, then check if its contain empty dictionary
@@ -250,22 +229,16 @@ class ParameterHandler:
     def getOrderColumnName(self):
         orderColumnIndex=request.args.get('order[0][column]','')
         orderColumnName=request.args.get('columns[%s][name]'%orderColumnIndex,'')
-        if orderColumnName=='transaction_id':
-            return 'th_id'
-        if orderColumnName=='transaction_date':
-            return 'th_date'
-        if orderColumnName=='employee_transaction':
-            return 'th_mse_id'
+        if orderColumnName=='transaction_purchased_id':
+            return 'tp_id'
+        if orderColumnName=='purchasing_date':
+            return 'tp_date'
         if orderColumnName=='payment_method':
-            return 'th_mspm_id'
-        if orderColumnName=='total_price':
-            return 'th_total_price'
-        if orderColumnName=='tax':
-            return 'th_tax'
-        if orderColumnName=='paid':
-            return 'th_paid'
-        if orderColumnName=='change':
-            return 'th_change'
+            return 'tp_mspm_id'
+        if orderColumnName=='nominal':
+            return 'tp_nominal'
+        if orderColumnName=='supplier':
+            return 'tp_mssp_id'
         return None
 
 

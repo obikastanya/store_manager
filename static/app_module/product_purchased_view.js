@@ -94,7 +94,7 @@ class DatatableProductPurchasedImpl extends BaseDatatable {
             serverSide: true,
             columns: this.tableColumns,
             columnDefs: this.columnName,
-            order: [ [ 1, 'asc' ] ],
+            order: [ [ 1, 'desc' ] ],
             dom: this.toolbarDomConfig.top + this.toolbarDomConfig.table + this.toolbarDomConfig.bottom,
             fnInitComplete: () => {
                 //Set button create new data for toolbar
@@ -151,7 +151,6 @@ class DatatableProductPurchasedImpl extends BaseDatatable {
 
             newRowData.sub_total = currentRowData.price * newQuantity
             newRowData.quantity = new FormDataImpl().getQuantityTemplate( newRowData, newQuantity )
-            console.log( newRowData )
             table.row( $( this ).parents( 'tr' ) ).data( newRowData ).invalidate().draw()
         } )
     }

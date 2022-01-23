@@ -109,7 +109,7 @@ class DatatableProductSoldImpl extends BaseDatatable {
             serverSide: true,
             columns: this.tableColumns,
             columnDefs: this.columnName,
-            order: [ [ 1, 'asc' ] ],
+            order: [ [ 1, 'desc' ] ],
             dom: this.toolbarDomConfig.top + this.toolbarDomConfig.table + this.toolbarDomConfig.bottom,
             fnInitComplete: () => {
                 //Set button create new data for toolbar
