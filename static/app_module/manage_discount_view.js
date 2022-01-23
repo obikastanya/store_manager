@@ -375,7 +375,6 @@ class FormValidationImpl extends FormValidation {
     }
     validateInsertParams( insertParams ) {
         const validIdProduct = this.validateIdProduct( insertParams )
-        console.log( 'p', validIdProduct )
         const validIdDiscount = this.validateIdDiscount( insertParams )
         const validStartDate = this.validateStartDate( insertParams )
         const validExpiredDate = this.validateExpiredDate( insertParams )

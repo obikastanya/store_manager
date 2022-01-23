@@ -331,11 +331,9 @@ class FormDataImpl extends FormData {
             company: get( '#companyUpdateFields' ),
             active_status: this.getActiveStatusValue( '#activeStatusFields' )
         }
-        console.log( 'upd params', formValues )
         return formValues
     }
     setUpdateFormValues( recordValues ) {
-        console.log( recordValues )
         const get = ( id ) => {
             return document.querySelector( id )
         }

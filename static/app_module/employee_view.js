@@ -410,7 +410,6 @@ class FormValidationImpl extends FormValidation {
         return this.validateResult( 'Data is valid', true )
     }
     validateAddress( formData ) {
-        console.log( formData )
         if ( !formData.address ) {
             return this.validateResult( 'Address is empty' )
         }

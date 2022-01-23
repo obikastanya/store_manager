@@ -85,7 +85,6 @@ class ButtonEventImpl extends ButtonEvent {
     }
     saveUpdatedData() {
         const updateParams = new FormDataImpl().getUpdateFormValues()
-        console.log( updateParams )
         const validationResult = new FormValidationImpl().validateUpdateParams( updateParams )
         if ( !validationResult.isValid ) {
             new Alert().showWarning( validationResult.message )

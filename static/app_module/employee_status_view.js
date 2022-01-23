@@ -297,7 +297,6 @@ class ModalFormImpl extends ModalForm {
         super()
     }
     setDeleteConfirmMessage( formValues ) {
-        console.log( formValues )
         const confirmMessage = `Area you sure to delete ${ formValues.employee_status_id } - ${ formValues.employee_status } ?`
         document.getElementById( 'delete_confirm_massage_id' ).innerHTML = confirmMessage
         document.getElementById( 'delete_confirm_massage_id' ).value = formValues.employee_status_id

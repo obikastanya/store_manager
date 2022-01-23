@@ -127,7 +127,6 @@ class AjaxImpl extends Ajax {
     getSingleData( recordId ) {
         const payload = this.createPayload( 'POST', { 'company_id': recordId } )
         const onSuccess = ( response ) => {
-            console.log( response )
             if ( !response.data.length ) new Alert().failedAjax( response.msg );
             let recordValues = response.data[ 0 ]
 

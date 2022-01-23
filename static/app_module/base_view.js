@@ -137,7 +137,6 @@ class ModalForm extends ButtonSelector {
         document.querySelector( buttonSelector ).setAttribute( 'disabled', '' )
     }
     enableFormButton( buttonSelector ) {
-        console.log( buttonSelector )
         document.querySelector( buttonSelector ).removeAttribute( 'disabled' )
     }
     setDeleteConfirmMessage( formValues ) { }
