@@ -29,5 +29,5 @@ class ManageDiscountSchema(Schema):
     discount_product = fields.Nested("ProductSchema",
                                      only=('msp_id', 'msp_desc'))
     discount_master = fields.Nested('DiscountSchema',
-                                    only=('msd_id', 'msd_desc','msd_nominal',
+                                    only=('msd_id', 'msd_desc','msd_nominal','msd_active_status',
                                           'discount_type'))

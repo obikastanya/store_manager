@@ -304,6 +304,7 @@ class ButtonEventImpl extends ButtonEvent {
 
         let allDiscountApplied = []
         for ( let discount of discountApplieds.discount_applied_on_product ) {
+            if ( !new FormDataImpl().isDiscountStillAlive( discount ) ) continue;
             let discountAppliedOnProduct = {
                 discount_id: discount.discount_master.discount_id,
                 discount_type_id: discount.discount_master.discount_type.discount_type_id,
@@ -482,11 +483,20 @@ class FormDataImpl extends FormData {
         let discountNominal = 0
 
         for ( const discount of discountAppliedOnProduct ) {
+            if ( !new FormDataImpl().isDiscountStillAlive( discount ) ) continue;
             discountMaster.push( discount.discount_master.desc )
             discountNominal += discount.discount_master.discount_nominal
         }
 
         return { discount_master: discountMaster.join( ", " ), discount_nominal: discountNominal }
+    }
+    isDiscountStillAlive( discountApplied ) {
+        if ( !discountApplied.active_status == "N" ) return false; // discount applied in active
+
+        if ( new Date() > new Date( discountApplied.expired_date ) ) return false; //expired discount
+        if ( discountApplied.discount_master.active_status == "N" ) return false; // discount master in active
+        if ( discountApplied.discount_master.discount_type == "N" ) return false; // discount type master in active
+        return true
     }
     getQuantityTemplate( productRecord, defaultQuantity = 1 ) {
         let inputQuantity = `<div ><input id='input_for_quantity_' type="number" class="form-control text-center quantityFields" value=${ defaultQuantity }></div>`

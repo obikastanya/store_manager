@@ -30,4 +30,4 @@ class DiscountSchema(Schema):
     msd_nominal = fields.Int(data_key='discount_nominal')
     msd_active_status = fields.Str(data_key='active_status')
     discount_type = fields.Nested('DiscountTypeSchema',
-                                  only=('msdt_id', 'msdt_desc'))
+                                  only=('msdt_id', 'msdt_desc','msdt_active_status'))
